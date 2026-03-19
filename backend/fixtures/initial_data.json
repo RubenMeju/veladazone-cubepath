@@ -1,0 +1,1359 @@
+[
+  {
+    "model": "fighters.edition",
+    "pk": 1,
+    "fields": {
+      "number": 1,
+      "year": 2021,
+      "date": "2021-05-26",
+      "venue": "Sala Bikini",
+      "city": "Barcelona"
+    }
+  },
+  {
+    "model": "fighters.edition",
+    "pk": 2,
+    "fields": {
+      "number": 2,
+      "year": 2022,
+      "date": "2022-06-25",
+      "venue": "Pabellón Olímpico de Badalona",
+      "city": "Badalona"
+    }
+  },
+  {
+    "model": "fighters.edition",
+    "pk": 3,
+    "fields": {
+      "number": 3,
+      "year": 2023,
+      "date": "2023-07-01",
+      "venue": "Estadio Cívitas Metropolitano",
+      "city": "Madrid"
+    }
+  },
+  {
+    "model": "fighters.edition",
+    "pk": 4,
+    "fields": {
+      "number": 4,
+      "year": 2024,
+      "date": "2024-07-13",
+      "venue": "Estadio Santiago Bernabéu",
+      "city": "Madrid"
+    }
+  },
+  {
+    "model": "fighters.edition",
+    "pk": 5,
+    "fields": {
+      "number": 5,
+      "year": 2025,
+      "date": "2025-07-26",
+      "venue": "Estadio La Cartuja",
+      "city": "Sevilla"
+    }
+  },
+  {
+    "model": "fighters.edition",
+    "pk": 6,
+    "fields": {
+      "number": 6,
+      "year": 2026,
+      "date": "2026-07-25",
+      "venue": "Estadio La Cartuja",
+      "city": "Sevilla"
+    }
+  },
+
+  {
+    "model": "fighters.fighter",
+    "pk": 1,
+    "fields": {
+      "name": "Torete",
+      "slug": "torete",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "toreteee_",
+      "twitch": null,
+      "bio": "Ganador del primer combate de la historia de La Velada."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 2,
+    "fields": {
+      "name": "Future",
+      "slug": "future",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "FutureYT",
+      "twitch": "futureyoutube",
+      "bio": "Youtuber español participante en la primera edición."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 3,
+    "fields": {
+      "name": "Mister Jagger",
+      "slug": "mister-jagger",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "MisterJagger_",
+      "twitch": "misterjagger",
+      "bio": "Invicto en La Velada. Venció a ViruZz y a David Bustamante."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 4,
+    "fields": {
+      "name": "ViruZz",
+      "slug": "viruzz",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "byViruZz",
+      "twitch": "byviruzz",
+      "bio": "Tricampeón de La Velada. El único con tres victorias consecutivas. Regresa a la Velada 6."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 5,
+    "fields": {
+      "name": "Reven",
+      "slug": "reven",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "Reven",
+      "twitch": "reven",
+      "bio": "Ganador del tercer combate de la Velada 1."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 6,
+    "fields": {
+      "name": "ElMillor",
+      "slug": "elmillor",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "ElMillorYT",
+      "twitch": "elmillor",
+      "bio": "Participante de la primera edición. El origen de La Velada."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 7,
+    "fields": {
+      "name": "Spursito",
+      "slug": "spursito",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "Spursito",
+      "twitch": "spursito",
+      "bio": "Ganador del primer combate masculino de la Velada 2."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 8,
+    "fields": {
+      "name": "Carola",
+      "slug": "carola",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "carolaGG",
+      "twitch": "carola",
+      "bio": "Primera mujer en subir al ring de La Velada."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 9,
+    "fields": {
+      "name": "AriGameplays",
+      "slug": "arigameplays",
+      "country": "México",
+      "country_flag": "🇲🇽",
+      "twitter": "AriGameplays",
+      "twitch": "arigameplays",
+      "bio": "Ganadora del primer combate femenino de La Velada. Streamer mexicana."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 10,
+    "fields": {
+      "name": "Paracetamor",
+      "slug": "paracetamor",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "Paracetamor",
+      "twitch": "paracetamor",
+      "bio": "Participante de la Velada 2."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 11,
+    "fields": {
+      "name": "Momo",
+      "slug": "momo",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "MomoYoutube",
+      "twitch": "momo",
+      "bio": "Participante de la Velada 2. Cayó ante ViruZz."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 12,
+    "fields": {
+      "name": "Luzu",
+      "slug": "luzu",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "LuzuVlogs",
+      "twitch": "luzu",
+      "bio": "Perdió en la Velada 2 y 3. Reto pendiente de revancha."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 13,
+    "fields": {
+      "name": "Lolito FDEZ",
+      "slug": "lolito-fdez",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "lolitofdez",
+      "twitch": "lolitofdez",
+      "bio": "Venció a Luzu en la Velada 2. Ganó por lesión del rival."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 14,
+    "fields": {
+      "name": "David Bustamante",
+      "slug": "bustamante",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "bustamante",
+      "twitch": null,
+      "bio": "El cantante español que se enfrentó a Mister Jagger en la Velada 2."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 15,
+    "fields": {
+      "name": "Abraham Mateo",
+      "slug": "abraham-mateo",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "AbrahamMateo",
+      "twitch": null,
+      "bio": "Cantante español. Sorpresa de la Velada 3. Venció a Ampeter en sustitución de Papi Gavi."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 16,
+    "fields": {
+      "name": "Ampeter",
+      "slug": "ampeter",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "Ampeter",
+      "twitch": "ampeter",
+      "bio": "Participante de la Velada 3. Cayó ante la sorpresa de Abraham Mateo."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 17,
+    "fields": {
+      "name": "Marina Rivers",
+      "slug": "marina-rivers",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "MarinaRivers",
+      "twitch": "marinariversx",
+      "bio": "Ganadora de la Velada 3 en dos combates. Streamer española."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 18,
+    "fields": {
+      "name": "Samy Rivers",
+      "slug": "samy-rivers",
+      "country": "México",
+      "country_flag": "🇲🇽",
+      "twitter": "SamyRiversOf",
+      "twitch": "samyrivers",
+      "bio": "Streamer mexicana. Participante en Velada 3. Vuelve en la Velada 6 con revancha pendiente."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 19,
+    "fields": {
+      "name": "Fernanfloo",
+      "slug": "fernanfloo",
+      "country": "El Salvador",
+      "country_flag": "🇸🇻",
+      "twitter": "fernanfloo",
+      "twitch": "fernanfloo",
+      "bio": "Leyenda del streaming hispano. Venció a Luzu en la Velada 3. Regresa en la Velada 6."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 20,
+    "fields": {
+      "name": "Shelao",
+      "slug": "shelao",
+      "country": "Chile",
+      "country_flag": "🇨🇱",
+      "twitter": "Shelao",
+      "twitch": "shelao",
+      "bio": "Streamer chileno. Participó en Veladas 3 y 4. Perdió en ambas ocasiones."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 21,
+    "fields": {
+      "name": "Coscu",
+      "slug": "coscu",
+      "country": "Argentina",
+      "country_flag": "🇦🇷",
+      "twitter": "Coscu",
+      "twitch": "coscu",
+      "bio": "Streamer argentino. KO en la Velada 3 a Germán Garmendia. Uno de los mejores momentos."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 22,
+    "fields": {
+      "name": "Germán Garmendia",
+      "slug": "german-garmendia",
+      "country": "Chile",
+      "country_flag": "🇨🇱",
+      "twitter": "HolaSoyGerman",
+      "twitch": null,
+      "bio": "Youtuber más famoso de habla hispana. Participó en la Velada 3."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 23,
+    "fields": {
+      "name": "Agustín51",
+      "slug": "agustin51",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "ImAgus51",
+      "twitch": "agustin51",
+      "bio": "Ganó el primer combate de la Velada 4 por decisión unánime."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 24,
+    "fields": {
+      "name": "Carreraaa",
+      "slug": "carreraaa",
+      "country": "Argentina",
+      "country_flag": "🇦🇷",
+      "twitter": "Carreraaa",
+      "twitch": "carreraaa",
+      "bio": "Streamer argentino. Participó en la Velada 4."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 25,
+    "fields": {
+      "name": "La Cobra",
+      "slug": "la-cobra",
+      "country": "Argentina",
+      "country_flag": "🇦🇷",
+      "twitter": "LautaroDelCampo",
+      "twitch": "lacobra",
+      "bio": "Ganó a Guanyar en la Velada 4 por TKO tras lesión del rival."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 26,
+    "fields": {
+      "name": "Guanyar",
+      "slug": "guanyar",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "Guanyar",
+      "twitch": "guanyar",
+      "bio": "Se dislocó el hombro en la Velada 4 pero aguantó hasta que el árbitro paró."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 27,
+    "fields": {
+      "name": "Alana Flores",
+      "slug": "alana-flores",
+      "country": "México",
+      "country_flag": "🇲🇽",
+      "twitter": "alanafloresf",
+      "twitch": "alanaflores",
+      "bio": "Tricampeona invicta de La Velada. Presidenta de Raniza FC en la Kings League Américas."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 28,
+    "fields": {
+      "name": "Amablitz",
+      "slug": "amablitz",
+      "country": "México",
+      "country_flag": "🇲🇽",
+      "twitter": "AmaBlitz",
+      "twitch": "amablitz",
+      "bio": "Ganó junto a Alana el 2vs2 de la Velada 4. Hermana de AriGameplays."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 29,
+    "fields": {
+      "name": "Zeling",
+      "slug": "zeling",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "Zelingx",
+      "twitch": "zeling",
+      "bio": "Streamer española. Perdió en el 2vs2 de la Velada 4."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 30,
+    "fields": {
+      "name": "Nissaxter",
+      "slug": "nissaxter",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "Nissaxter",
+      "twitch": "nissaxter",
+      "bio": "Participó en el 2vs2 de la Velada 4 junto a Zeling."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 31,
+    "fields": {
+      "name": "Karchez",
+      "slug": "karchez",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "Karchezzz",
+      "twitch": "karchez",
+      "bio": "Ganó el Rey de la Pista de la Velada 4. El formato más caótico de la historia."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 32,
+    "fields": {
+      "name": "YoSoyPlex",
+      "slug": "yosoyplex",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "yosoyplex",
+      "twitch": "yosoyplex",
+      "bio": "Ganó el main event de la Velada 4 contra El Mariana en round extra. Regresa en la Velada 6."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 33,
+    "fields": {
+      "name": "El Mariana",
+      "slug": "el-mariana",
+      "country": "México",
+      "country_flag": "🇲🇽",
+      "twitter": "ElMariana",
+      "twitch": "elmariana",
+      "bio": "Streamer mexicano. Perdió el main event de la Velada 4 en round extra."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 34,
+    "fields": {
+      "name": "Peereira7",
+      "slug": "peereira7",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "Peereira7",
+      "twitch": "peereira7",
+      "bio": "Ganó el primer combate de la Velada 5 por decisión unánime."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 35,
+    "fields": {
+      "name": "Rivaldios",
+      "slug": "rivaldios",
+      "country": "México",
+      "country_flag": "🇲🇽",
+      "twitter": "Rivaldios",
+      "twitch": "rivaldios",
+      "bio": "Streamer mexicano. Participó en la Velada 5."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 36,
+    "fields": {
+      "name": "Ari Geli",
+      "slug": "ari-geli",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "arigelii",
+      "twitch": "arigeli",
+      "bio": "Estuvo cerca de ganar en la Velada 5. Perdió por decisión dividida ante Alana."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 37,
+    "fields": {
+      "name": "Perxitaa",
+      "slug": "perxitaa",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "perxitaa",
+      "twitch": "perxitaa",
+      "bio": "MVP de la Velada 5. KO técnico más rápido de la noche contra Gaspi."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 38,
+    "fields": {
+      "name": "Gaspi",
+      "slug": "gaspi",
+      "country": "Argentina",
+      "country_flag": "🇦🇷",
+      "twitter": "GaspiOk",
+      "twitch": "gaspi",
+      "bio": "Streamer argentino. Participó en la Velada 5."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 39,
+    "fields": {
+      "name": "Abby",
+      "slug": "abby",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "AbbyOMG_",
+      "twitch": "abbyomg",
+      "bio": "Ganó a Roro en la Velada 5 por decisión dividida entre polémica del público."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 40,
+    "fields": {
+      "name": "Roro",
+      "slug": "roro",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "roroluengo",
+      "twitch": "roro",
+      "bio": "Influencer española muy querida. Perdió ante Abby en la Velada 5. Regresa en la Velada 6."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 41,
+    "fields": {
+      "name": "Tomás Mazza",
+      "slug": "tomas-mazza",
+      "country": "Argentina",
+      "country_flag": "🇦🇷",
+      "twitter": "TomasMazza",
+      "twitch": "tomasmazza",
+      "bio": "Streamer argentino. Muchos creyeron que había ganado a ViruZz en la Velada 5."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 42,
+    "fields": {
+      "name": "Andoni",
+      "slug": "andoni",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "andonilopez",
+      "twitch": "andoni",
+      "bio": "Bodybuilder español. Aplastó a Carlos Belcast en la Velada 5 con 20 kg de ventaja."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 43,
+    "fields": {
+      "name": "Carlos Belcast",
+      "slug": "carlos-belcast",
+      "country": "México",
+      "country_flag": "🇲🇽",
+      "twitter": "CarlosBelcast",
+      "twitch": "carlosbelcast",
+      "bio": "Streamer mexicano. Participó en la Velada 5 ante Andoni."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 44,
+    "fields": {
+      "name": "TheGrefg",
+      "slug": "thegrefg",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "TheGrefg",
+      "twitch": "thegrefg",
+      "bio": "Tricampeón de La Velada. Siempre gana. Fundador de Team Heretics. Combate estelar Velada 6."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 45,
+    "fields": {
+      "name": "WestCOL",
+      "slug": "westcol",
+      "country": "Colombia",
+      "country_flag": "🇨🇴",
+      "twitter": "westcol",
+      "twitch": "westcol",
+      "bio": "Streamer colombiano. Perdió ante TheGrefg por KO técnico en la Velada 5."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 46,
+    "fields": {
+      "name": "IlloJuan",
+      "slug": "illojuan",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "illojuann",
+      "twitch": "illojuan",
+      "bio": "Uno de los streamers más grandes de España. Combate estelar de la Velada 6 contra TheGrefg."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 47,
+    "fields": {
+      "name": "Plex",
+      "slug": "plex",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "yosoyplex",
+      "twitch": "yosoyplex",
+      "bio": "Campeón de la Velada 4. Regresa en la Velada 6 contra Fernanfloo."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 48,
+    "fields": {
+      "name": "Gero Arias",
+      "slug": "gero-arias",
+      "country": "Argentina",
+      "country_flag": "🇦🇷",
+      "twitter": "GeroArias",
+      "twitch": "geroarias",
+      "bio": "Streamer argentino. Debuta en La Velada 6 contra ViruZz."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 49,
+    "fields": {
+      "name": "Lit Killah",
+      "slug": "lit-killah",
+      "country": "Argentina",
+      "country_flag": "🇦🇷",
+      "twitter": "LitKillah",
+      "twitch": null,
+      "bio": "Artista y streamer argentino. Debuta en La Velada 6 contra Kidd Keo."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 50,
+    "fields": {
+      "name": "Kidd Keo",
+      "slug": "kidd-keo",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "KiddKeo",
+      "twitch": null,
+      "bio": "Artista español. Debuta en La Velada 6 contra Lit Killah."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 51,
+    "fields": {
+      "name": "Marta Díaz",
+      "slug": "marta-diaz",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "martadiazwww",
+      "twitch": "martadiaz",
+      "bio": "Influencer española con millones de seguidores. Debuta en La Velada 6."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 52,
+    "fields": {
+      "name": "Tatiana Kaer",
+      "slug": "tatiana-kaer",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "TatianaKaer",
+      "twitch": "tatiana",
+      "bio": "Streamer española. Debuta en La Velada 6 contra Marta Díaz."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 53,
+    "fields": {
+      "name": "Edu Aguirre",
+      "slug": "edu-aguirre",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "EduAguirre9",
+      "twitch": null,
+      "bio": "Periodista deportivo español. Debuta en La Velada 6 contra Gastón Edul."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 54,
+    "fields": {
+      "name": "Gastón Edul",
+      "slug": "gaston-edul",
+      "country": "Argentina",
+      "country_flag": "🇦🇷",
+      "twitter": "gastonedul",
+      "twitch": null,
+      "bio": "Periodista deportivo argentino. Debuta en La Velada 6 contra Edu Aguirre."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 55,
+    "fields": {
+      "name": "Fabiana Sevillano",
+      "slug": "fabiana-sevillano",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "FabiSevillano",
+      "twitch": "fabianasevillano",
+      "bio": "Streamer española. Debuta en La Velada 6 contra La Parce."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 56,
+    "fields": {
+      "name": "La Parce",
+      "slug": "la-parce",
+      "country": "Colombia",
+      "country_flag": "🇨🇴",
+      "twitter": "laparce",
+      "twitch": "laparce",
+      "bio": "Streamer colombiana. Debuta en La Velada 6 contra Fabiana Sevillano."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 57,
+    "fields": {
+      "name": "Clersss",
+      "slug": "clersss",
+      "country": "España",
+      "country_flag": "🇪🇸",
+      "twitter": "Clersss",
+      "twitch": "clersss",
+      "bio": "Streamer española. Debuta en La Velada 6 contra Natalia MX."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 58,
+    "fields": {
+      "name": "Natalia MX",
+      "slug": "natalia-mx",
+      "country": "México",
+      "country_flag": "🇲🇽",
+      "twitter": "NataliaMX",
+      "twitch": "nataliamx",
+      "bio": "Streamer mexicana. Debuta en La Velada 6 contra Clersss."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 59,
+    "fields": {
+      "name": "Alondrissa",
+      "slug": "alondrissa",
+      "country": "México",
+      "country_flag": "🇲🇽",
+      "twitter": "Alondrissa",
+      "twitch": "alondrissa",
+      "bio": "Streamer mexicana. Debuta en La Velada 6 contra Angie Velasco."
+    }
+  },
+  {
+    "model": "fighters.fighter",
+    "pk": 60,
+    "fields": {
+      "name": "Angie Velasco",
+      "slug": "angie-velasco",
+      "country": "Colombia",
+      "country_flag": "🇨🇴",
+      "twitter": "AngieVelasco",
+      "twitch": "angieevelasco",
+      "bio": "Streamer colombiana. Debuta en La Velada 6 contra Alondrissa."
+    }
+  },
+
+  {
+    "model": "fighters.fight",
+    "pk": 1,
+    "fields": {
+      "edition": 1,
+      "fighter1": 2,
+      "fighter2": 1,
+      "winner": 1,
+      "is_main_event": false,
+      "order": 1,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 2,
+    "fields": {
+      "edition": 1,
+      "fighter1": 4,
+      "fighter2": 3,
+      "winner": 3,
+      "is_main_event": true,
+      "order": 2,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 3,
+    "fields": {
+      "edition": 1,
+      "fighter1": 5,
+      "fighter2": 6,
+      "winner": 5,
+      "is_main_event": false,
+      "order": 3,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+
+  {
+    "model": "fighters.fight",
+    "pk": 4,
+    "fields": {
+      "edition": 2,
+      "fighter1": 7,
+      "fighter2": 8,
+      "winner": 7,
+      "is_main_event": false,
+      "order": 1,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 5,
+    "fields": {
+      "edition": 2,
+      "fighter1": 10,
+      "fighter2": 9,
+      "winner": 9,
+      "is_main_event": false,
+      "order": 2,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 6,
+    "fields": {
+      "edition": 2,
+      "fighter1": 11,
+      "fighter2": 4,
+      "winner": 4,
+      "is_main_event": false,
+      "order": 3,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 7,
+    "fields": {
+      "edition": 2,
+      "fighter1": 12,
+      "fighter2": 13,
+      "winner": 13,
+      "is_main_event": false,
+      "order": 4,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 8,
+    "fields": {
+      "edition": 2,
+      "fighter1": 3,
+      "fighter2": 14,
+      "winner": 3,
+      "is_main_event": true,
+      "order": 5,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+
+  {
+    "model": "fighters.fight",
+    "pk": 9,
+    "fields": {
+      "edition": 3,
+      "fighter1": 15,
+      "fighter2": 16,
+      "winner": 15,
+      "is_main_event": false,
+      "order": 1,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 10,
+    "fields": {
+      "edition": 3,
+      "fighter1": 17,
+      "fighter2": 18,
+      "winner": 17,
+      "is_main_event": false,
+      "order": 2,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 11,
+    "fields": {
+      "edition": 3,
+      "fighter1": 12,
+      "fighter2": 19,
+      "winner": 19,
+      "is_main_event": false,
+      "order": 3,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 12,
+    "fields": {
+      "edition": 3,
+      "fighter1": 20,
+      "fighter2": 4,
+      "winner": 4,
+      "is_main_event": false,
+      "order": 4,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 13,
+    "fields": {
+      "edition": 3,
+      "fighter1": 18,
+      "fighter2": 17,
+      "winner": 17,
+      "is_main_event": false,
+      "order": 5,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 14,
+    "fields": {
+      "edition": 3,
+      "fighter1": 21,
+      "fighter2": 22,
+      "winner": 21,
+      "is_main_event": true,
+      "order": 6,
+      "result_method": "ko",
+      "is_completed": true
+    }
+  },
+
+  {
+    "model": "fighters.fight",
+    "pk": 15,
+    "fields": {
+      "edition": 4,
+      "fighter1": 23,
+      "fighter2": 24,
+      "winner": 23,
+      "is_main_event": false,
+      "order": 1,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 16,
+    "fields": {
+      "edition": 4,
+      "fighter1": 26,
+      "fighter2": 25,
+      "winner": 25,
+      "is_main_event": false,
+      "order": 2,
+      "result_method": "tko",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 17,
+    "fields": {
+      "edition": 4,
+      "fighter1": 29,
+      "fighter2": 27,
+      "winner": 27,
+      "is_main_event": false,
+      "order": 3,
+      "result_method": "ko",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 18,
+    "fields": {
+      "edition": 4,
+      "fighter1": 20,
+      "fighter2": 4,
+      "winner": 4,
+      "is_main_event": false,
+      "order": 4,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 19,
+    "fields": {
+      "edition": 4,
+      "fighter1": 32,
+      "fighter2": 33,
+      "winner": 32,
+      "is_main_event": true,
+      "order": 6,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+
+  {
+    "model": "fighters.fight",
+    "pk": 20,
+    "fields": {
+      "edition": 5,
+      "fighter1": 34,
+      "fighter2": 35,
+      "winner": 34,
+      "is_main_event": false,
+      "order": 1,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 21,
+    "fields": {
+      "edition": 5,
+      "fighter1": 27,
+      "fighter2": 36,
+      "winner": 27,
+      "is_main_event": false,
+      "order": 2,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 22,
+    "fields": {
+      "edition": 5,
+      "fighter1": 37,
+      "fighter2": 38,
+      "winner": 37,
+      "is_main_event": false,
+      "order": 3,
+      "result_method": "tko",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 23,
+    "fields": {
+      "edition": 5,
+      "fighter1": 39,
+      "fighter2": 40,
+      "winner": 39,
+      "is_main_event": false,
+      "order": 4,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 24,
+    "fields": {
+      "edition": 5,
+      "fighter1": 4,
+      "fighter2": 41,
+      "winner": 4,
+      "is_main_event": false,
+      "order": 5,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 25,
+    "fields": {
+      "edition": 5,
+      "fighter1": 42,
+      "fighter2": 43,
+      "winner": 42,
+      "is_main_event": false,
+      "order": 6,
+      "result_method": "points",
+      "is_completed": true
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 26,
+    "fields": {
+      "edition": 5,
+      "fighter1": 44,
+      "fighter2": 45,
+      "winner": 44,
+      "is_main_event": true,
+      "order": 7,
+      "result_method": "tko",
+      "is_completed": true
+    }
+  },
+
+  {
+    "model": "fighters.fight",
+    "pk": 27,
+    "fields": {
+      "edition": 6,
+      "fighter1": 53,
+      "fighter2": 54,
+      "winner": null,
+      "is_main_event": false,
+      "order": 1,
+      "result_method": "pending",
+      "is_completed": false
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 28,
+    "fields": {
+      "edition": 6,
+      "fighter1": 55,
+      "fighter2": 56,
+      "winner": null,
+      "is_main_event": false,
+      "order": 2,
+      "result_method": "pending",
+      "is_completed": false
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 29,
+    "fields": {
+      "edition": 6,
+      "fighter1": 57,
+      "fighter2": 58,
+      "winner": null,
+      "is_main_event": false,
+      "order": 3,
+      "result_method": "pending",
+      "is_completed": false
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 30,
+    "fields": {
+      "edition": 6,
+      "fighter1": 49,
+      "fighter2": 50,
+      "winner": null,
+      "is_main_event": false,
+      "order": 4,
+      "result_method": "pending",
+      "is_completed": false
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 31,
+    "fields": {
+      "edition": 6,
+      "fighter1": 59,
+      "fighter2": 60,
+      "winner": null,
+      "is_main_event": false,
+      "order": 5,
+      "result_method": "pending",
+      "is_completed": false
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 32,
+    "fields": {
+      "edition": 6,
+      "fighter1": 4,
+      "fighter2": 48,
+      "winner": null,
+      "is_main_event": false,
+      "order": 6,
+      "result_method": "pending",
+      "is_completed": false
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 33,
+    "fields": {
+      "edition": 6,
+      "fighter1": 18,
+      "fighter2": 40,
+      "winner": null,
+      "is_main_event": false,
+      "order": 7,
+      "result_method": "pending",
+      "is_completed": false
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 34,
+    "fields": {
+      "edition": 6,
+      "fighter1": 51,
+      "fighter2": 52,
+      "winner": null,
+      "is_main_event": false,
+      "order": 8,
+      "result_method": "pending",
+      "is_completed": false
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 35,
+    "fields": {
+      "edition": 6,
+      "fighter1": 19,
+      "fighter2": 47,
+      "winner": null,
+      "is_main_event": false,
+      "order": 9,
+      "result_method": "pending",
+      "is_completed": false
+    }
+  },
+  {
+    "model": "fighters.fight",
+    "pk": 36,
+    "fields": {
+      "edition": 6,
+      "fighter1": 46,
+      "fighter2": 44,
+      "winner": null,
+      "is_main_event": true,
+      "order": 10,
+      "result_method": "pending",
+      "is_completed": false
+    }
+  }
+]
