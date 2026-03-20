@@ -58,6 +58,16 @@ class PredictionViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # Comprueba si ya existe una predicción
+        existing = Prediction.objects.filter(user=request.user, fight=fight).first()
+        betrayal_count = 0
+        previous_winner = None
+
+        if existing and existing.predicted_winner != winner:
+            # ¡Traición! El usuario cambia de luchador
+            betrayal_count = existing.betrayal_count + 1
+            previous_winner = existing.predicted_winner
+
         opponent = fight.fighter2 if winner == fight.fighter1 else fight.fighter1
         ai_comment = generate_ai_comment(
             winner.name, opponent.name, fight.edition.number
@@ -66,7 +76,12 @@ class PredictionViewSet(viewsets.ModelViewSet):
         prediction, created = Prediction.objects.update_or_create(
             user=request.user,
             fight=fight,
-            defaults={"predicted_winner": winner, "ai_comment": ai_comment},
+            defaults={
+                "predicted_winner": winner,
+                "previous_winner": previous_winner,
+                "ai_comment": ai_comment,
+                "betrayal_count": betrayal_count,
+            },
         )
 
         return Response(
@@ -82,16 +97,7 @@ class PredictionViewSet(viewsets.ModelViewSet):
 
         User = get_user_model()
 
-        users = (
-            User.objects.annotate(
-                total=Count("predictions"),
-                correct=Count("predictions", filter=Q(predictions__is_correct=True)),
-            )
-            .filter(total__gt=0)
-            .order_by("-correct", "-total")[:10]
-        )
-
-        def get_badge(correct, total):
+        def get_badge(correct: int, total: int) -> dict:
             if total == 0:
                 return {"label": "Novato", "color": "#6b7280", "emoji": "🥊"}
             accuracy = (correct / total) * 100
@@ -101,8 +107,16 @@ class PredictionViewSet(viewsets.ModelViewSet):
                 return {"label": "Experto", "color": "#e63946", "emoji": "🏆"}
             elif correct >= 3 and accuracy >= 50:
                 return {"label": "Analista", "color": "#9146FF", "emoji": "📊"}
-            else:
-                return {"label": "Novato", "color": "#6b7280", "emoji": "🥊"}
+            return {"label": "Novato", "color": "#6b7280", "emoji": "🥊"}
+
+        users: list = list(
+            User.objects.annotate(
+                total=Count("predictions"),
+                correct=Count("predictions", filter=Q(predictions__is_correct=True)),
+            )
+            .filter(total__gt=0)
+            .order_by("-correct", "-total")[:10]
+        )
 
         data = [
             {
@@ -112,6 +126,7 @@ class PredictionViewSet(viewsets.ModelViewSet):
                 "correct": u.correct,
                 "total": u.total,
                 "accuracy": round((u.correct / u.total) * 100) if u.total > 0 else 0,
+                "badge": get_badge(u.correct, u.total),
             }
             for i, u in enumerate(users)
         ]
@@ -120,14 +135,14 @@ class PredictionViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], permission_classes=[AllowAny])
     def community_stats(self, request):
         """Returns community vote % per fight."""
-        from django.db.models import Count
-
-        fights = Fight.objects.filter(edition__number=6).prefetch_related("predictions")
+        fights: list = list(
+            Fight.objects.filter(edition__number=6).prefetch_related("predictions")
+        )
         result = []
         for fight in fights:
-            total = fight.predictions.count()
-            f1_votes = fight.predictions.filter(predicted_winner=fight.fighter1).count()
-            f2_votes = fight.predictions.filter(predicted_winner=fight.fighter2).count()
+            total = fight.predictions.count()  # type: ignore
+            f1_votes = fight.predictions.filter(predicted_winner=fight.fighter1).count()  # type: ignore
+            f2_votes = fight.predictions.filter(predicted_winner=fight.fighter2).count()  # type: ignore
             result.append(
                 {
                     "fight_id": fight.id,
@@ -141,3 +156,31 @@ class PredictionViewSet(viewsets.ModelViewSet):
                 }
             )
         return Response(result)
+
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
+    def betrayals(self, request):
+        """Returns total betrayals and details per fight."""
+        predictions = Prediction.objects.filter(
+            user=request.user, betrayal_count__gt=0
+        ).select_related(
+            "fight__fighter1", "fight__fighter2", "predicted_winner", "previous_winner"
+        )
+
+        total = sum(p.betrayal_count for p in predictions)
+
+        details = [
+            {
+                "fight": f"{p.fight.fighter1.name} vs {p.fight.fighter2.name}",
+                "betrayed": p.previous_winner.name if p.previous_winner else None,
+                "current": p.predicted_winner.name,
+                "times": p.betrayal_count,
+            }
+            for p in predictions
+        ]
+
+        return Response(
+            {
+                "total_betrayals": total,
+                "details": details,
+            }
+        )

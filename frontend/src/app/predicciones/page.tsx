@@ -10,6 +10,7 @@ import { FightCard } from "./components/FightCard";
 import { PredictionProgress } from "./components/Predictionprogress";
 import { Leaderboard } from "./components/Leaderboard";
 import { CraziestPrediction } from "./components/Craziestprediction";
+import { BetrayalCounter } from "./components/BetrayalCounter";
 
 function LoginBanner() {
   return (
@@ -69,6 +70,7 @@ export default function PrediccionesPage() {
       queryClient.invalidateQueries({ queryKey: ["my-predictions"] });
       queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
       queryClient.invalidateQueries({ queryKey: ["community-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["betrayals"] });
       setPendingFightId(null);
     },
   });
@@ -130,6 +132,7 @@ export default function PrediccionesPage() {
         {/* Sidebar */}
         <div className="flex flex-col gap-6">
           <Leaderboard />
+          <BetrayalCounter />
           <CraziestPrediction stats={communityStats} />
         </div>
       </div>
