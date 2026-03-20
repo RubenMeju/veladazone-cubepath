@@ -133,3 +133,9 @@ GEMINI_API_KEY = env('GEMINI_API_KEY')
 # Frontend URL
 FRONTEND_URL = env('FRONTEND_URL', default='http://localhost:3000')
 LOGIN_REDIRECT_URL = f'{FRONTEND_URL}/auth/callback'
+
+
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/auth/complete/twitch-callback/'
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

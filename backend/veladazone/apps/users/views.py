@@ -26,4 +26,4 @@ class TwitchCallbackView(APIView):
                 f"?access={str(refresh.access_token)}"
                 f"&refresh={str(refresh)}"
             )
-        return redirect(f"{settings.FRONTEND_URL}?error=auth_failed")
+        return redirect(f"{settings.FRONTEND_URL}/?error=auth_failed")
