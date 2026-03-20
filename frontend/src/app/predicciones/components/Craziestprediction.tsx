@@ -1,6 +1,6 @@
 "use client";
 
-import { CommunityStats } from "./types";
+import { CommunityStats } from "@/types";
 
 export function CraziestPrediction({ stats }: { stats?: CommunityStats[] }) {
   if (!stats?.length) return null;
