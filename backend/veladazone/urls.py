@@ -18,11 +18,11 @@ urlpatterns = [
             [
                 path("users/", include("veladazone.apps.users.urls")),
                 path("fighters/", include("veladazone.apps.fighters.urls")),
-                path("predictions/", include("veladazone.apps.predictions.urls")),
                 path(
                     "predictions/arguments/",
                     include("veladazone.apps.predictions.argument_urls"),
                 ),
+                path("predictions/", include("veladazone.apps.predictions.urls")),
                 path("fantasy/", include("veladazone.apps.fantasy.urls")),
             ]
         ),
