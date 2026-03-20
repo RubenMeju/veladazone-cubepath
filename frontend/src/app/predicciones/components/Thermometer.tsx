@@ -1,7 +1,6 @@
 "use client";
 
-import { Fight } from "@/types";
-import { CommunityStats } from "./types";
+import { CommunityStats, Fight } from "@/types";
 
 export function Thermometer({
   fight,
