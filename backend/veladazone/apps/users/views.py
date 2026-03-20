@@ -4,7 +4,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import redirect
 from django.conf import settings
+from django.views import View
+from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
+
+User = get_user_model()
 
 
 class MeView(APIView):
@@ -14,7 +18,7 @@ class MeView(APIView):
         return Response(UserSerializer(request.user).data)
 
 
-class TwitchCallbackView(APIView):
+class TwitchCallbackView(View):
     """After Twitch OAuth, generate JWT and redirect to frontend."""
 
     def get(self, request):
