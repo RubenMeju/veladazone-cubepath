@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 // FantasyContent usa useAuthStore (localStorage) — no puede renderizarse en el servidor
 // dynamic con ssr:false evita el hydration mismatch
 const FantasyContent = dynamic(
-  () => import("./components/Fantasycontent").then((m) => m.FantasyContent),
+  () => import("./components/FantasyContent").then((m) => m.FantasyContent),
   {
     ssr: false,
     loading: () => (
