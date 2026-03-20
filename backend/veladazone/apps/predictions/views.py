@@ -4,8 +4,8 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from .models import Prediction
-from .serializers import PredictionSerializer
+from .models import Argument, Prediction
+from .serializers import ArgumentSerializer, PredictionSerializer
 from veladazone.apps.fighters.models import Fight, Fighter
 
 
@@ -184,3 +184,69 @@ class PredictionViewSet(viewsets.ModelViewSet):
                 "details": details,
             }
         )
+
+
+class ArgumentViewSet(viewsets.ModelViewSet):
+    serializer_class = ArgumentSerializer
+    http_method_names = ["get", "post", "delete"]
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
+    def get_queryset(self):
+        qs = Argument.objects.select_related("user", "fighter_supported", "fight")
+        fight_id = self.request.query_params.get("fight")  # type: ignore
+        if fight_id:
+            qs = qs.filter(fight_id=fight_id)
+        return qs
+
+    def create(self, request, *args, **kwargs):
+        fight_id = request.data.get("fight_id")
+        fighter_id = request.data.get("fighter_id")
+        text = request.data.get("text", "").strip()
+
+        if not text or len(text) > 280:
+            return Response(
+                {"error": "El argumento debe tener entre 1 y 280 caracteres"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            fight = Fight.objects.get(id=fight_id)
+            fighter = Fighter.objects.get(id=fighter_id)
+        except (Fight.DoesNotExist, Fighter.DoesNotExist):
+            return Response(
+                {"error": "Combate o luchador no encontrado"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if fighter not in [fight.fighter1, fight.fighter2]:
+            return Response(
+                {"error": "El luchador no participa en este combate"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        argument, created = Argument.objects.update_or_create(
+            user=request.user,
+            fight=fight,
+            defaults={"fighter_supported": fighter, "text": text},
+        )
+
+        return Response(
+            ArgumentSerializer(argument).data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def vote(self, request, pk=None):
+        argument = self.get_object()
+        if argument.user == request.user:
+            return Response(
+                {"error": "No puedes votar tu propio argumento"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        argument.votes += 1
+        argument.save()
+        return Response({"votes": argument.votes})

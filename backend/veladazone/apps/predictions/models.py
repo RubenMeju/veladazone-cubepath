@@ -33,3 +33,24 @@ class Prediction(models.Model):
         if self.fight.is_completed and self.fight.winner:
             self.is_correct = self.predicted_winner == self.fight.winner
             self.save()
+
+
+## MODO DEBATE
+class Argument(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="arguments"
+    )
+    fight = models.ForeignKey(Fight, on_delete=models.CASCADE, related_name="arguments")
+    fighter_supported = models.ForeignKey(
+        Fighter, on_delete=models.CASCADE, related_name="arguments"
+    )
+    text = models.CharField(max_length=280)
+    votes = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ["user", "fight"]
+        ordering = ["-votes", "-created_at"]
+
+    def __str__(self):
+        return f"{self.user} defiende a {self.fighter_supported} en {self.fight}"
