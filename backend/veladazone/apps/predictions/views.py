@@ -117,7 +117,7 @@ class PredictionViewSet(viewsets.ModelViewSet):
         ]
         return Response(data)
 
-    @action(detail=False, methods=["get"])
+    @action(detail=False, methods=["get"], permission_classes=[AllowAny])
     def community_stats(self, request):
         """Returns community vote % per fight."""
         from django.db.models import Count
@@ -141,5 +141,3 @@ class PredictionViewSet(viewsets.ModelViewSet):
                 }
             )
         return Response(result)
-
-
