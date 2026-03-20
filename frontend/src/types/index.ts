@@ -50,6 +50,12 @@ export interface User {
   avatar_url: string | null;
 }
 
+export interface Badge {
+  label: string;
+  color: string;
+  emoji: string;
+}
+
 export interface LeaderboardEntry {
   rank: number;
   username: string;
@@ -57,6 +63,7 @@ export interface LeaderboardEntry {
   correct: number;
   total: number;
   accuracy: number;
+  badge: Badge;
 }
 
 export interface FantasyLeague {

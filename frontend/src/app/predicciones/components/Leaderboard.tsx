@@ -40,8 +40,21 @@ export function Leaderboard() {
                 <div className="w-8 h-8 rounded-full bg-[#2a2a2a]" />
               )}
               <div className="flex-1">
-                <div className="text-white text-sm font-medium">
-                  {entry.username}
+                <div className="flex items-center gap-2">
+                  <span className="text-white text-sm font-medium">
+                    {entry.username}
+                  </span>
+                  {entry.badge && (
+                    <span
+                      className="text-[10px] font-medium px-1.5 py-0.5 rounded-full"
+                      style={{
+                        color: entry.badge.color,
+                        backgroundColor: `${entry.badge.color}20`,
+                      }}
+                    >
+                      {entry.badge.emoji} {entry.badge.label}
+                    </span>
+                  )}
                 </div>
                 <div className="text-gray-500 text-xs">
                   {entry.correct}/{entry.total} correctas

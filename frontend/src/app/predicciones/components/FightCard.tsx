@@ -1,8 +1,7 @@
 "use client";
 
-import { Fight, Prediction } from "@/types";
-import { CommunityStats } from "./types";
-import { FighterButton } from "./FighterButton";
+import { CommunityStats, Fight, Prediction } from "@/types";
+import { FighterButton } from "./Fighterbutton";
 import { Thermometer } from "./Thermometer";
 
 export function FightCard({

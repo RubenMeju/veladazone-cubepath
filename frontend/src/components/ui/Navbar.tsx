@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { twitchLoginUrl } from "@/lib/api";
+import { UserBadge } from "./UserBadge";
 
 const navLinks = [
   { href: "/", label: "Inicio" },
@@ -66,9 +67,12 @@ export function Navbar() {
                   className="w-8 h-8 rounded-full border border-[#2a2a2a]"
                 />
               )}
-              <span className="text-sm text-gray-300 hidden md:block">
-                {user.twitch_username}
-              </span>
+              <div className="hidden md:block">
+                <div className="text-sm text-gray-300">
+                  {user.twitch_username}
+                </div>
+                <UserBadge />
+              </div>
               <button
                 onClick={handleLogout}
                 className="text-sm text-gray-500 hover:text-white transition-colors"
