@@ -1,16 +1,23 @@
-import { api } from "@/lib/api";
+"use client";
+
 import { useQuery } from "@tanstack/react-query";
+import { useAuthStore } from "@/stores/authStore";
+import { api } from "@/lib/api";
 
 export function UserBadge() {
+  const { user } = useAuthStore();
+
   const { data } = useQuery({
     queryKey: ["my-stats"],
     queryFn: () =>
       api.get<{ badge: { label: string; color: string; emoji: string } }>(
         "/users/me/stats/",
       ),
+    enabled: !!user,
+    staleTime: 1000 * 60 * 5,
   });
 
-  if (!data?.badge) return null;
+  if (!user || !data?.badge) return null;
 
   return (
     <span

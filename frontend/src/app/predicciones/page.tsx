@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { CommunityStats, Fight, Prediction } from "@/types";
@@ -31,14 +31,10 @@ function LoginBanner() {
 }
 
 export default function PrediccionesPage() {
-  const { isAuthenticated } = useAuthStore();
+  const { user } = useAuthStore();
+
   const queryClient = useQueryClient();
   const [pendingFightId, setPendingFightId] = useState<number | null>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const { data: fights, isLoading: loadingFights } = useQuery({
     queryKey: ["fights", 6],
@@ -48,7 +44,7 @@ export default function PrediccionesPage() {
   const { data: predictions } = useQuery({
     queryKey: ["my-predictions"],
     queryFn: () => api.get<Prediction[]>("/predictions/"),
-    enabled: mounted && isAuthenticated(),
+    enabled: !!user, // 👈 solo si hay usuario (cliente)
   });
 
   const { data: communityStats } = useQuery({
@@ -78,7 +74,7 @@ export default function PrediccionesPage() {
   });
 
   const handlePredict = (fightId: number, winnerId: number) => {
-    if (!isAuthenticated()) return;
+    if (!user) return;
     setPendingFightId(fightId);
     mutation.mutate({ fightId, winnerId });
   };
@@ -103,13 +99,12 @@ export default function PrediccionesPage() {
 
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          {/* Login banner o barra de progreso — solo en cliente */}
-          {mounted &&
-            (isAuthenticated() ? (
-              <PredictionProgress total={totalPredictions} />
-            ) : (
-              <LoginBanner />
-            ))}
+          {/* Login banner o barra de progreso */}
+          {user ? (
+            <PredictionProgress total={totalPredictions} />
+          ) : (
+            <LoginBanner />
+          )}
 
           {/* Combates */}
           {loadingFights ? (
