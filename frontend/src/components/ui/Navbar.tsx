@@ -17,6 +17,16 @@ export function Navbar() {
   const pathname = usePathname();
   const { user, logout, isAuthenticated } = useAuthStore();
 
+  const handleLogout = async () => {
+    try {
+      await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/logout/`,
+        { credentials: "include" },
+      );
+    } catch {}
+    logout(); // limpia el store de Zustand
+  };
+
   return (
     <nav className="sticky top-0 z-50 bg-[#0a0a0a]/95 backdrop-blur border-b border-[#2a2a2a]">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -60,7 +70,7 @@ export function Navbar() {
                 {user.twitch_username}
               </span>
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="text-sm text-gray-500 hover:text-white transition-colors"
               >
                 Salir

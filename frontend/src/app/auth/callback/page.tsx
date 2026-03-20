@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { api } from "@/lib/api";
 import { User } from "@/types";
@@ -9,21 +9,11 @@ import { Suspense } from "react";
 
 function CallbackHandler() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { setTokens, setUser } = useAuthStore();
+  const { setUser } = useAuthStore();
 
   useEffect(() => {
-    const access = searchParams.get("access");
-    const refresh = searchParams.get("refresh");
-    const error = searchParams.get("error");
-
-    if (error || !access || !refresh) {
-      router.push("/?error=auth_failed");
-      return;
-    }
-
-    setTokens(access, refresh);
-
+    // Las cookies ya están seteadas por Django
+    // Solo necesitamos obtener los datos del usuario
     api
       .get<User>("/users/me/")
       .then((user) => {
