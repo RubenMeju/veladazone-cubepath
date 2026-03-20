@@ -197,11 +197,11 @@ export default function PrediccionesPage() {
   };
 
   const getPredictionForFight = (fightId: number) =>
-    predictions?.results?.find((p: Prediction) => p.fight.id === fightId) ||
-    predictions?.find?.((p: Prediction) => p.fight.id === fightId);
+    (Array.isArray(predictions) ? predictions : []).find(
+      (p: Prediction) => p.fight.id === fightId,
+    );
 
-  const totalPredictions =
-    predictions?.length || predictions?.results?.length || 0;
+  const totalPredictions = Array.isArray(predictions) ? predictions.length : 0;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
