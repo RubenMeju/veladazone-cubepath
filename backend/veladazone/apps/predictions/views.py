@@ -196,11 +196,18 @@ class ArgumentViewSet(viewsets.ModelViewSet):
         return [IsAuthenticated()]
 
     def get_queryset(self):
-        qs = Argument.objects.select_related("user", "fighter_supported", "fight")
+        qs = Argument.objects.select_related(
+            "user", "fighter_supported", "fight"
+        ).prefetch_related("replies__user", "argument_votes")
         fight_id = self.request.query_params.get("fight")  # type: ignore
         if fight_id:
             qs = qs.filter(fight_id=fight_id)
         return qs
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["request"] = self.request
+        return context
 
     def create(self, request, *args, **kwargs):
         fight_id = request.data.get("fight_id")
@@ -235,7 +242,7 @@ class ArgumentViewSet(viewsets.ModelViewSet):
         )
 
         return Response(
-            ArgumentSerializer(argument).data,
+            ArgumentSerializer(argument, context={"request": request}).data,
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
         )
 
@@ -247,6 +254,37 @@ class ArgumentViewSet(viewsets.ModelViewSet):
                 {"error": "No puedes votar tu propio argumento"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        argument.votes += 1
-        argument.save()
-        return Response({"votes": argument.votes})
+
+        vote, created = ArgumentVote.objects.get_or_create(
+            user=request.user, argument=argument
+        )
+        if not created:
+            vote.delete()
+            return Response({"voted": False, "vote_count": argument.vote_count})
+
+        return Response({"voted": True, "vote_count": argument.vote_count})
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def reply(self, request, pk=None):
+        argument = self.get_object()
+        text = request.data.get("text", "").strip()
+
+        if not text or len(text) > 280:
+            return Response(
+                {"error": "La respuesta debe tener entre 1 y 280 caracteres"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        reply, created = ArgumentReply.objects.get_or_create(
+            user=request.user, argument=argument, defaults={"text": text}
+        )
+
+        if not created:
+            return Response(
+                {"error": "Ya has respondido a este argumento"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return Response(
+            ArgumentReplySerializer(reply).data, status=status.HTTP_201_CREATED
+        )

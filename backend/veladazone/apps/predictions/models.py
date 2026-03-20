@@ -45,12 +45,53 @@ class Argument(models.Model):
         Fighter, on_delete=models.CASCADE, related_name="arguments"
     )
     text = models.CharField(max_length=280)
-    votes = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ["user", "fight"]
-        ordering = ["-votes", "-created_at"]
+        ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.user} defiende a {self.fighter_supported} en {self.fight}"
+
+    @property
+    def vote_count(self):
+        return self.argument_votes.count()
+
+
+class ArgumentVote(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="argument_votes",
+    )
+    argument = models.ForeignKey(
+        Argument, on_delete=models.CASCADE, related_name="argument_votes"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ["user", "argument"]
+
+    def __str__(self):
+        return f"{self.user} votó {self.argument}"
+
+
+class ArgumentReply(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="argument_replies",
+    )
+    argument = models.ForeignKey(
+        Argument, on_delete=models.CASCADE, related_name="replies"
+    )
+    text = models.CharField(max_length=280)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ["user", "argument"]
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.user} respondió a {self.argument}"
