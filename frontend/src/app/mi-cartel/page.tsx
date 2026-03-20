@@ -1,3 +1,5 @@
+"use client";
+
 import dynamic from "next/dynamic";
 
 // MiCartelContent usa useAuthStore (localStorage) — no puede renderizarse en el servidor
