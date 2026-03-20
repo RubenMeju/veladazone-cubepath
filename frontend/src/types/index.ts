@@ -73,3 +73,9 @@ export interface LeagueMember {
   avatar: string | null;
   points: number;
 }
+export interface CommunityStats {
+  fight_id: number;
+  fighter1_pct: number;
+  fighter2_pct: number;
+  total_votes: number;
+}
