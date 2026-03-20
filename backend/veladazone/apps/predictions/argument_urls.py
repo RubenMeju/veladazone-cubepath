@@ -1,7 +1,7 @@
 from rest_framework.routers import DefaultRouter
-from .views import PredictionViewSet
+from .views import ArgumentViewSet
 
 router = DefaultRouter()
-router.register("", PredictionViewSet, basename="prediction")
+router.register("", ArgumentViewSet, basename="argument")
 
 urlpatterns = router.urls
