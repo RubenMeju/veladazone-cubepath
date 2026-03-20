@@ -41,6 +41,8 @@ export interface Prediction {
   predicted_winner: Fighter;
   ai_comment: string | null;
   is_correct: boolean | null;
+  betrayal_count: number;
+
   created_at: string;
 }
 

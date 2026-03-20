@@ -3,6 +3,7 @@
 import { CommunityStats, Fight, Prediction } from "@/types";
 import { FighterButton } from "./Fighterbutton";
 import { Thermometer } from "./Thermometer";
+import { DebateSection } from "./DebateSection";
 
 export function FightCard({
   fight,
@@ -64,6 +65,8 @@ export function FightCard({
           </p>
         </div>
       )}
+
+      <DebateSection fight={fight} userPrediction={prediction} />
     </div>
   );
 }
