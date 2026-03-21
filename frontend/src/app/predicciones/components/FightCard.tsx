@@ -3,7 +3,7 @@
 import { CommunityStats, Fight, Prediction } from "@/types";
 import { FighterButton } from "./Fighterbutton";
 import { Thermometer } from "./Thermometer";
-import { DebateSection } from "./DebateSection";
+import { DebateSection } from "./debate/DebateSection";
 
 export function FightCard({
   fight,
