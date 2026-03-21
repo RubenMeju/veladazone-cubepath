@@ -14,6 +14,16 @@ class FighterViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
     lookup_field = "slug"
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        edition = self.request.query_params.get("edition")  # type: ignore
+        if edition:
+            qs = qs.filter(
+                models.Q(fights_as_fighter1__edition__number=edition) |
+                models.Q(fights_as_fighter2__edition__number=edition)
+            ).distinct()
+        return qs
+
 
 class EditionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Edition.objects.prefetch_related(

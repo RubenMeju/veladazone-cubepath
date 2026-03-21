@@ -17,8 +17,9 @@ export default function StatsPage() {
   });
 
   const { data: fighters, isLoading: loadingFighters } = useQuery({
-    queryKey: ["fighters"],
-    queryFn: () => api.get<Fighter[]>("/fighters/list/"),
+    queryKey: ["fighters", selectedEdition],
+    queryFn: () =>
+      api.get<Fighter[]>(`/fighters/list/?edition=${selectedEdition}`),
   });
 
   const currentEdition = editions?.find((e) => e.number === selectedEdition);
