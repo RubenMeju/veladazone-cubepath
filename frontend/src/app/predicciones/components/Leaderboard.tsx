@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { LeaderboardEntry } from "@/types";
@@ -26,7 +27,11 @@ export function Leaderboard() {
       ) : (
         <div className="flex flex-col gap-3">
           {data.map((entry) => (
-            <div key={entry.rank} className="flex items-center gap-3">
+            <Link
+              key={entry.rank}
+              href={`/perfil/${entry.username}`}
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            >
               <span className="text-xl w-8">
                 {medals[entry.rank - 1] || `#${entry.rank}`}
               </span>
@@ -63,7 +68,7 @@ export function Leaderboard() {
               <div className="font-bebas text-xl text-[#f4a261]">
                 {entry.accuracy}%
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

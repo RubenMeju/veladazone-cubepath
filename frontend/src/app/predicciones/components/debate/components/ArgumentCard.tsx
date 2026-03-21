@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ArgumentReplyItem } from "./ArgumentReplyItem";
 import { Argument } from "../types";
 
@@ -23,22 +24,28 @@ export function ArgumentCard({
 
   return (
     <div className="bg-[#0f0f0f] rounded-lg p-3">
-      {/* Argumento principal */}
       <div className="flex items-start gap-2">
-        {arg.avatar ? (
-          <img
-            src={arg.avatar}
-            className="w-6 h-6 rounded-full flex-shrink-0"
-            alt=""
-          />
-        ) : (
-          <div className="w-6 h-6 rounded-full bg-[#2a2a2a] flex-shrink-0" />
-        )}
+        {/* Avatar con link */}
+        <Link
+          href={`/perfil/${arg.username}`}
+          className="flex-shrink-0 hover:opacity-80 transition-opacity"
+        >
+          {arg.avatar ? (
+            <img src={arg.avatar} className="w-6 h-6 rounded-full" alt="" />
+          ) : (
+            <div className="w-6 h-6 rounded-full bg-[#2a2a2a]" />
+          )}
+        </Link>
+
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1 mb-0.5">
-            <span className="text-xs text-gray-300 font-medium">
+            {/* Username con link */}
+            <Link
+              href={`/perfil/${arg.username}`}
+              className="text-xs text-gray-300 font-medium hover:text-white transition-colors"
+            >
               {arg.username}
-            </span>
+            </Link>
             <span className="text-xs">{arg.fighter_flag}</span>
             <span className="text-[10px] text-gray-600">
               apoya a {arg.fighter_name}
