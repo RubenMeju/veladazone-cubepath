@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from veladazone.apps.users.views import TwitchCallbackView
+from veladazone.apps.users.views import TokenRefreshView, TwitchCallbackView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -12,6 +12,7 @@ urlpatterns = [
         name="twitch-done",
     ),
     path("auth/", include("social_django.urls", namespace="social")),
+    path('api/v1/users/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
     path(
         "api/v1/",
         include(
