@@ -24,67 +24,125 @@ export function FighterCard({ fighter }: { fighter: Fighter }) {
     }
   };
 
+  const totalFights = fighter.record.wins + fighter.record.losses;
+  const winRate =
+    totalFights > 0 ? Math.round((fighter.record.wins / totalFights) * 100) : 0;
+
   return (
-    <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 hover:border-[#e63946]/50 transition-all">
-      <div className="flex items-center gap-4 mb-3">
-        <div className="w-14 h-14 rounded-full bg-[#2a2a2a] border border-[#3a3a3a] flex items-center justify-center text-2xl flex-shrink-0">
-          {fighter.country_flag}
+    <div className="group relative overflow-hidden bg-[#0d0d0d] border border-white/5 rounded-xl hover:border-white/10 transition-all duration-200">
+      {/* Hover glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#e63946_0%,_transparent_70%)] opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none" />
+
+      <div className="relative p-4">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="relative flex-shrink-0">
+            <div className="w-12 h-12 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-2xl group-hover:border-[#e63946]/20 transition-colors">
+              {fighter.country_flag}
+            </div>
+            {fighter.record.wins > 0 && (
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center">
+                <span className="text-[8px] text-green-400 font-bold">
+                  {fighter.record.wins}
+                </span>
+              </div>
+            )}
+          </div>
+          <div className="min-w-0">
+            <h3 className="font-bebas text-lg text-white tracking-wide leading-tight truncate group-hover:text-[#e63946] transition-colors">
+              {fighter.name}
+            </h3>
+            <p className="text-[11px] text-gray-600 tracking-widest uppercase">
+              {fighter.country}
+            </p>
+          </div>
         </div>
-        <div>
-          <h3 className="font-bebas text-xl text-white tracking-wide">
-            {fighter.name}
-          </h3>
-          <p className="text-gray-500 text-sm">{fighter.country}</p>
-        </div>
+
+        {/* Stats */}
+        {totalFights > 0 ? (
+          <div className="flex gap-2 mb-3">
+            <div className="flex-1 bg-[#0a0a0a] rounded-lg p-2 text-center border border-green-500/10">
+              <div className="font-bebas text-xl text-green-400 leading-tight">
+                {fighter.record.wins}
+              </div>
+              <div className="text-[9px] text-gray-600 uppercase tracking-widest">
+                Victorias
+              </div>
+            </div>
+            <div className="flex-1 bg-[#0a0a0a] rounded-lg p-2 text-center border border-[#e63946]/10">
+              <div className="font-bebas text-xl text-[#e63946] leading-tight">
+                {fighter.record.losses}
+              </div>
+              <div className="text-[9px] text-gray-600 uppercase tracking-widest">
+                Derrotas
+              </div>
+            </div>
+            <div className="flex-1 bg-[#0a0a0a] rounded-lg p-2 text-center border border-white/5">
+              <div className="font-bebas text-xl text-[#f4a261] leading-tight">
+                {winRate}%
+              </div>
+              <div className="text-[9px] text-gray-600 uppercase tracking-widest">
+                Win rate
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-[#0a0a0a] rounded-lg p-2 text-center border border-white/5 mb-3">
+            <div className="text-[11px] text-gray-600">
+              Sin combates registrados
+            </div>
+          </div>
+        )}
+
+        {/* Win rate bar */}
+        {totalFights > 0 && (
+          <div className="h-0.5 bg-white/5 rounded-full overflow-hidden mb-3">
+            <div
+              className="h-full bg-gradient-to-r from-green-500 to-[#f4a261] rounded-full transition-all duration-500"
+              style={{ width: `${winRate}%` }}
+            />
+          </div>
+        )}
+
+        {/* Bio */}
+        {fighter.bio && (
+          <p className="text-[11px] text-gray-600 mb-3 leading-relaxed line-clamp-2">
+            {fighter.bio}
+          </p>
+        )}
+
+        {/* AI Button */}
+        <button
+          onClick={handleAnalysis}
+          disabled={loading}
+          className={`w-full text-[11px] py-2 rounded-lg transition-all duration-200 border tracking-widest uppercase disabled:opacity-50 ${
+            analysis
+              ? "border-[#e63946]/30 bg-[#e63946]/5 text-[#e63946]/70 hover:bg-[#e63946]/10"
+              : "border-white/5 bg-transparent text-gray-600 hover:border-white/10 hover:text-gray-400"
+          }`}
+        >
+          {loading ? (
+            <span className="animate-pulse">Analizando...</span>
+          ) : analysis ? (
+            "✕ Cerrar análisis"
+          ) : (
+            "🤖 Análisis IA"
+          )}
+        </button>
+
+        {/* Analysis result */}
+        {analysis && (
+          <div className="mt-3 relative overflow-hidden bg-[#0a0a0a] border border-[#e63946]/15 rounded-lg p-3">
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#e63946]/25 to-transparent" />
+            <div className="text-[9px] text-[#e63946]/60 tracking-[0.3em] uppercase mb-1.5">
+              Análisis IA
+            </div>
+            <p className="text-[11px] text-gray-400 leading-relaxed italic">
+              {analysis}
+            </p>
+          </div>
+        )}
       </div>
-
-      <div className="flex gap-3 mb-3">
-        <div className="flex-1 bg-[#0f0f0f] rounded-lg p-2 text-center">
-          <div className="font-bebas text-2xl text-green-400">
-            {fighter.record.wins}
-          </div>
-          <div className="text-[10px] text-gray-500 uppercase tracking-wider">
-            Victorias
-          </div>
-        </div>
-        <div className="flex-1 bg-[#0f0f0f] rounded-lg p-2 text-center">
-          <div className="font-bebas text-2xl text-[#e63946]">
-            {fighter.record.losses}
-          </div>
-          <div className="text-[10px] text-gray-500 uppercase tracking-wider">
-            Derrotas
-          </div>
-        </div>
-      </div>
-
-      {fighter.bio && (
-        <p className="text-gray-500 text-xs mb-3 leading-relaxed line-clamp-2">
-          {fighter.bio}
-        </p>
-      )}
-
-      {/* Botón análisis IA */}
-      <button
-        onClick={handleAnalysis}
-        disabled={loading}
-        className="w-full text-xs bg-[#0f0f0f] hover:bg-[#1f1f1f] border border-[#2a2a2a] hover:border-[#e63946]/50 text-gray-400 hover:text-white py-2 rounded-lg transition-all disabled:opacity-50"
-      >
-        {loading
-          ? "Analizando..."
-          : analysis
-            ? "✕ Cerrar análisis"
-            : "🤖 Análisis IA"}
-      </button>
-
-      {/* Análisis */}
-      {analysis && (
-        <div className="mt-3 bg-[#0f0f0f] border border-[#e63946]/20 rounded-lg p-3">
-          <div className="text-[10px] text-[#e63946] tracking-wider mb-1">
-            ANÁLISIS IA
-          </div>
-          <p className="text-xs text-gray-300 leading-relaxed">{analysis}</p>
-        </div>
-      )}
     </div>
   );
 }
