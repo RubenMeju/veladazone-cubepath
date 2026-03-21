@@ -26,22 +26,50 @@ export function BetrayalCounter() {
   if (!user || !data || data.total_betrayals === 0) return null;
 
   return (
-    <div className="bg-[#1a1a1a] border border-[#e63946]/20 rounded-2xl p-6">
-      <h3 className="font-bebas text-xl text-white tracking-wider mb-1">
-        🗡️ CONTADOR DE TRAICIONES
-      </h3>
-      <p className="text-[#e63946] font-bebas text-4xl mb-3">
-        {data.total_betrayals}
-      </p>
-      <div className="flex flex-col gap-2">
-        {data.details.map((d, i) => (
-          <div key={i} className="text-xs text-gray-500 leading-relaxed">
-            Has traicionado a{" "}
-            <span className="text-gray-300 font-medium">{d.betrayed}</span>{" "}
-            {d.times} {d.times === 1 ? "vez" : "veces"} — ahora apoyas a{" "}
-            <span className="text-[#f4a261] font-medium">{d.current}</span>
+    <div className="relative overflow-hidden bg-[#0d0d0d] border border-[#e63946]/15 rounded-2xl">
+      {/* Glow top */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#e63946]/25 to-transparent" />
+      {/* Glow corner */}
+      <div className="absolute top-0 left-0 w-32 h-32 bg-[radial-gradient(ellipse_at_top_left,_#e63946_0%,_transparent_70%)] opacity-8 pointer-events-none" />
+
+      <div className="relative p-5">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-base">🗡️</span>
+            <h3 className="font-bebas text-lg text-white tracking-wider">
+              TRAICIONES
+            </h3>
           </div>
-        ))}
+          {/* Big number */}
+          <span
+            className="font-bebas text-4xl text-[#e63946] leading-none"
+            style={{ textShadow: "0 0 20px rgba(230,57,70,0.4)" }}
+          >
+            {data.total_betrayals}
+          </span>
+        </div>
+
+        {/* Divider */}
+        <div className="h-px bg-gradient-to-r from-[#e63946]/20 to-transparent mb-3" />
+
+        {/* Details */}
+        <div className="flex flex-col gap-2.5">
+          {data.details.map((d, i) => (
+            <div key={i} className="flex items-start gap-2">
+              <div className="w-1 h-1 rounded-full bg-[#e63946]/40 mt-1.5 flex-shrink-0" />
+              <p className="text-[11px] text-gray-600 leading-relaxed">
+                Traicionaste a{" "}
+                <span className="text-gray-400">{d.betrayed}</span>
+                {d.times > 1 && (
+                  <span className="text-[#e63946]/60"> ×{d.times}</span>
+                )}{" "}
+                — ahora apoyas a{" "}
+                <span className="text-[#f4a261]">{d.current}</span>
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
