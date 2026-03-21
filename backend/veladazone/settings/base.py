@@ -130,8 +130,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Gemini API
 GEMINI_API_KEY = env("GEMINI_API_KEY")
 
+# Groq API
+GROQ_API_KEY = env("GROQ_API_KEY")
+
 # Frontend URL
-FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000")
+FRONTEND_URL = env("FRONTEND_URL", default="https://laveladazone.duckdns.org")
 LOGIN_REDIRECT_URL = f"{FRONTEND_URL}/auth/callback"
 
 

@@ -1,8 +1,8 @@
 # 🥊 VeladaZone
 
-La plataforma definitiva para La Velada del Año 6. Predicciones con IA, estadísticas históricas, ligas fantasy y tu cartel personalizado para compartir.
+La plataforma definitiva para La Velada del Año 6. Predicciones con IA, estadísticas históricas, ligas fantasy, modo debate y tu cartel personalizado para compartir.
 
-**[🌐 Demo en vivo](https://vps22370.cubepath.net)** · **[📺 La Velada del Año 6 — 25 Julio 2026](https://twitch.tv)**
+**[🌐 Demo en vivo](https://laveladazone.duckdns.org)** · **[📺 La Velada del Año 6 — 25 Julio 2026](https://twitch.tv)**
 
 ---
 
@@ -15,6 +15,7 @@ La plataforma definitiva para La Velada del Año 6. Predicciones con IA, estadí
 - **🎲 La predicción más loca** — descubre qué apuesta sorprende más a la comunidad
 - **🏅 Sistema de badges** — sube de Novato 🥊 a Oráculo 🔮 según tus aciertos
 - **🗡️ Contador de traiciones** — la app recuerda cuántas veces has cambiado de bando
+- **💬 Modo Debate** — deja tu argumento defendiendo a tu luchador, responde a otros y vota los mejores
 - **🃏 Cartel personalizado** — genera y comparte tu cartel de predicciones para redes sociales
 - **🏆 Fantasy League** — crea ligas privadas con amigos, compite por puntos y sigue el ranking en tiempo real
 
@@ -35,14 +36,22 @@ La plataforma definitiva para La Velada del Año 6. Predicciones con IA, estadí
 
 ## 🖥️ Infraestructura en CubePath
 
-El proyecto está desplegado en **CubePath** usando dos servicios:
+El proyecto está desplegado en **CubePath** usando un VPS gp.nano con todos los servicios orquestados con Docker Compose:
 
-| Servicio        | Contenido                                                   |
-| --------------- | ----------------------------------------------------------- |
-| **VPS gp.nano** | Django + PostgreSQL + Next.js + Nginx + HTTPS               |
-| **Dominio**     | `vps22370.cubepath.net` con certificado SSL (Let's Encrypt) |
+| Servicio        | Contenido                                                      |
+| --------------- | -------------------------------------------------------------- |
+| **VPS gp.nano** | Django + PostgreSQL + Next.js + Nginx + HTTPS                  |
+| **Dominio**     | `laveladazone.duckdns.org` con certificado SSL (Let's Encrypt) |
 
-Todo orquestado con **Docker Compose** para facilitar el despliegue y la reproducibilidad.
+### Firewall
+
+El VPS tiene configurado un grupo de firewall en CubePath con las siguientes reglas de entrada:
+
+| Puerto | Protocolo | Origen    |
+| ------ | --------- | --------- |
+| 22     | TCP       | 0.0.0.0/0 |
+| 80     | TCP       | 0.0.0.0/0 |
+| 443    | TCP       | 0.0.0.0/0 |
 
 ---
 
@@ -120,6 +129,10 @@ docker compose -f docker-compose.prod.yml run --rm certbot certonly --webroot --
 | GET    | `/api/v1/predictions/community_stats/`      | No   | % votos por combate         |
 | POST   | `/api/v1/predictions/`                      | ✅   | Crear/actualizar predicción |
 | GET    | `/api/v1/predictions/betrayals/`            | ✅   | Contador de traiciones      |
+| GET    | `/api/v1/predictions/arguments/?fight={id}` | No   | Argumentos por combate      |
+| POST   | `/api/v1/predictions/arguments/`            | ✅   | Crear/editar argumento      |
+| POST   | `/api/v1/predictions/arguments/{id}/vote/`  | ✅   | Votar/desvotar argumento    |
+| POST   | `/api/v1/predictions/arguments/{id}/reply/` | ✅   | Responder a argumento       |
 | GET    | `/api/v1/users/me/`                         | ✅   | Perfil del usuario          |
 | GET    | `/api/v1/users/me/stats/`                   | ✅   | Stats y badge del usuario   |
 | POST   | `/api/v1/fantasy/leagues/`                  | ✅   | Crear liga                  |
@@ -137,7 +150,7 @@ veladazone-cubepath/
 │   │   ├── apps/
 │   │   │   ├── users/          # Auth + Twitch OAuth + JWT cookies
 │   │   │   ├── fighters/       # Luchadores, ediciones, combates
-│   │   │   ├── predictions/    # Predicciones + IA + badges + traiciones
+│   │   │   ├── predictions/    # Predicciones + IA + badges + traiciones + debate
 │   │   │   └── fantasy/        # Ligas fantasy + ranking
 │   │   └── settings/
 │   │       ├── base.py
@@ -149,11 +162,12 @@ veladazone-cubepath/
 ├── frontend/                   # Next.js 16.2
 │   └── src/
 │       └── app/
-│           ├── page.tsx         # Home + countdown
-│           ├── stats/           # Historial de ediciones
-│           ├── predicciones/    # Predicciones + termómetro + IA
-│           ├── fantasy/         # Ligas fantasy
-│           └── mi-cartel/       # Cartel personalizado
+│           ├── page.tsx                    # Home + countdown
+│           ├── stats/                      # Historial de ediciones
+│           ├── predicciones/               # Predicciones + termómetro + IA + debate
+│           │   └── components/debate/      # Modo debate (ArgumentCard, ArgumentInput...)
+│           ├── fantasy/                    # Ligas fantasy
+│           └── mi-cartel/                  # Cartel personalizado
 ├── docker-compose.yml          # Desarrollo local
 ├── docker-compose.prod.yml     # Producción CubePath
 └── nginx.prod.conf             # Proxy reverso + HTTPS

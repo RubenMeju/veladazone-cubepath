@@ -10,23 +10,35 @@ from veladazone.apps.fighters.models import Fight, Fighter
 
 
 def generate_ai_comment(fighter_name: str, opponent_name: str, edition: int) -> str:
-    """Call Gemini API to generate an epic Spanish boxing commentator line."""
+    """Call Groq API to generate an epic Spanish boxing commentator line."""
     try:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={settings.GEMINI_API_KEY}"
-        prompt = (
-            f"Eres un comentarista épico de boxeo español para La Velada del Año {edition}. "
-            f"El usuario acaba de apostar por {fighter_name} contra {opponent_name}. "
-            f"Genera UNA sola frase épica, dramática y divertida en español (máximo 2 líneas) "
-            f"al estilo de los grandes eventos de boxeo. "
-            f"Menciona a {fighter_name} como el elegido. Sin emojis. Solo texto épico."
-        )
-        payload = {"contents": [{"parts": [{"text": prompt}]}]}
-        response = requests.post(url, json=payload, timeout=10)
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {settings.GROQ_API_KEY}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "model": "llama-3.3-70b-versatile",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": (
+                        f"Eres un comentarista épico de boxeo español para La Velada del Año {edition}. "
+                        f"El usuario acaba de apostar por {fighter_name} contra {opponent_name}. "
+                        f"Genera UNA sola frase épica, dramática y divertida en español (máximo 2 líneas) "
+                        f"al estilo de los grandes eventos de boxeo. "
+                        f"Menciona a {fighter_name} como el elegido. Sin emojis. Solo texto épico."
+                    ),
+                }
+            ],
+            "max_tokens": 150,
+            "temperature": 0.9,
+        }
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
         data = response.json()
-        return data["candidates"][0]["content"]["parts"][0]["text"]
+        return data["choices"][0]["message"]["content"].strip()
     except Exception:
         return f"¡{fighter_name} ha sido elegido para escribir su leyenda esta noche!"
-
 
 class PredictionViewSet(viewsets.ModelViewSet):
     serializer_class = PredictionSerializer
