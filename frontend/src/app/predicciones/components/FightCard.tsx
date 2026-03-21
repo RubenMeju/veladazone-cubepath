@@ -4,6 +4,7 @@ import { CommunityStats, Fight, Prediction } from "@/types";
 import { FighterButton } from "./Fighterbutton";
 import { Thermometer } from "./Thermometer";
 import { DebateSection } from "./debate/DebateSection";
+import { ShareFightButton } from "./ShareFightButton";
 
 export function FightCard({
   fight,
@@ -92,6 +93,10 @@ export function FightCard({
             </p>
           </div>
         )}
+
+        <div className="mt-3 flex justify-end">
+          <ShareFightButton fight={fight} prediction={prediction} />
+        </div>
 
         {/* Debate */}
         <DebateSection fight={fight} userPrediction={prediction} />
