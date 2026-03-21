@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import api_view, permission_classes
 import requests
 from django.conf import settings
+from django.db import models
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from .models import Fighter, Edition, Fight
@@ -19,8 +20,8 @@ class FighterViewSet(viewsets.ReadOnlyModelViewSet):
         edition = self.request.query_params.get("edition")  # type: ignore
         if edition:
             qs = qs.filter(
-                models.Q(fights_as_fighter1__edition__number=edition) |
-                models.Q(fights_as_fighter2__edition__number=edition)
+                models.Q(fights_as_fighter1__edition__number=edition)
+                | models.Q(fights_as_fighter2__edition__number=edition)
             ).distinct()
         return qs
 
