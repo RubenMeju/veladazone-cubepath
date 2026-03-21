@@ -235,10 +235,28 @@ class ArgumentViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # Comprueba si ya existe y si puede editar
+        existing = Argument.objects.filter(user=request.user, fight=fight).first()
+        if existing:
+            if existing.edited:
+                return Response(
+                    {"error": "Solo puedes editar tu argumento una vez"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if existing.vote_count >= 3:
+                return Response(
+                    {"error": "No puedes editar un argumento con 3 o más votos"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
         argument, created = Argument.objects.update_or_create(
             user=request.user,
             fight=fight,
-            defaults={"fighter_supported": fighter, "text": text},
+            defaults={
+                "fighter_supported": fighter,
+                "text": text,
+                "edited": existing is not None,  # True si estaba editando, False si es nuevo
+            },
         )
 
         return Response(

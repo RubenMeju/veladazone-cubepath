@@ -45,6 +45,7 @@ class Argument(models.Model):
         Fighter, on_delete=models.CASCADE, related_name="arguments"
     )
     text = models.CharField(max_length=280)
+    edited = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

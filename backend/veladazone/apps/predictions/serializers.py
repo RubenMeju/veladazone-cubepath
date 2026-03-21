@@ -47,6 +47,7 @@ class ArgumentSerializer(serializers.ModelSerializer):
     replies = ArgumentReplySerializer(many=True, read_only=True)
     user_voted = serializers.SerializerMethodField()
     user_replied = serializers.SerializerMethodField()
+    edited = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Argument
@@ -61,6 +62,7 @@ class ArgumentSerializer(serializers.ModelSerializer):
             "replies",
             "user_voted",
             "user_replied",
+            "edited",
             "created_at",
         ]
 
