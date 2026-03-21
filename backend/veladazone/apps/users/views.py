@@ -127,3 +127,87 @@ class MyStatsView(APIView):
                 "badge": get_badge(correct, total),
             }
         )
+
+class PublicProfileView(APIView):
+    permission_classes = []
+
+    def get(self, request, username):
+        try:
+            user = User.objects.get(twitch_username=username)
+        except User.DoesNotExist:
+            return Response({"error": "Usuario no encontrado"}, status=404)
+
+        from django.db.models import Count, Q
+        from veladazone.apps.predictions.models import Prediction, Argument
+
+        # Incrementa contador de visitas
+        user.profile_views = (user.profile_views or 0) + 1
+        user.save(update_fields=["profile_views"])
+
+        # Stats
+        stats = Prediction.objects.filter(user=user).aggregate(
+            total=Count("id"),
+            correct=Count("id", filter=Q(is_correct=True)),
+        )
+        total = stats["total"] or 0
+        correct = stats["correct"] or 0
+        accuracy = round((correct / total) * 100) if total > 0 else 0
+
+        # Predicciones
+        predictions = Prediction.objects.filter(user=user).select_related(
+            "fight__fighter1", "fight__fighter2", "predicted_winner"
+        ).order_by("-created_at")
+
+        # Argumentos
+        arguments = Argument.objects.filter(user=user).select_related(
+            "fight__fighter1", "fight__fighter2", "fighter_supported"
+        ).order_by("-created_at")[:5]
+
+        # Traiciones
+        betrayals = Prediction.objects.filter(
+            user=user, betrayal_count__gt=0
+        ).aggregate(total=Count("betrayal_count"))
+
+        def get_badge(correct, total):
+            if total == 0:
+                return {"label": "Novato", "color": "#6b7280", "emoji": "🥊"}
+            accuracy = (correct / total) * 100
+            if correct >= 8 and accuracy >= 80:
+                return {"label": "Oráculo", "color": "#f4a261", "emoji": "🔮"}
+            elif correct >= 5 and accuracy >= 65:
+                return {"label": "Experto", "color": "#e63946", "emoji": "🏆"}
+            elif correct >= 3 and accuracy >= 50:
+                return {"label": "Analista", "color": "#9146FF", "emoji": "📊"}
+            return {"label": "Novato", "color": "#6b7280", "emoji": "🥊"}
+
+        return Response({
+            "username": user.twitch_username,
+            "display_name": user.display_name,
+            "avatar": user.avatar_url,
+            "profile_views": user.profile_views,
+            "stats": {
+                "total": total,
+                "correct": correct,
+                "accuracy": accuracy,
+                "badge": get_badge(correct, total),
+            },
+            "betrayal_count": sum(p.betrayal_count for p in Prediction.objects.filter(user=user, betrayal_count__gt=0)),
+            "predictions": [
+                {
+                    "fight": f"{p.fight.fighter1.name} vs {p.fight.fighter2.name}",
+                    "pick": p.predicted_winner.name,
+                    "pick_flag": p.predicted_winner.country_flag,
+                    "is_correct": p.is_correct,
+                }
+                for p in predictions
+            ],
+            "arguments": [
+                {
+                    "fight": f"{a.fight.fighter1.name} vs {a.fight.fighter2.name}",
+                    "fighter": a.fighter_supported.name,
+                    "text": a.text,
+                    "votes": a.vote_count,
+                }
+                for a in arguments
+            ],
+        })

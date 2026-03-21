@@ -60,19 +60,24 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           {isAuthenticated() && user ? (
             <div className="flex items-center gap-3">
-              {user.avatar_url && (
-                <img
-                  src={user.avatar_url}
-                  alt={user.twitch_username}
-                  className="w-8 h-8 rounded-full border border-[#2a2a2a]"
-                />
-              )}
-              <div className="hidden md:block">
-                <div className="text-sm text-gray-300">
-                  {user.twitch_username}
+              <Link
+                href={`/perfil/${user.twitch_username}`}
+                className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+              >
+                {user.avatar_url && (
+                  <img
+                    src={user.avatar_url}
+                    alt={user.twitch_username}
+                    className="w-8 h-8 rounded-full border border-[#2a2a2a]"
+                  />
+                )}
+                <div className="hidden md:block">
+                  <div className="text-sm text-gray-300">
+                    {user.twitch_username}
+                  </div>
+                  <UserBadge />
                 </div>
-                <UserBadge />
-              </div>
+              </Link>
               <button
                 onClick={handleLogout}
                 className="text-sm text-gray-500 hover:text-white transition-colors"
