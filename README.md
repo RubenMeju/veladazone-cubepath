@@ -9,8 +9,9 @@ La plataforma definitiva para La Velada del Año 6. Predicciones con IA, estadí
 ## ✨ Funcionalidades
 
 - **🔐 Login con Twitch** — entra con tu cuenta real en un clic, sin formularios
-- **📊 Stats & Historia** — historial completo de las 6 ediciones con stats y récords por luchador
-- **🎯 Predicciones** — elige tu ganador en cada combate y recibe un comentario épico generado por IA (Gemini 2.0 Flash)
+- **📊 Stats & Historia** — historial completo de las 6 ediciones con stats, récords por luchador y análisis épico generado por IA
+- **🎯 Predicciones** — elige tu ganador en cada combate y recibe un comentario épico generado por IA (Groq + Llama 3.3)
+- **🔮 Predicción de la IA** — descubre qué luchador elegiría la propia IA en cada combate y por qué
 - **🌡️ Termómetro de la comunidad** — ve en tiempo real qué % de usuarios apoya a cada luchador
 - **🎲 La predicción más loca** — descubre qué apuesta sorprende más a la comunidad
 - **🏅 Sistema de badges** — sube de Novato 🥊 a Oráculo 🔮 según tus aciertos
@@ -29,7 +30,7 @@ La plataforma definitiva para La Velada del Año 6. Predicciones con IA, estadí
 | Backend         | Django 5 + Django REST Framework       |
 | Base de datos   | PostgreSQL 16                          |
 | Auth            | Twitch OAuth2 + JWT (cookies HttpOnly) |
-| IA              | Google Gemini 2.0 Flash                |
+| IA              | Groq API + Llama 3.3 70B               |
 | Infraestructura | CubePath VPS (gp.nano)                 |
 
 ---
@@ -61,7 +62,24 @@ El VPS tiene configurado un grupo de firewall en CubePath con las siguientes reg
 
 - Docker y Docker Compose
 - Cuenta en [dev.twitch.tv](https://dev.twitch.tv) para credenciales OAuth
-- API Key de [Google AI Studio](https://aistudio.google.com) (gratuita)
+- API Key de [Groq](https://console.groq.com) (gratuita)
+
+### Variables de entorno necesarias
+
+```env
+SECRET_KEY=tu_secret_key
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+DB_NAME=veladazone
+DB_USER=veladazone
+DB_PASSWORD=veladazone
+DB_HOST=db
+TWITCH_CLIENT_ID=tu_twitch_client_id
+TWITCH_CLIENT_SECRET=tu_twitch_client_secret
+GEMINI_API_KEY=tu_gemini_key   # opcional, legacy
+GROQ_API_KEY=tu_groq_key
+FRONTEND_URL=http://localhost:3000
+```
 
 ### Pasos
 
@@ -120,24 +138,27 @@ docker compose -f docker-compose.prod.yml run --rm certbot certonly --webroot --
 
 ## 📡 API Endpoints
 
-| Método | Endpoint                                    | Auth | Descripción                 |
-| ------ | ------------------------------------------- | ---- | --------------------------- |
-| GET    | `/api/v1/fighters/list/`                    | No   | Lista de luchadores         |
-| GET    | `/api/v1/fighters/editions/`                | No   | Historial de ediciones      |
-| GET    | `/api/v1/fighters/fights/?edition=6`        | No   | Combates de la edición 6    |
-| GET    | `/api/v1/predictions/leaderboard/`          | No   | Ranking global con badges   |
-| GET    | `/api/v1/predictions/community_stats/`      | No   | % votos por combate         |
-| POST   | `/api/v1/predictions/`                      | ✅   | Crear/actualizar predicción |
-| GET    | `/api/v1/predictions/betrayals/`            | ✅   | Contador de traiciones      |
-| GET    | `/api/v1/predictions/arguments/?fight={id}` | No   | Argumentos por combate      |
-| POST   | `/api/v1/predictions/arguments/`            | ✅   | Crear/editar argumento      |
-| POST   | `/api/v1/predictions/arguments/{id}/vote/`  | ✅   | Votar/desvotar argumento    |
-| POST   | `/api/v1/predictions/arguments/{id}/reply/` | ✅   | Responder a argumento       |
-| GET    | `/api/v1/users/me/`                         | ✅   | Perfil del usuario          |
-| GET    | `/api/v1/users/me/stats/`                   | ✅   | Stats y badge del usuario   |
-| POST   | `/api/v1/fantasy/leagues/`                  | ✅   | Crear liga                  |
-| POST   | `/api/v1/fantasy/leagues/join/`             | ✅   | Unirse a liga               |
-| GET    | `/api/v1/fantasy/leagues/{id}/leaderboard/` | ✅   | Ranking de liga             |
+| Método | Endpoint                                      | Auth | Descripción                 |
+| ------ | --------------------------------------------- | ---- | --------------------------- |
+| GET    | `/api/v1/fighters/list/`                      | No   | Lista de luchadores         |
+| GET    | `/api/v1/fighters/list/?edition={n}`          | No   | Luchadores por edición      |
+| GET    | `/api/v1/fighters/editions/`                  | No   | Historial de ediciones      |
+| GET    | `/api/v1/fighters/fights/?edition=6`          | No   | Combates de la edición 6    |
+| GET    | `/api/v1/fighters/{id}/analysis/`             | No   | Análisis IA de un luchador  |
+| GET    | `/api/v1/fighters/fights/{id}/ai-prediction/` | No   | Predicción IA de un combate |
+| GET    | `/api/v1/predictions/leaderboard/`            | No   | Ranking global con badges   |
+| GET    | `/api/v1/predictions/community_stats/`        | No   | % votos por combate         |
+| POST   | `/api/v1/predictions/`                        | ✅   | Crear/actualizar predicción |
+| GET    | `/api/v1/predictions/betrayals/`              | ✅   | Contador de traiciones      |
+| GET    | `/api/v1/predictions/arguments/?fight={id}`   | No   | Argumentos por combate      |
+| POST   | `/api/v1/predictions/arguments/`              | ✅   | Crear/editar argumento      |
+| POST   | `/api/v1/predictions/arguments/{id}/vote/`    | ✅   | Votar/desvotar argumento    |
+| POST   | `/api/v1/predictions/arguments/{id}/reply/`   | ✅   | Responder a argumento       |
+| GET    | `/api/v1/users/me/`                           | ✅   | Perfil del usuario          |
+| GET    | `/api/v1/users/me/stats/`                     | ✅   | Stats y badge del usuario   |
+| POST   | `/api/v1/fantasy/leagues/`                    | ✅   | Crear liga                  |
+| POST   | `/api/v1/fantasy/leagues/join/`               | ✅   | Unirse a liga               |
+| GET    | `/api/v1/fantasy/leagues/{id}/leaderboard/`   | ✅   | Ranking de liga             |
 
 ---
 
@@ -149,7 +170,7 @@ veladazone-cubepath/
 │   ├── veladazone/
 │   │   ├── apps/
 │   │   │   ├── users/          # Auth + Twitch OAuth + JWT cookies
-│   │   │   ├── fighters/       # Luchadores, ediciones, combates
+│   │   │   ├── fighters/       # Luchadores, ediciones, combates + análisis IA
 │   │   │   ├── predictions/    # Predicciones + IA + badges + traiciones + debate
 │   │   │   └── fantasy/        # Ligas fantasy + ranking
 │   │   └── settings/
@@ -163,9 +184,12 @@ veladazone-cubepath/
 │   └── src/
 │       └── app/
 │           ├── page.tsx                    # Home + countdown
-│           ├── stats/                      # Historial de ediciones
+│           ├── stats/                      # Historial + análisis IA por luchador
+│           │   └── components/             # FighterCard, FightRow, EditionInfo
 │           ├── predicciones/               # Predicciones + termómetro + IA + debate
-│           │   └── components/debate/      # Modo debate (ArgumentCard, ArgumentInput...)
+│           │   └── components/
+│           │       ├── debate/             # Modo debate (ArgumentCard, ArgumentInput...)
+│           │       └── AIPrediction.tsx    # Predicción IA por combate
 │           ├── fantasy/                    # Ligas fantasy
 │           └── mi-cartel/                  # Cartel personalizado
 ├── docker-compose.yml          # Desarrollo local
