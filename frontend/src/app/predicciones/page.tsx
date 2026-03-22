@@ -12,6 +12,7 @@ import { Leaderboard } from "./components/Leaderboard";
 import { CraziestPrediction } from "./components/Craziestprediction";
 import { BetrayalCounter } from "./components/BetrayalCounter";
 import { AIPrediction } from "./components/AIPrediction";
+import { DNAPredictor } from "./components/DNAPredictor";
 
 function LoginBanner() {
   return (
@@ -148,6 +149,8 @@ export default function PrediccionesPage() {
         {/* Sidebar */}
         <div className="flex flex-col gap-4 sm:gap-5 min-w-0">
           <Leaderboard />
+          <DNAPredictor />
+
           <AIPrediction fights={fights} />
           <BetrayalCounter />
           <CraziestPrediction stats={communityStats} />

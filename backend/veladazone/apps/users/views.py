@@ -128,6 +128,7 @@ class MyStatsView(APIView):
             }
         )
 
+
 class PublicProfileView(APIView):
     permission_classes = []
 
@@ -154,14 +155,18 @@ class PublicProfileView(APIView):
         accuracy = round((correct / total) * 100) if total > 0 else 0
 
         # Predicciones
-        predictions = Prediction.objects.filter(user=user).select_related(
-            "fight__fighter1", "fight__fighter2", "predicted_winner"
-        ).order_by("-created_at")
+        predictions = (
+            Prediction.objects.filter(user=user)
+            .select_related("fight__fighter1", "fight__fighter2", "predicted_winner")
+            .order_by("-created_at")
+        )
 
         # Argumentos
-        arguments = Argument.objects.filter(user=user).select_related(
-            "fight__fighter1", "fight__fighter2", "fighter_supported"
-        ).order_by("-created_at")[:5]
+        arguments = (
+            Argument.objects.filter(user=user)
+            .select_related("fight__fighter1", "fight__fighter2", "fighter_supported")
+            .order_by("-created_at")[:5]
+        )
 
         # Traiciones
         betrayals = Prediction.objects.filter(
@@ -180,34 +185,149 @@ class PublicProfileView(APIView):
                 return {"label": "Analista", "color": "#9146FF", "emoji": "📊"}
             return {"label": "Novato", "color": "#6b7280", "emoji": "🥊"}
 
-        return Response({
-            "username": user.twitch_username,
-            "display_name": user.display_name,
-            "avatar": user.avatar_url,
-            "profile_views": user.profile_views,
-            "stats": {
-                "total": total,
-                "correct": correct,
-                "accuracy": accuracy,
-                "badge": get_badge(correct, total),
-            },
-            "betrayal_count": sum(p.betrayal_count for p in Prediction.objects.filter(user=user, betrayal_count__gt=0)),
-            "predictions": [
-                {
-                    "fight": f"{p.fight.fighter1.name} vs {p.fight.fighter2.name}",
-                    "pick": p.predicted_winner.name,
-                    "pick_flag": p.predicted_winner.country_flag,
-                    "is_correct": p.is_correct,
-                }
-                for p in predictions
-            ],
-            "arguments": [
-                {
-                    "fight": f"{a.fight.fighter1.name} vs {a.fight.fighter2.name}",
-                    "fighter": a.fighter_supported.name,
-                    "text": a.text,
-                    "votes": a.vote_count,
-                }
-                for a in arguments
-            ],
-        })
+        return Response(
+            {
+                "username": user.twitch_username,  # type: ignore
+                "display_name": user.display_name,  # type: ignore
+                "avatar": user.avatar_url,  # type: ignore
+                "profile_views": user.profile_views,  # type: ignore
+                "stats": {
+                    "total": total,
+                    "correct": correct,
+                    "accuracy": accuracy,
+                    "badge": get_badge(correct, total),
+                },
+                "betrayal_count": sum(
+                    p.betrayal_count
+                    for p in Prediction.objects.filter(user=user, betrayal_count__gt=0)
+                ),
+                "predictions": [
+                    {
+                        "fight": f"{p.fight.fighter1.name} vs {p.fight.fighter2.name}",
+                        "pick": p.predicted_winner.name,
+                        "pick_flag": p.predicted_winner.country_flag,
+                        "is_correct": p.is_correct,
+                    }
+                    for p in predictions
+                ],
+                "arguments": [
+                    {
+                        "fight": f"{a.fight.fighter1.name} vs {a.fight.fighter2.name}",
+                        "fighter": a.fighter_supported.name,
+                        "text": a.text,
+                        "votes": a.vote_count,
+                    }
+                    for a in arguments
+                ],
+            }
+        )
+
+
+## ADN Prediction
+class DNAView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        from veladazone.apps.predictions.models import Prediction
+        import requests as http_requests
+
+        predictions = Prediction.objects.filter(user=request.user).select_related(
+            "fight__fighter1", "fight__fighter2", "predicted_winner"
+        )
+
+        if not predictions.exists():
+            return Response({"error": "No tienes predicciones aún"}, status=400)
+
+        total = predictions.count()
+        betrayals = sum(p.betrayal_count for p in predictions)
+
+        # Análisis de patrones
+        community_picks = 0
+        underdog_picks = 0
+        spanish_picks = 0
+        foreign_picks = 0
+
+        from veladazone.apps.predictions.models import Prediction as P
+        from django.db.models import Count
+
+        for pred in predictions:
+            # Cuenta votos comunidad
+            f1_votes = P.objects.filter(
+                fight=pred.fight, predicted_winner=pred.fight.fighter1
+            ).count()
+            f2_votes = P.objects.filter(
+                fight=pred.fight, predicted_winner=pred.fight.fighter2
+            ).count()
+            total_votes = f1_votes + f2_votes
+
+            if total_votes > 0:
+                picked_votes = (
+                    f1_votes
+                    if pred.predicted_winner == pred.fight.fighter1
+                    else f2_votes
+                )
+                pct = (picked_votes / total_votes) * 100
+                if pct >= 50:
+                    community_picks += 1
+                else:
+                    underdog_picks += 1
+
+            # Picks por país
+            if pred.predicted_winner.country in ["España", "Spain"]:
+                spanish_picks += 1
+            else:
+                foreign_picks += 1
+
+        try:
+            url = "https://api.groq.com/openai/v1/chat/completions"
+            headers = {
+                "Authorization": f"Bearer {settings.GROQ_API_KEY}",
+                "Content-Type": "application/json",
+            }
+            payload = {
+                "model": "llama-3.3-70b-versatile",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": (
+                            f"Eres un analista épico de La Velada del Año. "
+                            f"Analiza el perfil de predictor del usuario con estos datos: "
+                            f"- Total de predicciones: {total}/10 "
+                            f"- Picks con la comunidad (favoritos): {community_picks} "
+                            f"- Picks contra la comunidad (underdogs): {underdog_picks} "
+                            f"- Picks de luchadores españoles: {spanish_picks} "
+                            f"- Picks de luchadores extranjeros: {foreign_picks} "
+                            f"- Número de traiciones (cambios de pick): {betrayals} "
+                            f"Genera un análisis épico y dramático en español de máximo 3 líneas "
+                            f"describiendo su personalidad como predictor de La Velada. "
+                            f"Sé creativo, usa metáforas de boxeo. Sin emojis. "
+                            f"Empieza siempre con un título de una sola palabra en mayúsculas que defina su tipo de predictor "
+                            f"(ejemplo: ESTRATEGA, REBELDE, TRAIDOR, VISIONARIO, COBARDE, LEAL, etc) "
+                            f"seguido de dos puntos y el análisis."
+                        ),
+                    }
+                ],
+                "max_tokens": 200,
+                "temperature": 0.9,
+            }
+            response = http_requests.post(
+                url, headers=headers, json=payload, timeout=10
+            )
+            data = response.json()
+            dna_text = data["choices"][0]["message"]["content"].strip()
+        except Exception:
+            dna_text = "MISTERIOSO: Tu estilo de predicción desafía todo análisis. Eres un enigma en el ring."
+
+        return Response(
+            {
+                "dna": dna_text,
+                "stats": {
+                    "total": total,
+                    "community_picks": community_picks,
+                    "underdog_picks": underdog_picks,
+                    "spanish_picks": spanish_picks,
+                    "foreign_picks": foreign_picks,
+                    "betrayals": betrayals,
+                },
+            }
+        )
