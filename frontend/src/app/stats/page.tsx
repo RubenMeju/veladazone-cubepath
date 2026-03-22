@@ -25,13 +25,13 @@ export default function StatsPage() {
   const currentEdition = editions?.find((e) => e.number === selectedEdition);
 
   return (
-    <div className="min-h-screen bg-[#050505]">
+    <div className="page-container">
       {/* Background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[radial-gradient(ellipse_at_top,_#e63946_0%,_transparent_65%)] opacity-5" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 py-12">
+      <div className="relative">
         {/* Header */}
         <div className="mb-10">
           <div className="text-[11px] text-[#e63946]/60 tracking-[0.4em] uppercase mb-3 font-medium">

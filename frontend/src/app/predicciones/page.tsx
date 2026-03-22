@@ -94,65 +94,63 @@ export default function PrediccionesPage() {
   const totalPredictions = Array.isArray(predictions) ? predictions.length : 0;
 
   return (
-    <div className="min-h-screen bg-[#050505]">
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:py-12">
-        {/* Header */}
-        <div className="mb-6 sm:mb-8">
-          <div className="text-[11px] text-[#e63946]/60 tracking-[0.4em] uppercase mb-2 font-medium">
-            Velada del Año 6 · 25 Julio 2026
-          </div>
-          <h1 className="font-bebas text-5xl sm:text-6xl md:text-8xl text-white tracking-wider leading-none mb-2">
-            PREDIC<span className="text-[#e63946]">CIONES</span>
-          </h1>
-          <p className="text-gray-500 text-sm">
-            Elige tu ganador en cada combate y compite por ser el mejor
-            predictor
-          </p>
+    <div className="page-container ">
+      {/* Header */}
+      <div className="mb-6 sm:mb-8">
+        <div className="text-[11px] text-[#e63946]/60 tracking-[0.4em] uppercase mb-2 font-medium">
+          Velada del Año 6 · 25 Julio 2026
+        </div>
+        <h1
+          className="font-bebas text-white tracking-wide leading-none mb-2"
+          style={{ fontSize: "clamp(2.5rem, 12vw, 6rem)" }}
+        >
+          PREDIC<span className="text-[#e63946]">CIONES</span>
+        </h1>
+        <p className="text-gray-500 text-sm">
+          Elige tu ganador en cada combate y compite por ser el mejor predictor
+        </p>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
+        {/* Main — combates */}
+        <div className="lg:col-span-2 min-w-0">
+          {user ? (
+            <PredictionProgress total={totalPredictions} />
+          ) : (
+            <LoginBanner />
+          )}
+
+          {loadingFights ? (
+            <div className="flex flex-col gap-3">
+              {[...Array(3)].map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-[#0d0d0d] border border-white/5 rounded-2xl h-40 animate-pulse"
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {fights?.map((fight) => (
+                <FightCard
+                  key={fight.id}
+                  fight={fight}
+                  prediction={getPredictionForFight(fight.id)}
+                  onPredict={handlePredict}
+                  isPending={pendingFightId === fight.id && mutation.isPending}
+                  stats={communityStats?.find((s) => s.fight_id === fight.id)}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
-          {/* Main — combates */}
-          <div className="lg:col-span-2 min-w-0">
-            {user ? (
-              <PredictionProgress total={totalPredictions} />
-            ) : (
-              <LoginBanner />
-            )}
-
-            {loadingFights ? (
-              <div className="flex flex-col gap-3">
-                {[...Array(3)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="bg-[#0d0d0d] border border-white/5 rounded-2xl h-40 animate-pulse"
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                {fights?.map((fight) => (
-                  <FightCard
-                    key={fight.id}
-                    fight={fight}
-                    prediction={getPredictionForFight(fight.id)}
-                    onPredict={handlePredict}
-                    isPending={
-                      pendingFightId === fight.id && mutation.isPending
-                    }
-                    stats={communityStats?.find((s) => s.fight_id === fight.id)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Sidebar */}
-          <div className="flex flex-col gap-4 sm:gap-5 min-w-0">
-            <Leaderboard />
-            <AIPrediction fights={fights} />
-            <BetrayalCounter />
-            <CraziestPrediction stats={communityStats} />
-          </div>
+        {/* Sidebar */}
+        <div className="flex flex-col gap-4 sm:gap-5 min-w-0">
+          <Leaderboard />
+          <AIPrediction fights={fights} />
+          <BetrayalCounter />
+          <CraziestPrediction stats={communityStats} />
         </div>
       </div>
     </div>
