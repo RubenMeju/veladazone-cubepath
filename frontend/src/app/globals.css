@@ -1,4 +1,8 @@
 @import "tailwindcss";
+/* outline para debug */
+* {
+  outline: 1px solid red;
+}
 
 :root {
   --background: #ffffff;
