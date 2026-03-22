@@ -13,6 +13,7 @@ import { CraziestPrediction } from "./components/Craziestprediction";
 import { BetrayalCounter } from "./components/BetrayalCounter";
 import { AIPrediction } from "./components/AIPrediction";
 import { DNAPredictor } from "./components/DNAPredictor";
+import { CompletionCelebration } from "./components/CompletionCelebration";
 
 function LoginBanner() {
   return (
@@ -156,6 +157,7 @@ export default function PrediccionesPage() {
           <CraziestPrediction stats={communityStats} />
         </div>
       </div>
+      <CompletionCelebration total={totalPredictions} />
     </div>
   );
 }
