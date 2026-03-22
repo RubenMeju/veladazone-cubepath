@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
@@ -17,12 +17,22 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "VeladaZone — La Velada del Año 6",
-  description: "Predicciones, stats y fantasy league para La Velada del Año 6",
-  openGraph: {
-    title: "VeladaZone — La Velada del Año 6",
-    description: "Haz tus predicciones para La Velada del Año 6",
-    images: ["/og-image.png"],
+  description:
+    "Predicciones, debate, fantasy league y más para La Velada del Año 6",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "VeladaZone",
   },
+  icons: {
+    icon: "/icons/icon-192.png",
+    apple: "/icons/icon-192.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#e63946",
 };
 
 export default function RootLayout({

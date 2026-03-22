@@ -17,6 +17,8 @@ La plataforma definitiva para La Velada del Año 6. Predicciones con IA, estadí
 - **🏅 Sistema de badges** — sube de Novato 🥊 a Oráculo 🔮 según tus aciertos
 - **🗡️ Contador de traiciones** — la app recuerda cuántas veces has cambiado de bando
 - **💬 Modo Debate** — deja tu argumento defendiendo a tu luchador, responde a otros y vota los mejores
+- **👤 Perfil público** — perfil compartible con tus stats, predicciones y argumentos con contador de visitas
+- **↗️ Compartir predicción** — comparte tu pick de cada combate en X, WhatsApp, Telegram y Facebook
 - **🃏 Cartel personalizado** — genera y comparte tu cartel de predicciones para redes sociales
 - **🏆 Fantasy League** — crea ligas privadas con amigos, compite por puntos y sigue el ranking en tiempo real
 
@@ -156,6 +158,8 @@ docker compose -f docker-compose.prod.yml run --rm certbot certonly --webroot --
 | POST   | `/api/v1/predictions/arguments/{id}/reply/`   | ✅   | Responder a argumento       |
 | GET    | `/api/v1/users/me/`                           | ✅   | Perfil del usuario          |
 | GET    | `/api/v1/users/me/stats/`                     | ✅   | Stats y badge del usuario   |
+| GET    | `/api/v1/users/profile/{username}/`           | No   | Perfil público de usuario   |
+| POST   | `/api/v1/users/token/refresh/`                | No   | Refresh del JWT             |
 | POST   | `/api/v1/fantasy/leagues/`                    | ✅   | Crear liga                  |
 | POST   | `/api/v1/fantasy/leagues/join/`               | ✅   | Unirse a liga               |
 | GET    | `/api/v1/fantasy/leagues/{id}/leaderboard/`   | ✅   | Ranking de liga             |
@@ -169,7 +173,7 @@ veladazone-cubepath/
 ├── backend/                    # Django API
 │   ├── veladazone/
 │   │   ├── apps/
-│   │   │   ├── users/          # Auth + Twitch OAuth + JWT cookies
+│   │   │   ├── users/          # Auth + Twitch OAuth + JWT cookies + perfil público
 │   │   │   ├── fighters/       # Luchadores, ediciones, combates + análisis IA
 │   │   │   ├── predictions/    # Predicciones + IA + badges + traiciones + debate
 │   │   │   └── fantasy/        # Ligas fantasy + ranking
@@ -189,7 +193,10 @@ veladazone-cubepath/
 │           ├── predicciones/               # Predicciones + termómetro + IA + debate
 │           │   └── components/
 │           │       ├── debate/             # Modo debate (ArgumentCard, ArgumentInput...)
-│           │       └── AIPrediction.tsx    # Predicción IA por combate
+│           │       ├── AIPrediction.tsx    # Predicción IA por combate
+│           │       └── ShareFightButton.tsx # Compartir predicción en redes
+│           ├── perfil/
+│           │   └── [username]/             # Perfil público de usuario
 │           ├── fantasy/                    # Ligas fantasy
 │           └── mi-cartel/                  # Cartel personalizado
 ├── docker-compose.yml          # Desarrollo local
