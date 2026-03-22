@@ -45,7 +45,7 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#050505]">
+      <div className="page-container">
         <div className="max-w-4xl mx-auto px-4 py-12">
           <div className="flex items-center gap-4 mb-8">
             <div className="w-20 h-20 rounded-full bg-[#0d0d0d] border border-white/5 animate-pulse" />
