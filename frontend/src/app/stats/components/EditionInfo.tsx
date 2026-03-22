@@ -1,6 +1,7 @@
 "use client";
 
 import { Edition } from "@/types";
+import { EditionAISummary } from "./EditionAISummary";
 
 export function EditionInfo({ edition }: { edition: Edition }) {
   return (
@@ -47,6 +48,8 @@ export function EditionInfo({ edition }: { edition: Edition }) {
           </div>
         </div>
       </div>
+
+      <EditionAISummary editionNumber={edition.number} />
     </div>
   );
 }

@@ -4,6 +4,7 @@ from .views import (
     FighterViewSet,
     EditionViewSet,
     FightViewSet,
+    edition_ai_summary,
     fight_ai_prediction,
     fighter_ai_analysis,
 )
@@ -19,5 +20,10 @@ urlpatterns = router.urls + [
         "fights/<int:fight_id>/ai-prediction/",
         fight_ai_prediction,
         name="fight-ai-prediction",
+    ),
+    path(
+        "editions/<int:edition_number>/summary/",
+        edition_ai_summary,
+        name="edition-summary",
     ),
 ]

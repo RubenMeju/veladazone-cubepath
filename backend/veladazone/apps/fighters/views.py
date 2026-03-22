@@ -161,3 +161,58 @@ def fight_ai_prediction(request, fight_id):
             "predicted_fighter": predicted_fighter,
         }
     )
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def edition_ai_summary(request, edition_number):
+    try:
+        edition = Edition.objects.prefetch_related(
+            "fights__fighter1", "fights__fighter2", "fights__winner"
+        ).get(number=edition_number)
+    except Edition.DoesNotExist:
+        return Response({"error": "Edición no encontrada"}, status=404)
+
+    # Construye contexto de la edición
+    fights_info = []
+    for fight in edition.fights.all():
+        if fight.winner:
+            fights_info.append(
+                f"{fight.winner.name} venció a "
+                f"{''.join([fight.fighter1.name if fight.winner == fight.fighter2 else fight.fighter2.name])}"
+                f"{' (' + fight.result_method + ')' if fight.result_method else ''}"
+            )
+
+    fights_text = ", ".join(fights_info) if fights_info else "combates pendientes"
+
+    try:
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {settings.GROQ_API_KEY}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "model": "llama-3.3-70b-versatile",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": (
+                        f"Eres un narrador épico de La Velada del Año. "
+                        f"Narra la Velada del Año {edition_number} celebrada en {edition.year} "
+                        f"en {edition.venue or 'recinto desconocido'}, {edition.city or 'España'}. "
+                        f"Resultados: {fights_text}. "
+                        f"Genera un resumen épico y dramático en español de máximo 4 líneas "
+                        f"como si fuera la intro de un documental de boxeo. "
+                        f"Menciona el año y el lugar. Sin emojis. Solo narrativa épica."
+                    ),
+                }
+            ],
+            "max_tokens": 250,
+            "temperature": 0.85,
+        }
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        data = response.json()
+        summary = data["choices"][0]["message"]["content"].strip()
+    except Exception:
+        summary = f"La Velada del Año {edition_number} pasó a la historia como una noche inolvidable."
+
+    return Response({"summary": summary})
