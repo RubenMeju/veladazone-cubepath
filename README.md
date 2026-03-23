@@ -63,14 +63,20 @@ El proyecto usa **dos VPS gp.nano de CubePath** en Barcelona:
 
 `laveladazone.duckdns.org` con certificado SSL (Let's Encrypt)
 
-### Firewall
+### Firewall VPS 1
 
 | Puerto | Protocolo | Origen    |
 | ------ | --------- | --------- |
 | 22     | TCP       | 0.0.0.0/0 |
 | 80     | TCP       | 0.0.0.0/0 |
 | 443    | TCP       | 0.0.0.0/0 |
-| 6379   | TCP       | 0.0.0.0/0 |
+
+### Firewall VPS 2
+
+| Puerto | Protocolo | Origen       |
+| ------ | --------- | ------------ |
+| 22     | TCP       | 0.0.0.0/0    |
+| 6379   | TCP       | IP_VPS1_ONLY |
 
 ---
 

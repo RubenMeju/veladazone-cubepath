@@ -15,4 +15,12 @@ RUN python manage.py collectstatic --noinput --settings=veladazone.settings.prod
 
 EXPOSE 8000
 
-CMD ["gunicorn", "veladazone.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2"]
+CMD ["gunicorn", "veladazone.wsgi:application", \
+    "--bind", "0.0.0.0:8000", \
+    "--workers", "3", \
+    "--worker-class", "gthread", \
+    "--threads", "2", \
+    "--timeout", "120", \
+    "--keep-alive", "5", \
+    "--max-requests", "1000", \
+    "--max-requests-jitter", "100"]
