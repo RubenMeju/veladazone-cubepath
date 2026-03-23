@@ -25,7 +25,7 @@ THIRD_PARTY_APPS = [
     "rest_framework_simplejwt",
     "corsheaders",
     "social_django",
-    "ratelimit",
+    "django_ratelimit",
 ]
 
 LOCAL_APPS = [
@@ -169,4 +169,4 @@ CACHES = {
 }
 
 # Handler para rate limit excedido
-RATELIMIT_EXCEPTION_HANDLER = 'veladazone.utils.ratelimit_handler'
+RATELIMIT_EXCEPTION_HANDLER = "veladazone.utils.ratelimit_handler"
