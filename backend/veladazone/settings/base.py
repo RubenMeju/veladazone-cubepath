@@ -152,9 +152,8 @@ SIMPLE_JWT = {
 }
 
 # Redis cache
-REDIS_HOST = env("REDIS_HOST")
-REDIS_PASSWORD = env("REDIS_PASSWORD")
-
+REDIS_HOST = env("REDIS_HOST", default="localhost")  # type: ignore
+REDIS_PASSWORD = env("REDIS_PASSWORD", default="")  # type: ignore
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
