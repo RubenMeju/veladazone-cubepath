@@ -1,24 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 export function CompletionCelebration({ total }: { total: number }) {
   const [phase, setPhase] = useState<
     "idle" | "entering" | "impact" | "message" | "done"
   >("idle");
-  const [hasShown, setHasShown] = useState(false);
+
+  const triggered = useRef(false);
+
+  const t1 = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const t2 = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (total === 10 && !hasShown) {
-      setHasShown(true);
-      setPhase("entering");
+    if (total !== 10) return;
+    if (triggered.current) return;
+    if (
+      typeof window !== "undefined" &&
+      localStorage.getItem("celebration-shown") === "true"
+    )
+      return;
 
-      setTimeout(() => setPhase("impact"), 900);
-      setTimeout(() => setPhase("message"), 1200);
-      setTimeout(() => setPhase("done"), 6000);
-    }
-  }, [total, hasShown]);
+    triggered.current = true;
+    localStorage.setItem("celebration-shown", "true");
+
+    setTimeout(() => {
+      setPhase("entering");
+      t1.current = setTimeout(() => setPhase("impact"), 900);
+      t2.current = setTimeout(() => setPhase("message"), 1200);
+    }, 0);
+
+    return () => {
+      clearTimeout(t1.current ?? undefined);
+      clearTimeout(t2.current ?? undefined);
+    };
+  }, [total]);
 
   if (phase === "idle" || phase === "done") return null;
 
