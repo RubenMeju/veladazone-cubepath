@@ -4,6 +4,8 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from django.core.cache import cache
+
 from .models import Argument, Prediction
 from .serializers import ArgumentSerializer, PredictionSerializer
 from veladazone.apps.fighters.models import Fight, Fighter
@@ -39,6 +41,7 @@ def generate_ai_comment(fighter_name: str, opponent_name: str, edition: int) -> 
         return data["choices"][0]["message"]["content"].strip()
     except Exception:
         return f"¡{fighter_name} ha sido elegido para escribir su leyenda esta noche!"
+
 
 class PredictionViewSet(viewsets.ModelViewSet):
     serializer_class = PredictionSerializer
@@ -96,6 +99,8 @@ class PredictionViewSet(viewsets.ModelViewSet):
             },
         )
 
+        cache.delete("leaderboard")
+        cache.delete("community_stats")
         return Response(
             PredictionSerializer(prediction).data,
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
@@ -106,6 +111,10 @@ class PredictionViewSet(viewsets.ModelViewSet):
         """Global leaderboard ranked by prediction accuracy."""
         from django.db.models import Count, Q
         from django.contrib.auth import get_user_model
+
+        cached = cache.get("leaderboard")
+        if cached:
+            return Response(cached)
 
         User = get_user_model()
 
@@ -142,11 +151,19 @@ class PredictionViewSet(viewsets.ModelViewSet):
             }
             for i, u in enumerate(users)
         ]
+
+        cache.set("leaderboard", data, 60 * 5)  # 5 minutos
+
         return Response(data)
 
     @action(detail=False, methods=["get"], permission_classes=[AllowAny])
     def community_stats(self, request):
         """Returns community vote % per fight."""
+
+        cached = cache.get("community_stats")
+        if cached:
+            return Response(cached)
+
         fights: list = list(
             Fight.objects.filter(edition__number=6).prefetch_related("predictions")
         )
@@ -167,6 +184,8 @@ class PredictionViewSet(viewsets.ModelViewSet):
                     "total_votes": total,
                 }
             )
+        cache.set("community_stats", result, 60)  # 1 minuto
+
         return Response(result)
 
     @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
@@ -267,7 +286,8 @@ class ArgumentViewSet(viewsets.ModelViewSet):
             defaults={
                 "fighter_supported": fighter,
                 "text": text,
-                "edited": existing is not None,  # True si estaba editando, False si es nuevo
+                "edited": existing
+                is not None,  # True si estaba editando, False si es nuevo
             },
         )
 
