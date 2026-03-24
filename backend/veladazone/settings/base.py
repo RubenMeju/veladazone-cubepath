@@ -181,3 +181,18 @@ CSRF_COOKIE_SECURE = True
 # JWT cookies
 AUTH_COOKIE_SAMESITE = "Lax"
 AUTH_COOKIE_SECURE = True
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "ERROR",
+    },
+}
