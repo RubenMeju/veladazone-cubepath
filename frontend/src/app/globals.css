@@ -35,21 +35,19 @@ body {
   @apply max-w-7xl mx-auto lg:px-12 px-4 py-12 min-h-screen;
 }
 
-@keyframes bounce-up {
-  0% {
-    transform: translateY(50px);
-    opacity: 0;
-  }
-  60% {
-    transform: translateY(-10px);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
+@layer components {
+  .animate-slide-up-fade {
+    animation: slide-up-fade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 }
 
-.animate-bounce-up {
-  animation: bounce-up 0.7s ease-out forwards;
+@keyframes slide-up-fade {
+  0% {
+    transform: translate(-50%, 100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
 }

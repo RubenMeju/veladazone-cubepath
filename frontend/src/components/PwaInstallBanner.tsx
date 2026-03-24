@@ -46,49 +46,61 @@ export default function PwaInstallBanner() {
   if (!showBanner) return null;
 
   return (
-    <div className="fixed bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 z-50 mx-2 w-full max-w-md sm:max-w-lg md:max-w-xl">
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl shadow-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 transition-all duration-500 ease-out">
-        {/* Icono */}
-        <div className="flex-shrink-0">
+    <div className="fixed bottom-6 left-1/2 z-50 w-[calc(100%-2rem)] max-w-xl mx-auto animate-slide-up-fade">
+      <div className="relative overflow-hidden bg-[#1a1a1a]/95 backdrop-blur-md border border-white/10 text-white rounded-2xl shadow-2xl p-5 flex items-center gap-5">
+        {/* Contenedor del Icono */}
+        <div className="flex-shrink-0 bg-gradient-to-br from-[#e63946] to-[#b91c1c] p-3 rounded-xl shadow-lg">
           <svg
-            className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16"
+            className="w-8 h-8 text-white"
             fill="none"
             stroke="currentColor"
-            strokeWidth={2}
+            strokeWidth={2.5}
             viewBox="0 0 24 24"
           >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              d="M12 4v16m8-8H4"
+              d="M12 4.5v15m7.5-7.5h-15"
             />
           </svg>
         </div>
 
         {/* Texto */}
-        <div className="flex-1">
-          <h3 className="font-bold text-base sm:text-lg md:text-xl">
-            Agrega esta app a tu pantalla de inicio
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-lg text-white leading-tight">
+            Instala nuestra App
           </h3>
-          <p className="text-sm sm:text-base opacity-90 mt-1">
-            Rápido acceso, incluso offline y mejor experiencia móvil.
+          <p className="text-gray-400 text-sm mt-0.5 line-clamp-2">
+            Acceso instantáneo y mejor rendimiento offline.
           </p>
         </div>
 
         {/* Botones */}
-        <div className="flex flex-col sm:flex-row gap-2 ml-0 sm:ml-2">
+        <div className="flex items-center gap-3">
           <button
             onClick={handleInstall}
-            className="bg-white text-blue-600 font-semibold px-4 py-2 rounded-lg hover:bg-gray-100 transition"
+            className="bg-white text-black hover:bg-gray-200 active:scale-95 font-bold px-5 py-2 rounded-xl text-sm transition-all duration-200"
           >
             Instalar
           </button>
+
           <button
             onClick={handleDismiss}
-            className="text-white text-xl hover:text-gray-200 transition self-end sm:self-auto"
-            aria-label="Cerrar banner de instalación"
+            className="p-2 text-gray-500 hover:text-white transition-colors"
           >
-            ✕
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
           </button>
         </div>
       </div>
