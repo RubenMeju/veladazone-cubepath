@@ -129,7 +129,7 @@ export default function StatsPage() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-3">
               {fighters?.map((fighter) => (
                 <FighterCard key={fighter.id} fighter={fighter} />
               ))}

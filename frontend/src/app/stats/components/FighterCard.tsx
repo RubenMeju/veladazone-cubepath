@@ -35,19 +35,30 @@ export function FighterCard({ fighter }: { fighter: Fighter }) {
       <div className="group relative flex flex-col h-full bg-[#0d0d0d] border border-white/5 rounded-xl hover:border-white/10 transition-all duration-300 overflow-hidden">
         <div className="relative p-4 flex flex-col h-full uppercase">
           {/* SECCIÓN SUPERIOR: Nombre y Bandera */}
-          <div className="flex items-start gap-3 mb-4 min-h-14 md:min-h-16">
+          <div className="flex items-center gap-4 mb-5 min-h-16 md:min-h-20">
+            {/* El Círculo (Recuperado) - Ahora con tamaño fijo para que no se deforme */}
+            <div className="relative flex-shrink-0">
+              <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-3xl shadow-inner group-hover:border-[#e63946]/30 transition-colors">
+                {fighter.country_flag}
+              </div>
+
+              {/* Decoración opcional: un sutil resplandor detrás del círculo */}
+              <div className="absolute inset-0 rounded-full bg-[#e63946]/5 blur-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+
+            {/* Nombre y País (Alineados a la derecha del círculo) */}
             <div className="flex-1 min-w-0">
-              <h3 className="font-bebas text-lg md:text-xl text-white tracking-wide leading-tight break-all group-hover:text-[#e63946] transition-colors line-clamp-2">
+              <h3 className="font-bebas text-2xl md:text-3xl text-white tracking-wide leading-none break-all group-hover:text-[#e63946] transition-colors line-clamp-2">
                 {fighter.name}
               </h3>
-              <p className="text-[9px] text-gray-500 tracking-widest mt-0.5 truncate">
+              <p className="text-[10px] md:text-xs text-gray-500 tracking-[0.2em] mt-1.5 uppercase truncate opacity-70">
                 {fighter.country}
               </p>
             </div>
           </div>
 
-          {/* SECCIÓN MEDIA: Stats */}
-          <div className="grid grid-cols-3 gap-1 md:gap-1.5 mb-4">
+          {/* SECCIÓN MEDIA: Stats con más padding porque ahora hay sitio */}
+          <div className="grid grid-cols-3 gap-4 mb-4">
             <StatBox
               label="Wins"
               value={fighter.record.wins}
@@ -163,7 +174,7 @@ function StatBox({
       >
         {value}
       </span>
-      <span className="text-[7px] md:text-[9px] text-gray-600 uppercase font-bold tracking-tighter truncate w-full text-center px-0.5">
+      <span className="text-xs md:text-sm text-gray-600 uppercase font-bold tracking-tighter truncate w-full text-center px-0.5">
         {label}
       </span>
     </div>
