@@ -139,7 +139,7 @@ export function FighterCard({ fighter }: { fighter: Fighter }) {
               </h4>
 
               <div className="bg-white/5 rounded-xl p-4 border border-white/5 max-h-96 overflow-y-auto custom-scrollbar">
-                <p className="text-sm md:text-base text-gray-300 leading-relaxed italic">
+                <p className="text-base text-gray-300 leading-relaxed italic">
                   {analysis}
                 </p>
               </div>

@@ -98,7 +98,7 @@ export default function StatsPage() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-6">
               {currentEdition?.fights.map((fight) => (
                 <FightRow key={fight.id} fight={fight} />
               ))}
@@ -129,7 +129,7 @@ export default function StatsPage() {
               ))}
             </div>
           ) : (
-            <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
               {fighters?.map((fighter) => (
                 <FighterCard key={fighter.id} fighter={fighter} />
               ))}
