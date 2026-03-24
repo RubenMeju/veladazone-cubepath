@@ -49,7 +49,7 @@ export default function PwaInstallBanner() {
     <div className="fixed bottom-6 left-1/2 z-50 w-[calc(100%-2rem)] max-w-xl mx-auto animate-slide-up-fade">
       <div className="relative overflow-hidden bg-[#1a1a1a]/95 backdrop-blur-md border border-white/10 text-white rounded-2xl shadow-2xl p-5 flex items-center gap-5">
         {/* Contenedor del Icono */}
-        <div className="flex-shrink-0 bg-gradient-to-br from-[#e63946] to-[#b91c1c] p-3 rounded-xl shadow-lg">
+        <div className="shrink-0 bg-linear-to-br from-[#e63946] to-[#b91c1c] p-3 rounded-xl shadow-lg">
           <svg
             className="w-8 h-8 text-white"
             fill="none"
