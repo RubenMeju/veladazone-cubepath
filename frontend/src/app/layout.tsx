@@ -3,6 +3,7 @@ import { Bebas_Neue, Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/ui/Navbar";
+import PwaInstallBanner from "@/components/PwaInstallBanner";
 
 const bebas = Bebas_Neue({
   weight: "400",
@@ -49,6 +50,7 @@ export default function RootLayout({
         <Providers>
           <Navbar />
           <main>{children}</main>
+          <PwaInstallBanner />
         </Providers>
       </body>
     </html>

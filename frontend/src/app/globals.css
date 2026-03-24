@@ -34,3 +34,22 @@ body {
 .page-container {
   @apply max-w-7xl mx-auto lg:px-12 px-4 py-12 min-h-screen;
 }
+
+@keyframes bounce-up {
+  0% {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-bounce-up {
+  animation: bounce-up 0.7s ease-out forwards;
+}
