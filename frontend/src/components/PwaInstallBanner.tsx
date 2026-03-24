@@ -47,9 +47,12 @@ export default function PwaInstallBanner() {
 
   return (
     <div className="fixed bottom-6 left-1/2 z-50 w-[calc(100%-2rem)] max-w-xl mx-auto animate-slide-up-fade">
-      <div className="relative overflow-hidden bg-[#1a1a1a]/95 backdrop-blur-md border border-white/10 text-white rounded-2xl shadow-2xl p-5 flex items-center gap-5">
-        {/* Contenedor del Icono */}
-        <div className="shrink-0 bg-linear-to-br from-[#e63946] to-[#b91c1c] p-3 rounded-xl shadow-lg">
+      <div
+        className="relative overflow-hidden bg-[#1a1a1a]/95 backdrop-blur-md border border-white/10 text-white rounded-2xl shadow-2xl p-5
+                  flex flex-col sm:flex-row items-center gap-4 sm:gap-5"
+      >
+        {/* Icono */}
+        <div className="shrink-0 bg-gradient-to-br from-[#e63946] to-[#b91c1c] p-3 rounded-xl shadow-lg mb-3 sm:mb-0">
           <svg
             className="w-8 h-8 text-white"
             fill="none"
@@ -66,7 +69,7 @@ export default function PwaInstallBanner() {
         </div>
 
         {/* Texto */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 text-center sm:text-left">
           <h3 className="font-semibold text-lg text-white leading-tight">
             Instala nuestra App
           </h3>
@@ -76,14 +79,13 @@ export default function PwaInstallBanner() {
         </div>
 
         {/* Botones */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 mt-3 sm:mt-0">
           <button
             onClick={handleInstall}
             className="bg-white text-black hover:bg-gray-200 active:scale-95 font-bold px-5 py-2 rounded-xl text-sm transition-all duration-200"
           >
             Instalar
           </button>
-
           <button
             onClick={handleDismiss}
             className="p-2 text-gray-500 hover:text-white transition-colors"
