@@ -78,6 +78,19 @@ El proyecto usa **dos VPS gp.nano de CubePath** en Barcelona:
 | 22     | TCP       | 0.0.0.0/0    |
 | 6379   | TCP       | IP_VPS1_ONLY |
 
+### Rate Limiting (Nginx)
+
+El tráfico está protegido por rate limiting en Nginx con zonas diferenciadas según el tipo de endpoint:
+
+| Zona           | Endpoints                                | Límite     | Burst |
+| -------------- | ---------------------------------------- | ---------- | ----- |
+| `ai_endpoints` | Análisis IA, predicción IA, narración IA | 10 req/min | 5     |
+| `post_actions` | Predicciones, votos, debate              | 20 req/min | 10    |
+| `auth`         | Login, OAuth                             | 5 req/min  | 3     |
+| `general`      | Resto de la API                          | 30 req/min | 20    |
+
+Los endpoints de IA tienen el límite más estricto al implicar llamadas externas a Groq (coste por uso). Todas las requests que superen el límite reciben un `429 Too Many Requests`.
+
 ---
 
 ## 🚀 Desarrollo local
@@ -246,7 +259,7 @@ veladazone-cubepath/
 │           └── mi-cartel/                       # Cartel personalizado
 ├── docker-compose.yml          # Desarrollo local
 ├── docker-compose.prod.yml     # Producción CubePath VPS 1
-└── nginx.prod.conf             # Proxy reverso + HTTPS
+└── nginx.prod.conf             # Proxy reverso + HTTPS + Rate Limiting
 ```
 
 ---
