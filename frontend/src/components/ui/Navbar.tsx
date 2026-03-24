@@ -20,6 +20,26 @@ export function Navbar() {
   const { user, logout, isAuthenticated } = useAuthStore();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const handleTwitchLogin = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const width = 550;
+    const height = 650;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    const popup = window.open(
+      twitchLoginUrl,
+      "twitch_login",
+      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`,
+    );
+    // Escucha cuando el popup cierra y recarga el estado del usuario
+    const timer = setInterval(() => {
+      if (popup?.closed) {
+        clearInterval(timer);
+        window.location.reload();
+      }
+    }, 500);
+  };
+
   const handleLogout = async () => {
     try {
       await fetch(
@@ -101,6 +121,7 @@ export function Navbar() {
               /* Twitch login — icono en móvil, texto en desktop */
               <a
                 href={twitchLoginUrl}
+                onClick={handleTwitchLogin}
                 className="flex items-center gap-2 bg-[#9146FF] hover:bg-[#7c3bdb] text-white font-medium px-3 sm:px-4 py-2 rounded transition-colors"
               >
                 <svg
@@ -190,6 +211,7 @@ export function Navbar() {
             ) : (
               <a
                 href={twitchLoginUrl}
+                onClick={handleTwitchLogin}
                 className="flex items-center justify-center gap-2 bg-[#9146FF] hover:bg-[#7c3bdb] text-white font-bebas text-xl tracking-widest px-6 py-4 rounded-xl transition-colors w-full"
               >
                 <svg

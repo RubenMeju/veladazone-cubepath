@@ -12,16 +12,23 @@ function CallbackHandler() {
   const { setUser } = useAuthStore();
 
   useEffect(() => {
-    // Las cookies ya están seteadas por Django
-    // Solo necesitamos obtener los datos del usuario
     api
       .get<User>("/users/me/")
       .then((user) => {
         setUser(user);
-        router.push("/predicciones");
+        if (window.opener) {
+          // Estamos en popup — cerramos y el padre recarga
+          window.close();
+        } else {
+          router.push("/predicciones");
+        }
       })
       .catch(() => {
-        router.push("/?error=auth_failed");
+        if (window.opener) {
+          window.close();
+        } else {
+          router.push("/?error=auth_failed");
+        }
       });
   }, []);
 
