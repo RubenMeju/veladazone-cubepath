@@ -59,7 +59,7 @@ export function DNAPredictor() {
             TU ADN DE PREDICTOR
           </h3>
         </div>
-        <p className="text-[11px] text-gray-600 tracking-wide mb-4">
+        <p className="text-sm text-gray-600 tracking-wide mb-4">
           La IA analiza tus picks y revela tu personalidad
         </p>
 
@@ -103,7 +103,7 @@ export function DNAPredictor() {
                 <div className="font-bebas text-xl text-white">
                   {data.stats.community_picks}
                 </div>
-                <div className="text-[9px] text-gray-600 uppercase tracking-widest">
+                <div className="text-xs text-gray-600 uppercase tracking-widest">
                   Favoritos
                 </div>
               </div>
@@ -111,7 +111,7 @@ export function DNAPredictor() {
                 <div className="font-bebas text-xl text-[#e63946]">
                   {data.stats.underdog_picks}
                 </div>
-                <div className="text-[9px] text-gray-600 uppercase tracking-widest">
+                <div className="text-xs text-gray-600 uppercase tracking-widest">
                   Underdogs
                 </div>
               </div>
@@ -119,7 +119,7 @@ export function DNAPredictor() {
                 <div className="font-bebas text-xl text-[#f4a261]">
                   {data.stats.betrayals}
                 </div>
-                <div className="text-[9px] text-gray-600 uppercase tracking-widest">
+                <div className="text-xs text-gray-600 uppercase tracking-widest">
                   Traiciones
                 </div>
               </div>
@@ -129,13 +129,13 @@ export function DNAPredictor() {
             <div className="flex gap-2">
               <button
                 onClick={handleShare}
-                className="flex-1 text-[11px] border border-white/10 hover:border-white/20 text-gray-400 hover:text-white py-2 rounded-lg transition-colors tracking-widest uppercase"
+                className="flex-1 text-sm border border-white/10 hover:border-white/20 text-gray-400 hover:text-white py-2 rounded-lg transition-colors tracking-widest uppercase"
               >
                 𝕏 Compartir
               </button>
               <button
                 onClick={() => refetch()}
-                className="text-[11px] border border-white/5 hover:border-white/10 text-gray-600 hover:text-gray-400 px-3 py-2 rounded-lg transition-colors"
+                className="text-sm border border-white/5 hover:border-white/10 text-gray-600 hover:text-gray-400 px-3 py-2 rounded-lg transition-colors"
               >
                 ↺
               </button>

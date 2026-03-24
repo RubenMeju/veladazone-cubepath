@@ -82,7 +82,7 @@ export function FeaturesGrid() {
 
       <section className="max-w-7xl mx-auto px-4 pb-20">
         <div className="border-t border-white/5 pt-10 sm:pt-12">
-          <p className="text-center text-[11px] tracking-[0.4em] text-gray-600 uppercase mb-6 sm:mb-8">
+          <p className="text-center text-sm tracking-[0.4em] text-gray-600 uppercase mb-6 sm:mb-8">
             Todo lo que necesitas para La Velada
           </p>
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3">

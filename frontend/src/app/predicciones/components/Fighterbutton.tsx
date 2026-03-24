@@ -61,7 +61,7 @@ export function FighterButton({
 
         {/* Pick indicator */}
         <div
-          className={`mt-1.5 sm:mt-3 text-[10px] sm:text-[11px] tracking-widest uppercase font-medium transition-all duration-200 ${
+          className={`mt-1.5 sm:mt-3 text-[10px] sm:text-sm tracking-widest uppercase font-medium transition-all duration-200 ${
             isSelected
               ? "text-[#f4a261] opacity-100"
               : "text-gray-700 opacity-0 group-hover:opacity-100"

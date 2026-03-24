@@ -22,7 +22,7 @@ export function PredictionProgress({ total }: { total: number }) {
 
       <div className="relative p-4">
         <div className="flex justify-between items-center mb-3">
-          <span className="text-[11px] text-gray-500 tracking-widest uppercase">
+          <span className="text-sm text-gray-500 tracking-widest uppercase">
             Tu progreso
           </span>
           <div className="flex items-center gap-2">
@@ -69,7 +69,7 @@ export function PredictionProgress({ total }: { total: number }) {
         {/* Complete CTA */}
         {isComplete && (
           <div className="mt-4 flex items-center justify-between">
-            <span className="text-[11px] text-[#f4a261]/70 tracking-widest uppercase">
+            <span className="text-sm text-[#f4a261]/70 tracking-widest uppercase">
               ¡Cartel listo!
             </span>
             <a
@@ -83,7 +83,7 @@ export function PredictionProgress({ total }: { total: number }) {
 
         {/* Incomplete message */}
         {!isComplete && total > 0 && (
-          <p className="mt-2 text-[11px] text-gray-600">
+          <p className="mt-2 text-sm text-gray-600">
             Te faltan{" "}
             <span className="text-gray-400">{10 - total} predicciones</span>{" "}
             para completar tu cartel

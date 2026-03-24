@@ -58,7 +58,7 @@ export function BetrayalCounter() {
           {data.details.map((d, i) => (
             <div key={i} className="flex items-start gap-2">
               <div className="w-1 h-1 rounded-full bg-[#e63946]/40 mt-1.5 flex-shrink-0" />
-              <p className="text-[11px] text-gray-600 leading-relaxed">
+              <p className="text-sm text-gray-600 leading-relaxed">
                 Traicionaste a{" "}
                 <span className="text-gray-400">{d.betrayed}</span>
                 {d.times > 1 && (

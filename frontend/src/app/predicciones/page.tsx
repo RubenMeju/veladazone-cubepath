@@ -99,7 +99,7 @@ export default function PrediccionesPage() {
     <div className="page-container ">
       {/* Header */}
       <div className="mb-6 sm:mb-8">
-        <div className="text-[11px] text-[#e63946]/60 tracking-[0.4em] uppercase mb-2 font-medium">
+        <div className="text-sm text-[#e63946]/60 tracking-[0.4em] uppercase mb-2 font-medium">
           Velada del Año 6 · 25 Julio 2026
         </div>
         <h1

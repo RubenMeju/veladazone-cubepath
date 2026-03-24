@@ -32,7 +32,7 @@ export default function HomePage() {
           {/* Event badge */}
           <div className="inline-flex items-center gap-2 bg-[#e63946]/10 border border-[#e63946]/25 rounded-full px-4 py-2 text-[#e63946] mb-8 backdrop-blur-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-[#e63946] animate-pulse flex-shrink-0" />
-            <span className="tracking-widest text-[10px] sm:text-[11px] font-medium uppercase">
+            <span className="tracking-widest text-[10px] sm:text-sm font-medium uppercase">
               25 Julio 2026 · Estadio La Cartuja · Sevilla
             </span>
           </div>

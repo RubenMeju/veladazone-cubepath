@@ -48,7 +48,7 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
           </span>
         </div>
       </div>
-      <span className="text-[9px] text-[#e63946]/70 mt-1.5 tracking-widest font-medium uppercase">
+      <span className="text-xs text-[#e63946]/70 mt-1.5 tracking-widest font-medium uppercase">
         {label}
       </span>
     </div>

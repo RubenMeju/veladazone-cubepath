@@ -34,7 +34,7 @@ export function PosterCard({
         {/* Main event */}
         {mainEvent && (
           <div className="bg-[#e63946]/10 border border-[#e63946]/30 rounded-xl p-4 mb-4 text-center">
-            <div className="text-[9px] text-[#e63946] tracking-widest mb-2">
+            <div className="text-xs text-[#e63946] tracking-widest mb-2">
               ⭐ COMBATE ESTELAR
             </div>
             <div className="flex items-center justify-center gap-3">

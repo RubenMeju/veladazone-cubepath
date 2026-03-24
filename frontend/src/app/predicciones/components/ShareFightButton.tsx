@@ -61,7 +61,7 @@ export function ShareFightButton({
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 text-[11px] text-gray-600 hover:text-gray-400 transition-colors tracking-widest uppercase"
+        className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-400 transition-colors tracking-widest uppercase"
       >
         <span>↗</span>
         <span>Compartir</span>

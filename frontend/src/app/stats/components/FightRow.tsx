@@ -57,7 +57,7 @@ export function FightRow({ fight }: FightRowProps) {
               >
                 {fight.fighter1.name}
               </div>
-              <div className="text-[11px] text-gray-600">
+              <div className="text-sm text-gray-600">
                 {fight.fighter1.country_flag}
               </div>
             </div>
@@ -72,12 +72,12 @@ export function FightRow({ fight }: FightRowProps) {
               VS
             </div>
             {fight.is_completed && fight.result_method && (
-              <div className="text-[9px] text-gray-600 tracking-widest uppercase">
+              <div className="text-xs text-gray-600 tracking-widest uppercase">
                 {fight.result_method}
               </div>
             )}
             {!fight.is_completed && (
-              <div className="text-[9px] text-gray-700 tracking-widest uppercase">
+              <div className="text-xs text-gray-700 tracking-widest uppercase">
                 pendiente
               </div>
             )}
@@ -104,7 +104,7 @@ export function FightRow({ fight }: FightRowProps) {
               >
                 {fight.fighter2.name}
               </div>
-              <div className="text-[11px] text-gray-600">
+              <div className="text-sm text-gray-600">
                 {fight.fighter2.country_flag}
               </div>
             </div>

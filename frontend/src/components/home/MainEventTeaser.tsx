@@ -10,7 +10,7 @@ export function MainEventTeaser() {
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#e63946]/40 to-transparent" />
 
         <div className="relative px-4 sm:px-8 py-10 sm:py-12 text-center">
-          <div className="text-[11px] text-[#e63946] font-medium tracking-[0.4em] mb-8 uppercase">
+          <div className="text-sm text-[#e63946] font-medium tracking-[0.4em] mb-8 uppercase">
             ⭐ Combate Estelar
           </div>
 

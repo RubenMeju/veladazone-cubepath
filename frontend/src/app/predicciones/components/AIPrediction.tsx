@@ -40,7 +40,7 @@ export function AIPrediction({ fights }: { fights?: Fight[] }) {
             PREDICCIÓN DE LA IA
           </h3>
         </div>
-        <p className="text-[11px] text-gray-600 tracking-wide mb-4">
+        <p className="text-sm text-gray-600 tracking-wide mb-4">
           ¿Qué elegiría la IA en cada combate?
         </p>
 
@@ -86,7 +86,7 @@ export function AIPrediction({ fights }: { fights?: Fight[] }) {
           <div className="bg-[#0a0a0a] border border-[#9146FF]/10 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-4 h-4 rounded-full bg-[#9146FF]/30 animate-pulse" />
-              <span className="text-[11px] text-[#9146FF]/60 tracking-widest uppercase animate-pulse">
+              <span className="text-sm text-[#9146FF]/60 tracking-widest uppercase animate-pulse">
                 Analizando...
               </span>
             </div>
@@ -134,7 +134,7 @@ export function AIPrediction({ fights }: { fights?: Fight[] }) {
         {/* Empty state */}
         {!selectedFightId && !isLoading && (
           <div className="text-center py-4">
-            <p className="text-[11px] text-gray-700 tracking-wide">
+            <p className="text-sm text-gray-700 tracking-wide">
               Selecciona un combate
             </p>
           </div>

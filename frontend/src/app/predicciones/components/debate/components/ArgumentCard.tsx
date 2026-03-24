@@ -53,7 +53,7 @@ export function ArgumentCard({
           </div>
           <p className="text-xs text-gray-400 leading-relaxed">{arg.text}</p>
           {arg.edited && (
-            <span className="text-[9px] text-gray-600 mt-0.5 block">
+            <span className="text-xs text-gray-600 mt-0.5 block">
               ✏️ editado
             </span>
           )}

@@ -37,7 +37,7 @@ export function EditionAISummary({ editionNumber }: { editionNumber: number }) {
         <div className="bg-[#0d0d0d] border border-[#f4a261]/10 rounded-xl p-5 space-y-2">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-3 h-3 rounded-full bg-[#f4a261]/40 animate-pulse" />
-            <span className="text-[11px] text-[#f4a261]/50 tracking-widest uppercase animate-pulse">
+            <span className="text-sm text-[#f4a261]/50 tracking-widest uppercase animate-pulse">
               Narrando...
             </span>
           </div>
