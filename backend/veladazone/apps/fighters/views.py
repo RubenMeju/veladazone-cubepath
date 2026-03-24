@@ -8,7 +8,6 @@ from rest_framework.permissions import AllowAny
 from .models import Fighter, Edition, Fight
 from .serializers import FighterSerializer, EditionSerializer, FightSerializer
 from django.core.cache import cache
-from django_ratelimit.decorators import ratelimit
 
 
 def get_or_generate(cache_key: str, generator_fn, timeout: int = 60 * 60 * 24):
@@ -64,7 +63,6 @@ class FightViewSet(viewsets.ReadOnlyModelViewSet):
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
-@ratelimit(key="ip", rate="10/m", method="GET", block=True)
 def fighter_ai_analysis(request, fighter_id):
     try:
         fighter = Fighter.objects.get(id=fighter_id)
@@ -112,7 +110,6 @@ def fighter_ai_analysis(request, fighter_id):
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
-@ratelimit(key="ip", rate="10/m", method="GET", block=True)
 def fight_ai_prediction(request, fight_id):
     try:
         fight = Fight.objects.select_related("fighter1", "fighter2", "edition").get(
@@ -157,13 +154,13 @@ def fight_ai_prediction(request, fight_id):
             predicted_fighter = None
             if fighter1_name in prediction_text.lower()[:50]:
                 predicted_fighter = {
-                    "id": fight.fighter1.id,
+                    "id": fight.fighter1.id, #type: ignore
                     "name": fight.fighter1.name,
                     "flag": fight.fighter1.country_flag,
                 }
             elif fighter2_name in prediction_text.lower()[:50]:
                 predicted_fighter = {
-                    "id": fight.fighter2.id,
+                    "id": fight.fighter2.id, #type: ignore
                     "name": fight.fighter2.name,
                     "flag": fight.fighter2.country_flag,
                 }
@@ -184,7 +181,6 @@ def fight_ai_prediction(request, fight_id):
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
-@ratelimit(key="ip", rate="10/m", method="GET", block=True)
 def edition_ai_summary(request, edition_number):
     try:
         edition = Edition.objects.prefetch_related(

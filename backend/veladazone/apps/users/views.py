@@ -9,8 +9,7 @@ from django.conf import settings
 from django.views import View
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
-from django.utils.decorators import method_decorator
-from django_ratelimit.decorators import ratelimit
+
 
 User = get_user_model()
 
@@ -25,7 +24,6 @@ class MeView(APIView):
 class TwitchCallbackView(View):
     """After Twitch OAuth, set JWT in HttpOnly cookies and redirect to frontend."""
 
-    @method_decorator(ratelimit(key="ip", rate="20/m", block=True), name="dispatch")
     def get(self, request):
         if request.user.is_authenticated:
             refresh = RefreshToken.for_user(request.user)
@@ -60,7 +58,6 @@ class TokenRefreshView(APIView):
 
     permission_classes = []
 
-    @method_decorator(ratelimit(key="ip", rate="10/m", block=True))
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token")
 
@@ -98,7 +95,6 @@ class LogoutView(View):
 class MyStatsView(APIView):
     permission_classes = [IsAuthenticated]
 
-    @method_decorator(ratelimit(key="user", rate="60/m", block=True))
     def get(self, request):
         from django.db.models import Count, Q
         from veladazone.apps.predictions.models import Prediction
@@ -137,7 +133,6 @@ class MyStatsView(APIView):
 class PublicProfileView(APIView):
     permission_classes = []
 
-    @method_decorator(ratelimit(key="ip", rate="30/m", block=True))
     def get(self, request, username):
         try:
             user = User.objects.get(twitch_username=username)
@@ -148,7 +143,7 @@ class PublicProfileView(APIView):
         from veladazone.apps.predictions.models import Prediction, Argument
 
         # Incrementa contador de visitas
-        user.profile_views = (user.profile_views or 0) + 1
+        user.profile_views = (user.profile_views or 0) + 1  # type: ignore
         user.save(update_fields=["profile_views"])
 
         # Stats
@@ -233,7 +228,6 @@ class PublicProfileView(APIView):
 class DNAView(APIView):
     permission_classes = [IsAuthenticated]
 
-    @method_decorator(ratelimit(key="user", rate="10/h", block=True))
     def get(self, request):
         from veladazone.apps.predictions.models import Prediction
         import requests as http_requests

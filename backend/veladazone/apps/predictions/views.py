@@ -5,9 +5,6 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.core.cache import cache
-from django.utils.decorators import method_decorator
-from django_ratelimit.decorators import ratelimit
-
 from .models import Argument, Prediction
 from .serializers import ArgumentSerializer, PredictionSerializer
 from veladazone.apps.fighters.models import Fight, Fighter
@@ -54,12 +51,10 @@ class PredictionViewSet(viewsets.ModelViewSet):
             "fight", "predicted_winner", "fight__fighter1", "fight__fighter2"
         )
 
-    @method_decorator(ratelimit(key="user", rate="10/m", block=True), name="create")
     def create(self, request, *args, **kwargs):
         fight_id = request.data.get("fight_id")
         winner_id = request.data.get("predicted_winner_id")
 
-        # --- Obtener objetos ---
         try:
             fight = Fight.objects.select_related("fighter1", "fighter2", "edition").get(
                 id=fight_id
@@ -77,7 +72,6 @@ class PredictionViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # --- Verificar traición ---
         existing = Prediction.objects.filter(user=request.user, fight=fight).first()
         betrayal_count = 0
         previous_winner = None
@@ -86,31 +80,10 @@ class PredictionViewSet(viewsets.ModelViewSet):
             previous_winner = existing.predicted_winner
 
         opponent = fight.fighter2 if winner == fight.fighter1 else fight.fighter1
+        ai_comment = generate_ai_comment(
+            winner.name, opponent.name, fight.edition.number
+        )
 
-        # --- Cache de comentario AI ---
-        cache_key = f"ai_comment_{request.user.id}_{fight.pk}"
-        ai_comment = cache.get(cache_key)
-
-        if not ai_comment:
-            # --- Rate limit solo para llamadas externas ---
-            from django_ratelimit.decorators import ratelimit
-
-            limited = ratelimit(key="user", rate="2/m", block=False)(
-                lambda request: None
-            )(request)
-            if limited:
-                return Response(
-                    {"error": "Demasiadas solicitudes de AI, espera un momento."},
-                    status=429,
-                )
-
-            # --- Llamada a API externa ---
-            ai_comment = generate_ai_comment(
-                winner.name, opponent.name, fight.edition.number
-            )
-            cache.set(cache_key, ai_comment, 60 * 5)  # cache 5 minutos
-
-        # --- Crear o actualizar predicción ---
         prediction, created = Prediction.objects.update_or_create(
             user=request.user,
             fight=fight,
@@ -122,7 +95,6 @@ class PredictionViewSet(viewsets.ModelViewSet):
             },
         )
 
-        # --- Limpiar cache global ---
         cache.delete("leaderboard")
         cache.delete("community_stats")
 
@@ -131,7 +103,6 @@ class PredictionViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
         )
 
-    @method_decorator(ratelimit(key="ip", rate="60/m", block=True), name="leaderboard")
     @action(detail=False, methods=["get"], permission_classes=[AllowAny])
     def leaderboard(self, request):
         """Global leaderboard ranked by prediction accuracy."""
@@ -182,9 +153,6 @@ class PredictionViewSet(viewsets.ModelViewSet):
 
         return Response(data)
 
-    @method_decorator(
-        ratelimit(key="ip", rate="60/m", block=True), name="community_stats"
-    )
     @action(detail=False, methods=["get"], permission_classes=[AllowAny])
     def community_stats(self, request):
         """Returns community vote % per fight."""
@@ -217,7 +185,6 @@ class PredictionViewSet(viewsets.ModelViewSet):
 
         return Response(result)
 
-    @method_decorator(ratelimit(key="user", rate="30/m", block=True), name="betrayals")
     @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
     def betrayals(self, request):
         """Returns total betrayals and details per fight."""
@@ -326,7 +293,6 @@ class ArgumentViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
         )
 
-    @method_decorator(ratelimit(key="user", rate="20/m", block=True), name="vote")
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def vote(self, request, pk=None):
         argument = self.get_object()
@@ -345,7 +311,6 @@ class ArgumentViewSet(viewsets.ModelViewSet):
 
         return Response({"voted": True, "vote_count": argument.vote_count})
 
-    @method_decorator(ratelimit(key="user", rate="5/m", block=True), name="reply")
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def reply(self, request, pk=None):
         argument = self.get_object()
