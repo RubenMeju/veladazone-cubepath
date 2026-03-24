@@ -169,6 +169,9 @@ CACHES = {
 
 SOCIAL_AUTH_STRATEGY = 'social_django.strategy.DjangoStrategy'
 SOCIAL_AUTH_STORAGE = 'social_django.models.DjangoStorage'
+SOCIAL_AUTH_TWITCH_IGNORE_DEFAULT_SCOPE = False
+SOCIAL_AUTH_STATE_PARAMETER = True
+SOCIAL_AUTH_SESSION_EXPIRATION = False  # No expira el state
 # Sesiones
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
@@ -176,6 +179,8 @@ SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_AGE = 86400  # 24h
+SESSION_COOKIE_DOMAIN = 'laveladazone.duckdns.org'
+SESSION_COOKIE_NAME = 'veladazone_session'
 
 # CSRF
 CSRF_COOKIE_SAMESITE = "Lax"
