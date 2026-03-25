@@ -11,19 +11,26 @@ function CallbackHandler() {
   const router = useRouter();
   const { setUser } = useAuthStore();
 
+  const fromPWA =
+    typeof window !== "undefined" &&
+    sessionStorage.getItem("from_pwa") === "true";
+
   useEffect(() => {
     api
       .get<User>("/users/me/")
       .then((user) => {
         setUser(user);
+        sessionStorage.removeItem("from_pwa");
         if (window.opener) {
-          // Estamos en popup — cerramos y el padre recarga
           window.close();
+        } else if (fromPWA) {
+          // Vino desde PWA — mostramos mensaje, no redirigimos
         } else {
           router.push("/predicciones");
         }
       })
       .catch(() => {
+        sessionStorage.removeItem("from_pwa");
         if (window.opener) {
           window.close();
         } else {
@@ -31,6 +38,23 @@ function CallbackHandler() {
         }
       });
   }, []);
+
+  if (fromPWA) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#050505]">
+        <div className="text-center px-6">
+          <div className="text-5xl mb-4">✅</div>
+          <div className="font-bebas text-3xl text-white mb-2 tracking-wider">
+            ¡Login completado!
+          </div>
+          <div className="text-gray-400 text-sm mb-6">
+            Vuelve a la app VeladaZone en tu pantalla de inicio para continuar.
+          </div>
+          <div className="text-6xl">🥊</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center">

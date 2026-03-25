@@ -22,6 +22,16 @@ export function Navbar() {
 
   const handleTwitchLogin = (e: React.MouseEvent) => {
     e.preventDefault();
+
+    const isPWA = window.matchMedia("(display-mode: standalone)").matches;
+
+    if (isPWA) {
+      sessionStorage.setItem("from_pwa", "true");
+      window.location.href = twitchLoginUrl;
+      return;
+    }
+
+    // En navegador normal — popup
     const width = 550;
     const height = 650;
     const left = window.screenX + (window.outerWidth - width) / 2;
@@ -31,7 +41,6 @@ export function Navbar() {
       "twitch_login",
       `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`,
     );
-    // Escucha cuando el popup cierra y recarga el estado del usuario
     const timer = setInterval(() => {
       if (popup?.closed) {
         clearInterval(timer);

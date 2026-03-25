@@ -58,6 +58,7 @@ El proyecto usa **dos VPS gp.nano de CubePath** en Barcelona:
 - Narraciones IA de cada edición (24h)
 - Leaderboard global (5 min)
 - Community stats / termómetro (1 min)
+- Sesiones de usuario (24h)
 
 ### Dominio
 
@@ -86,10 +87,22 @@ El tráfico está protegido por rate limiting en Nginx con zonas diferenciadas s
 | -------------- | ---------------------------------------- | ---------- | ----- |
 | `ai_endpoints` | Análisis IA, predicción IA, narración IA | 10 req/min | 5     |
 | `post_actions` | Predicciones, votos, debate              | 20 req/min | 10    |
-| `auth`         | Login, OAuth                             | 5 req/min  | 3     |
+| `auth`         | Login, OAuth                             | 5 req/min  | 10    |
 | `general`      | Resto de la API                          | 30 req/min | 20    |
 
 Los endpoints de IA tienen el límite más estricto al implicar llamadas externas a Groq (coste por uso). Todas las requests que superen el límite reciben un `429 Too Many Requests`.
+
+### Optimizaciones de producción
+
+**Gunicorn** está configurado con 3 workers gthread (óptimo para 1 vCPU / 2 GB RAM), 2 threads por worker y reinicio periódico de workers para evitar memory leaks:
+
+```
+workers=3, worker-class=gthread, threads=2, max-requests=1000
+```
+
+**Sesiones** almacenadas en Redis en lugar de base de datos para mayor velocidad y compatibilidad con OAuth en móvil.
+
+**Login con Twitch en móvil** implementado mediante popup para evitar el problema de cambio de contexto entre navegadores en Android. Incluye un backend personalizado (`TwitchOAuth2Mobile`) que permite el flujo OAuth aunque el navegador cambie durante el redirect.
 
 ---
 
@@ -227,11 +240,12 @@ veladazone-cubepath/
 │   ├── veladazone/
 │   │   ├── apps/
 │   │   │   ├── users/          # Auth + Twitch OAuth + JWT cookies + perfil + ADN IA
+│   │   │   │   └── backends.py # Backend Twitch personalizado para OAuth en móvil
 │   │   │   ├── fighters/       # Luchadores, ediciones, combates + análisis IA + caché Redis
 │   │   │   ├── predictions/    # Predicciones + IA + badges + traiciones + debate + caché Redis
 │   │   │   └── fantasy/        # Ligas fantasy + ranking
 │   │   └── settings/
-│   │       ├── base.py         # Redis cache config
+│   │       ├── base.py         # Redis cache + sesiones + cookies config
 │   │       ├── dev.py
 │   │       └── prod.py
 │   ├── fixtures/
