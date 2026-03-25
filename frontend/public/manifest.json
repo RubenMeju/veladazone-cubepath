@@ -3,7 +3,7 @@
   "short_name": "VeladaZone",
   "description": "La plataforma definitiva para La Velada del Año 6",
   "start_url": "/",
-  "display": "standalone",
+  "display": "browser",
   "background_color": "#050505",
   "theme_color": "#e63946",
   "orientation": "portrait",
