@@ -1,4 +1,5 @@
 from social_core.backends.twitch import TwitchOAuth2
+from social_core.exceptions import AuthCanceled
 import logging
 
 logger = logging.getLogger(__name__)
@@ -11,14 +12,14 @@ class TwitchOAuth2Mobile(TwitchOAuth2):
         try:
             return super().validate_state()
         except Exception as e:
-            logger.error(f"State validation failed: {e}, continuing anyway")
+            logger.error(f"State validation failed: {e}")
             return self.data.get("state", "")
 
-    def auth_complete(self, *args, **kwargs):
-        if not self.strategy.session_get("state"):
-            self.strategy.session_set("state", self.data.get("state", ""))
+    def request_access_token(self, *args, **kwargs):
         try:
-            return super().auth_complete(*args, **kwargs)
+            result = super().request_access_token(*args, **kwargs)
+            logger.error(f"Access token result: {result}")
+            return result
         except Exception as e:
-            logger.error(f"auth_complete failed: {type(e).__name__}: {e}")
+            logger.error(f"request_access_token failed: {type(e).__name__}: {e}")
             raise
