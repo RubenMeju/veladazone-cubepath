@@ -37,6 +37,9 @@ function CallbackHandler() {
         setUser(user);
         sessionStorage.removeItem("from_pwa");
         if (isPopup) {
+          console.log("window.opener:", window.opener);
+          console.log("isPopup:", !!window.opener);
+          console.log("URL params:", window.location.search);
           // Notifica a la ventana padre y cierra
           window.opener?.postMessage("auth_complete", "*");
           window.close();
@@ -48,6 +51,9 @@ function CallbackHandler() {
       })
       .catch(() => {
         sessionStorage.removeItem("from_pwa");
+        console.log("catch window.opener:", window.opener);
+        console.log("catch isPopup:", !!window.opener);
+        console.log("catch URL params:", window.location.search);
         if (isPopup) {
           window.opener?.postMessage("auth_failed", "*");
           window.close();
