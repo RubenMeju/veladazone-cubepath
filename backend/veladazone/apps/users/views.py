@@ -25,6 +25,13 @@ class TwitchCallbackView(View):
     """After Twitch OAuth, set JWT in HttpOnly cookies and redirect to frontend."""
 
     def get(self, request):
+        import logging
+
+        logger = logging.getLogger(__name__)
+        logger.warning(
+            f"TwitchCallbackView - user authenticated: {request.user.is_authenticated}"
+        )
+        logger.warning(f"TwitchCallbackView - GET params: {request.GET}")
         if request.user.is_authenticated:
             refresh = RefreshToken.for_user(request.user)
             frontend_url = settings.FRONTEND_URL
@@ -33,7 +40,7 @@ class TwitchCallbackView(View):
             state = request.GET.get("state", "")
             from_pwa = "from_pwa" in state
 
-            access_token = str(refresh.access_token)   # type: ignore
+            access_token = str(refresh.access_token)  # type: ignore
             refresh_token_str = str(refresh)
 
             if from_pwa:
@@ -46,11 +53,26 @@ class TwitchCallbackView(View):
             else:
                 response = redirect(f"{frontend_url}/auth/callback")
 
-            response.set_cookie("access_token", access_token, max_age=86400 * 7, httponly=True, secure=True, samesite="None")
-            response.set_cookie("refresh_token", refresh_token_str, max_age=86400 * 30, httponly=True, secure=True, samesite="None")
+            response.set_cookie(
+                "access_token",
+                access_token,
+                max_age=86400 * 7,
+                httponly=True,
+                secure=True,
+                samesite="None",
+            )
+            response.set_cookie(
+                "refresh_token",
+                refresh_token_str,
+                max_age=86400 * 30,
+                httponly=True,
+                secure=True,
+                samesite="None",
+            )
             return response
 
         return redirect(f"{settings.FRONTEND_URL}/?error=auth_failed")
+
 
 class TokenRefreshView(APIView):
     """Refresh access token using refresh token from cookie."""
