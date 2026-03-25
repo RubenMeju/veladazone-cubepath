@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
-import { twitchLoginUrl } from "@/lib/api";
 import { UserBadge } from "./UserBadge";
+import { TwitchLoginButton } from "./TwitchLoginButton";
 
 const navLinks = [
   { href: "/", label: "Inicio" },
@@ -19,54 +19,6 @@ export function Navbar() {
   const pathname = usePathname();
   const { user, logout, isAuthenticated } = useAuthStore();
   const [menuOpen, setMenuOpen] = useState(false);
-
-  const handleTwitchLogin = (e: React.MouseEvent) => {
-    e.preventDefault();
-
-    const isPWA = window.matchMedia("(display-mode: standalone)").matches;
-
-    if (isPWA) {
-      sessionStorage.setItem("from_pwa", "true");
-      window.location.href = twitchLoginUrl + "?from_pwa=true";
-      return;
-    }
-
-    const width = 550;
-    const height = 650;
-    const left = window.screenX + (window.outerWidth - width) / 2;
-    const top = window.screenY + (window.outerHeight - height) / 2;
-    const popup = window.open(
-      twitchLoginUrl,
-      "twitch_login",
-      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`,
-    );
-
-    // Escucha localStorage para detectar cuando el popup completa el auth
-    const handleStorage = (e: StorageEvent) => {
-      if (e.key === "auth_complete") {
-        window.removeEventListener("storage", handleStorage);
-        clearInterval(timer);
-        localStorage.removeItem("auth_complete");
-        popup?.close();
-        window.location.reload();
-      } else if (e.key === "auth_failed") {
-        window.removeEventListener("storage", handleStorage);
-        clearInterval(timer);
-        localStorage.removeItem("auth_failed");
-        popup?.close();
-      }
-    };
-    window.addEventListener("storage", handleStorage);
-
-    // Fallback por si localStorage no dispara
-    const timer = setInterval(() => {
-      if (popup?.closed) {
-        clearInterval(timer);
-        window.removeEventListener("storage", handleStorage);
-        window.location.reload();
-      }
-    }, 500);
-  };
 
   const handleLogout = async () => {
     try {
@@ -83,7 +35,6 @@ export function Navbar() {
     <>
       <nav className="sticky top-0 z-50 bg-[#0a0a0a]/95 backdrop-blur border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-4">
-          {/* Logo */}
           <Link
             href="/"
             onClick={() => setMenuOpen(false)}
@@ -92,7 +43,6 @@ export function Navbar() {
             🥊 VeladaZone
           </Link>
 
-          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-1 flex-1 justify-center">
             {navLinks.map((link) => (
               <Link
@@ -109,11 +59,9 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* Right side */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             {isAuthenticated() && user ? (
               <>
-                {/* Avatar — siempre visible */}
                 <Link
                   href={`/perfil/${user.twitch_username}`}
                   className="flex items-center gap-2 hover:opacity-80 transition-opacity"
@@ -129,7 +77,6 @@ export function Navbar() {
                       👤
                     </div>
                   )}
-                  {/* Username — solo desktop */}
                   <div className="hidden md:block">
                     <div className="text-xs sm:text-sm text-gray-300 leading-tight">
                       {user.twitch_username}
@@ -137,7 +84,6 @@ export function Navbar() {
                     <UserBadge />
                   </div>
                 </Link>
-                {/* Salir — solo desktop */}
                 <button
                   onClick={handleLogout}
                   className="hidden md:block text-xs text-gray-600 hover:text-white transition-colors"
@@ -146,12 +92,7 @@ export function Navbar() {
                 </button>
               </>
             ) : (
-              /* Twitch login — icono en móvil, texto en desktop */
-              <a
-                href={twitchLoginUrl}
-                onClick={handleTwitchLogin}
-                className="flex items-center gap-2 bg-[#9146FF] hover:bg-[#7c3bdb] text-white font-medium px-3 sm:px-4 py-2 rounded transition-colors"
-              >
+              <TwitchLoginButton className="flex items-center gap-2 bg-[#9146FF] hover:bg-[#7c3bdb] text-white font-medium px-3 sm:px-4 py-2 rounded transition-colors">
                 <svg
                   className="w-4 h-4 flex-shrink-0"
                   viewBox="0 0 24 24"
@@ -160,10 +101,9 @@ export function Navbar() {
                   <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z" />
                 </svg>
                 <span className="hidden sm:inline text-sm">Entrar</span>
-              </a>
+              </TwitchLoginButton>
             )}
 
-            {/* Hamburger — solo móvil */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="md:hidden flex flex-col gap-1.5 p-1.5 rounded hover:bg-white/5 transition-colors"
@@ -183,7 +123,6 @@ export function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden fixed inset-0 top-14 z-40 bg-[#050505]/98 backdrop-blur-sm flex flex-col">
           <div className="flex flex-col p-4 gap-1">
@@ -202,11 +141,7 @@ export function Navbar() {
               </Link>
             ))}
           </div>
-
-          {/* Divider */}
           <div className="h-px bg-white/5 mx-4" />
-
-          {/* Auth section */}
           <div className="p-4">
             {isAuthenticated() && user ? (
               <div className="flex flex-col gap-3">
@@ -237,11 +172,7 @@ export function Navbar() {
                 </button>
               </div>
             ) : (
-              <a
-                href={twitchLoginUrl}
-                onClick={handleTwitchLogin}
-                className="flex items-center justify-center gap-2 bg-[#9146FF] hover:bg-[#7c3bdb] text-white font-bebas text-xl tracking-widest px-6 py-4 rounded-xl transition-colors w-full"
-              >
+              <TwitchLoginButton className="flex items-center justify-center gap-2 bg-[#9146FF] hover:bg-[#7c3bdb] text-white font-bebas text-xl tracking-widest px-6 py-4 rounded-xl transition-colors w-full">
                 <svg
                   className="w-5 h-5"
                   viewBox="0 0 24 24"
@@ -250,7 +181,7 @@ export function Navbar() {
                   <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z" />
                 </svg>
                 ENTRAR CON TWITCH
-              </a>
+              </TwitchLoginButton>
             )}
           </div>
         </div>

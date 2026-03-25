@@ -5,7 +5,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { CommunityStats, Fight, Prediction } from "@/types";
 import { useAuthStore } from "@/stores/authStore";
-import { twitchLoginUrl } from "@/lib/api";
 import { FightCard } from "./components/FightCard";
 import { PredictionProgress } from "./components/Predictionprogress";
 import { Leaderboard } from "./components/Leaderboard";
@@ -14,6 +13,7 @@ import { BetrayalCounter } from "./components/BetrayalCounter";
 import { AIPrediction } from "./components/AIPrediction";
 import { DNAPredictor } from "./components/DNAPredictor";
 import { CompletionCelebration } from "./components/CompletionCelebration";
+import { TwitchLoginButton } from "@/components/ui/TwitchLoginButton";
 
 function LoginBanner() {
   return (
@@ -22,19 +22,12 @@ function LoginBanner() {
       <p className="text-gray-400 text-sm mb-4">
         Inicia sesión con Twitch para guardar tus predicciones
       </p>
-      <a
-        href={twitchLoginUrl}
-        className="inline-flex items-center gap-2 bg-[#9146FF] hover:bg-[#7c3bdb] text-white font-bebas text-lg tracking-widest px-6 py-2.5 rounded transition-colors"
-      >
-        <svg
-          className="w-4 h-4 flex-shrink-0"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
+      <TwitchLoginButton className="inline-flex items-center gap-2 bg-[#9146FF] hover:bg-[#7c3bdb] text-white font-bebas text-lg tracking-widest px-6 py-2.5 rounded transition-colors">
+        <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
           <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z" />
         </svg>
         ENTRAR CON TWITCH
-      </a>
+      </TwitchLoginButton>
     </div>
   );
 }
