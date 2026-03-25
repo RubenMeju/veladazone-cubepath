@@ -28,37 +28,32 @@ function CallbackHandler() {
       setTimeout(() => setFromPWA(true), 0);
     }
 
-    // Si estamos en popup, cerramos inmediatamente tras completar
-    const isPopup = !!window.opener;
-
     api
       .get<User>("/users/me/")
       .then((user) => {
         setUser(user);
         sessionStorage.removeItem("from_pwa");
-        console.log("window.opener:", window.opener);
-        console.log("isPopup:", isPopup);
-        console.log("URL params:", window.location.search);
-        if (isPopup) {
-          window.opener?.postMessage("auth_complete", "*");
-          window.close();
-        } else if (fromPWARef.current) {
-          // PWA móvil
+
+        if (fromPWARef.current) {
+          // PWA móvil — el estado 'fromPWA' ya muestra el mensaje en el render
         } else {
-          router.push("/predicciones");
+          // 1. Señalizar a la ventana padre (si existe)
+          localStorage.setItem("auth_complete", Date.now().toString());
+
+          // 2. Intentar cerrar la ventana (para casos de Popup)
+          window.close();
+
+          // 3. Fallback: Si no se cerró, redirigir después de 300ms
+          setTimeout(() => {
+            router.push("/predicciones");
+          }, 300);
         }
       })
       .catch(() => {
         sessionStorage.removeItem("from_pwa");
-        console.log("catch window.opener:", window.opener);
-        console.log("catch isPopup:", !!window.opener);
-        console.log("catch URL params:", window.location.search);
-        if (isPopup) {
-          window.opener?.postMessage("auth_failed", "*");
-          window.close();
-        } else {
-          router.push("/?error=auth_failed");
-        }
+        localStorage.setItem("auth_failed", Date.now().toString());
+        window.close();
+        setTimeout(() => router.push("/?error=auth_failed"), 300);
       });
   }, []);
 

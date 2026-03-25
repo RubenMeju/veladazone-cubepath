@@ -20,49 +20,53 @@ export function Navbar() {
   const { user, logout, isAuthenticated } = useAuthStore();
   const [menuOpen, setMenuOpen] = useState(false);
 
-const handleTwitchLogin = (e: React.MouseEvent) => {
-  e.preventDefault();
+  const handleTwitchLogin = (e: React.MouseEvent) => {
+    e.preventDefault();
 
-  const isPWA = window.matchMedia("(display-mode: standalone)").matches;
+    const isPWA = window.matchMedia("(display-mode: standalone)").matches;
 
-  if (isPWA) {
-    sessionStorage.setItem("from_pwa", "true");
-    window.location.href = twitchLoginUrl + "?from_pwa=true";
-    return;
-  }
-
-  const width = 550;
-  const height = 650;
-  const left = window.screenX + (window.outerWidth - width) / 2;
-  const top = window.screenY + (window.outerHeight - height) / 2;
-  const popup = window.open(
-    twitchLoginUrl,
-    "twitch_login",
-    `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`,
-  );
-
-  // Escucha el mensaje del popup cuando completa el auth
-  const handleMessage = (event: MessageEvent) => {
-    if (event.data === "auth_complete") {
-      window.removeEventListener("message", handleMessage);
-      popup?.close();
-      window.location.reload();
-    } else if (event.data === "auth_failed") {
-      window.removeEventListener("message", handleMessage);
-      popup?.close();
+    if (isPWA) {
+      sessionStorage.setItem("from_pwa", "true");
+      window.location.href = twitchLoginUrl + "?from_pwa=true";
+      return;
     }
+
+    const width = 550;
+    const height = 650;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    const popup = window.open(
+      twitchLoginUrl,
+      "twitch_login",
+      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`,
+    );
+
+    // Escucha localStorage para detectar cuando el popup completa el auth
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "auth_complete") {
+        window.removeEventListener("storage", handleStorage);
+        clearInterval(timer);
+        localStorage.removeItem("auth_complete");
+        popup?.close();
+        window.location.reload();
+      } else if (e.key === "auth_failed") {
+        window.removeEventListener("storage", handleStorage);
+        clearInterval(timer);
+        localStorage.removeItem("auth_failed");
+        popup?.close();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+
+    // Fallback por si localStorage no dispara
+    const timer = setInterval(() => {
+      if (popup?.closed) {
+        clearInterval(timer);
+        window.removeEventListener("storage", handleStorage);
+        window.location.reload();
+      }
+    }, 500);
   };
-  window.addEventListener("message", handleMessage);
-
-  // Fallback por si postMessage no funciona
-  const timer = setInterval(() => {
-    if (popup?.closed) {
-      clearInterval(timer);
-      window.removeEventListener("message", handleMessage);
-      window.location.reload();
-    }
-  }, 500);
-};
 
   const handleLogout = async () => {
     try {
