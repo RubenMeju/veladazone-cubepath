@@ -1,4 +1,7 @@
 from social_core.backends.twitch import TwitchOAuth2
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class TwitchOAuth2Mobile(TwitchOAuth2):
@@ -7,11 +10,15 @@ class TwitchOAuth2Mobile(TwitchOAuth2):
     def validate_state(self):
         try:
             return super().validate_state()
-        except Exception:
+        except Exception as e:
+            logger.error(f"State validation failed: {e}, continuing anyway")
             return self.data.get("state", "")
 
     def auth_complete(self, *args, **kwargs):
-        # Inyecta el state en la sesión si no existe (PWA cambia de navegador)
         if not self.strategy.session_get("state"):
             self.strategy.session_set("state", self.data.get("state", ""))
-        return super().auth_complete(*args, **kwargs)
+        try:
+            return super().auth_complete(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"auth_complete failed: {type(e).__name__}: {e}")
+            raise
