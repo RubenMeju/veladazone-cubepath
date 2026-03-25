@@ -1,11 +1,12 @@
 from social_core.backends.twitch import TwitchOAuth2
+from social_core.backends.oauth import BaseOAuth2
 import logging
 
 logger = logging.getLogger(__name__)
 
 
 class TwitchOAuth2Mobile(TwitchOAuth2):
-    """Twitch backend que no valida el state para compatibilidad móvil."""
+    """Twitch backend sin validación de state para compatibilidad móvil."""
 
     def auth_params(self, state=None):
         params = super().auth_params(state)
@@ -15,18 +16,16 @@ class TwitchOAuth2Mobile(TwitchOAuth2):
             new_state = current_state + ":from_pwa"
             params["state"] = new_state
             self.strategy.session_set("state", new_state)
-            logger.warning(f"from_pwa appended to state: {new_state}")
         return params
 
     def validate_state(self):
-        try:
-            return super().validate_state()
-        except Exception as e:
-            logger.error(f"State validation failed: {e}")
-            # Inyecta el state en sesión y reintenta
-            incoming_state = self.data.get("state", "")
-            self.strategy.session_set("state", incoming_state)
-            try:
-                return super().validate_state()
-            except Exception:
-                return incoming_state
+        # Inyecta el state entrante en sesión antes de validar
+        incoming_state = self.data.get("state", "")
+        self.strategy.session_set("state", incoming_state)
+        return incoming_state
+
+    def auth_complete(self, *args, **kwargs):
+        # Asegura que el state esté en sesión antes de completar
+        incoming_state = self.data.get("state", "")
+        self.strategy.session_set("state", incoming_state)
+        return BaseOAuth2.auth_complete(self, *args, **kwargs)
