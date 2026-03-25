@@ -14,18 +14,21 @@ function CallbackHandler() {
   const fromPWARef = useRef(false);
 
   useEffect(() => {
-    fromPWARef.current = sessionStorage.getItem("from_pwa") === "true";
+    const urlParams = new URLSearchParams(window.location.search);
+    const pwaFromSession = sessionStorage.getItem("from_pwa") === "true";
+    const pwaFromUrl = urlParams.get("from_pwa") === "true";
+    fromPWARef.current = pwaFromSession || pwaFromUrl;
 
-    const params = new URLSearchParams(window.location.search);
-    const accessToken = params.get("access_token");
-    const refreshToken = params.get("refresh_token");
-    const pwaParam = params.get("from_pwa");
+    if (fromPWARef.current) {
+      setTimeout(() => setFromPWA(true), 0);
+    }
 
-    if (accessToken && refreshToken && pwaParam) {
+    const accessToken = urlParams.get("access_token");
+    const refreshToken = urlParams.get("refresh_token");
+
+    if (accessToken && refreshToken && pwaFromUrl) {
       document.cookie = `access_token=${accessToken}; path=/; max-age=${86400 * 7}; secure; samesite=None`;
       document.cookie = `refresh_token=${refreshToken}; path=/; max-age=${86400 * 30}; secure; samesite=None`;
-      fromPWARef.current = true;
-      setTimeout(() => setFromPWA(true), 0);
     }
 
     api
@@ -33,20 +36,12 @@ function CallbackHandler() {
       .then((user) => {
         setUser(user);
         sessionStorage.removeItem("from_pwa");
-
         if (fromPWARef.current) {
-          // PWA móvil — el estado 'fromPWA' ya muestra el mensaje en el render
+          // PWA móvil — ya muestra el mensaje
         } else {
-          // 1. Señalizar a la ventana padre (si existe)
           localStorage.setItem("auth_complete", Date.now().toString());
-
-          // 2. Intentar cerrar la ventana (para casos de Popup)
           window.close();
-
-          // 3. Fallback: Si no se cerró, redirigir después de 300ms
-          setTimeout(() => {
-            router.push("/predicciones");
-          }, 300);
+          setTimeout(() => router.push("/predicciones"), 300);
         }
       })
       .catch(() => {
