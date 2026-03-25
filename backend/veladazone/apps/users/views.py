@@ -38,7 +38,7 @@ class TwitchCallbackView(View):
                 max_age=86400 * 7,  # 7 días (antes era 3600 = 1 hora)
                 httponly=True,
                 secure=True,
-                samesite="Lax",
+                samesite="None",
             )
             response.set_cookie(
                 "refresh_token",
@@ -46,7 +46,7 @@ class TwitchCallbackView(View):
                 max_age=86400 * 30,  # 30 días
                 httponly=True,
                 secure=True,
-                samesite="Lax",
+                samesite="None",
             )
             return response
 
