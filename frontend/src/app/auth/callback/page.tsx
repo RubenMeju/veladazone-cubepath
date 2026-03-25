@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { api } from "@/lib/api";
@@ -10,12 +10,13 @@ import { Suspense } from "react";
 function CallbackHandler() {
   const router = useRouter();
   const { setUser } = useAuthStore();
-
-  const fromPWA =
-    typeof window !== "undefined" &&
-    sessionStorage.getItem("from_pwa") === "true";
+  const [fromPWA, setFromPWA] = useState(false);
+  const fromPWARef = useRef(false);
 
   useEffect(() => {
+    fromPWARef.current = sessionStorage.getItem("from_pwa") === "true";
+    setFromPWA(fromPWARef.current);
+
     api
       .get<User>("/users/me/")
       .then((user) => {
@@ -23,8 +24,8 @@ function CallbackHandler() {
         sessionStorage.removeItem("from_pwa");
         if (window.opener) {
           window.close();
-        } else if (fromPWA) {
-          // Vino desde PWA — mostramos mensaje, no redirigimos
+        } else if (fromPWARef.current) {
+          // muestra mensaje — el state fromPWA ya está seteado
         } else {
           router.push("/predicciones");
         }
