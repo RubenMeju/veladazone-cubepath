@@ -36,15 +36,14 @@ function CallbackHandler() {
       .then((user) => {
         setUser(user);
         sessionStorage.removeItem("from_pwa");
+        console.log("window.opener:", window.opener);
+        console.log("isPopup:", isPopup);
+        console.log("URL params:", window.location.search);
         if (isPopup) {
-          console.log("window.opener:", window.opener);
-          console.log("isPopup:", !!window.opener);
-          console.log("URL params:", window.location.search);
-          // Notifica a la ventana padre y cierra
           window.opener?.postMessage("auth_complete", "*");
           window.close();
         } else if (fromPWARef.current) {
-          // PWA móvil — muestra mensaje para que el usuario vuelva
+          // PWA móvil
         } else {
           router.push("/predicciones");
         }
