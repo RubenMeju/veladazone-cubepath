@@ -46,7 +46,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "social_django.middleware.SocialAuthExceptionMiddleware",
+    "veladazone.apps.users.middleware.CustomSocialAuthExceptionMiddleware",
 ]
 
 ROOT_URLCONF = "veladazone.urls"
@@ -199,6 +199,6 @@ LOGGING = {
     },
     "root": {
         "handlers": ["console"],
-        "level": "ERROR",
+        "level": "WARNING",
     },
 }
