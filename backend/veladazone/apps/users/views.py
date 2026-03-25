@@ -29,29 +29,28 @@ class TwitchCallbackView(View):
             refresh = RefreshToken.for_user(request.user)
             frontend_url = settings.FRONTEND_URL
 
-            response = redirect(f"{frontend_url}/auth/callback")
+            # Detecta from_pwa del state que viene de Twitch
+            state = request.GET.get("state", "")
+            from_pwa = "from_pwa" in state
 
-            # Set tokens in HttpOnly cookies
-            response.set_cookie(
-                "access_token",
-                str(refresh.access_token),  # type: ignore
-                max_age=86400 * 7,  # 7 días (antes era 3600 = 1 hora)
-                httponly=True,
-                secure=True,
-                samesite="None",
-            )
-            response.set_cookie(
-                "refresh_token",
-                str(refresh),
-                max_age=86400 * 30,  # 30 días
-                httponly=True,
-                secure=True,
-                samesite="None",
-            )
+            access_token = str(refresh.access_token)   # type: ignore
+            refresh_token_str = str(refresh)
+
+            if from_pwa:
+                response = redirect(
+                    f"{frontend_url}/auth/callback"
+                    f"?access_token={access_token}"
+                    f"&refresh_token={refresh_token_str}"
+                    f"&from_pwa=true"
+                )
+            else:
+                response = redirect(f"{frontend_url}/auth/callback")
+
+            response.set_cookie("access_token", access_token, max_age=86400 * 7, httponly=True, secure=True, samesite="None")
+            response.set_cookie("refresh_token", refresh_token_str, max_age=86400 * 30, httponly=True, secure=True, samesite="None")
             return response
 
         return redirect(f"{settings.FRONTEND_URL}/?error=auth_failed")
-
 
 class TokenRefreshView(APIView):
     """Refresh access token using refresh token from cookie."""

@@ -27,7 +27,7 @@ export function Navbar() {
 
     if (isPWA) {
       sessionStorage.setItem("from_pwa", "true");
-      window.location.href = twitchLoginUrl;
+      window.location.href = twitchLoginUrl + "?from_pwa=true";
       return;
     }
 

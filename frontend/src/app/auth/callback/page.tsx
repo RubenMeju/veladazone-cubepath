@@ -17,6 +17,20 @@ function CallbackHandler() {
     fromPWARef.current = sessionStorage.getItem("from_pwa") === "true";
     setFromPWA(fromPWARef.current);
 
+    // Si vienen tokens en la URL (desde PWA), guárdalos como cookies
+    const params = new URLSearchParams(window.location.search);
+    const accessToken = params.get("access_token");
+    const refreshToken = params.get("refresh_token");
+    const pwaParam = params.get("from_pwa");
+
+    if (accessToken && refreshToken && pwaParam) {
+      // Guarda cookies desde el frontend para la PWA
+      document.cookie = `access_token=${accessToken}; path=/; max-age=${86400 * 7}; secure; samesite=None`;
+      document.cookie = `refresh_token=${refreshToken}; path=/; max-age=${86400 * 30}; secure; samesite=None`;
+      fromPWARef.current = true;
+      setFromPWA(true);
+    }
+
     api
       .get<User>("/users/me/")
       .then((user) => {
@@ -25,7 +39,7 @@ function CallbackHandler() {
         if (window.opener) {
           window.close();
         } else if (fromPWARef.current) {
-          // muestra mensaje — el state fromPWA ya está seteado
+          // muestra mensaje PWA
         } else {
           router.push("/predicciones");
         }
