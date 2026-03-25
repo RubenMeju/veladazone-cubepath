@@ -15,38 +15,41 @@ function CallbackHandler() {
 
   useEffect(() => {
     fromPWARef.current = sessionStorage.getItem("from_pwa") === "true";
-    setFromPWA(fromPWARef.current);
 
-    // Si vienen tokens en la URL (desde PWA), guárdalos como cookies
     const params = new URLSearchParams(window.location.search);
     const accessToken = params.get("access_token");
     const refreshToken = params.get("refresh_token");
     const pwaParam = params.get("from_pwa");
 
     if (accessToken && refreshToken && pwaParam) {
-      // Guarda cookies desde el frontend para la PWA
       document.cookie = `access_token=${accessToken}; path=/; max-age=${86400 * 7}; secure; samesite=None`;
       document.cookie = `refresh_token=${refreshToken}; path=/; max-age=${86400 * 30}; secure; samesite=None`;
       fromPWARef.current = true;
-      setFromPWA(true);
+      setTimeout(() => setFromPWA(true), 0);
     }
+
+    // Si estamos en popup, cerramos inmediatamente tras completar
+    const isPopup = !!window.opener;
 
     api
       .get<User>("/users/me/")
       .then((user) => {
         setUser(user);
         sessionStorage.removeItem("from_pwa");
-        if (window.opener) {
+        if (isPopup) {
+          // Notifica a la ventana padre y cierra
+          window.opener?.postMessage("auth_complete", "*");
           window.close();
         } else if (fromPWARef.current) {
-          // muestra mensaje PWA
+          // PWA móvil — muestra mensaje para que el usuario vuelva
         } else {
           router.push("/predicciones");
         }
       })
       .catch(() => {
         sessionStorage.removeItem("from_pwa");
-        if (window.opener) {
+        if (isPopup) {
+          window.opener?.postMessage("auth_failed", "*");
           window.close();
         } else {
           router.push("/?error=auth_failed");
