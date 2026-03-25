@@ -25,20 +25,13 @@ class TwitchCallbackView(View):
     """After Twitch OAuth, set JWT in HttpOnly cookies and redirect to frontend."""
 
     def get(self, request):
-        import logging
-
-        logger = logging.getLogger(__name__)
-        logger.warning(
-            f"TwitchCallbackView - user authenticated: {request.user.is_authenticated}"
-        )
-        logger.warning(f"TwitchCallbackView - GET params: {request.GET}")
         if request.user.is_authenticated:
             refresh = RefreshToken.for_user(request.user)
             frontend_url = settings.FRONTEND_URL
 
-            # Detecta from_pwa del state que viene de Twitch
+            # from_pwa viene en el state que Twitch devuelve en el callback
             state = request.GET.get("state", "")
-            from_pwa = "from_pwa" in state
+            from_pwa = ":from_pwa" in state
 
             access_token = str(refresh.access_token)  # type: ignore
             refresh_token_str = str(refresh)
