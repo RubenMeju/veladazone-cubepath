@@ -4,6 +4,7 @@ export interface ArgumentReply {
   avatar: string | null;
   text: string;
   created_at: string;
+  time_ago: string; // ← añadir
 }
 
 export interface Argument {
@@ -19,4 +20,5 @@ export interface Argument {
   user_voted: boolean;
   user_replied: boolean;
   created_at: string;
+  time_ago: string;
 }

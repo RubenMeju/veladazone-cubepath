@@ -9,13 +9,13 @@ export function ArgumentCard({
   arg,
   currentUsername,
   onVote,
-  onReply, // ahora recibe (id, text)
+  onReply,
   isVoting,
 }: {
   arg: Argument;
   currentUsername?: string;
   onVote: (id: number) => void;
-  onReply: (id: number, text: string) => void; // ← se mantiene igual
+  onReply: (id: number, text: string) => void;
   isVoting: boolean;
 }) {
   const [showReply, setShowReply] = useState(false);
@@ -23,42 +23,46 @@ export function ArgumentCard({
   const isOwn = arg.username === currentUsername;
 
   return (
-    <div className="bg-[#0f0f0f] rounded-lg p-3">
-      <div className="flex items-start gap-2">
-        {/* Avatar */}
-        <Link
-          href={`/perfil/${arg.username}`}
-          className="flex-shrink-0 hover:opacity-80 transition-opacity"
-        >
+    <div className="bg-[#111111] border border-[#1e1e1e] rounded-xl p-4 flex flex-col gap-3">
+      {/* Header */}
+      <div className="flex items-start gap-3">
+        <Link href={`/perfil/${arg.username}`} className="flex-shrink-0">
           {arg.avatar ? (
-            <img src={arg.avatar} className="w-6 h-6 rounded-full" alt="" />
+            <img
+              src={arg.avatar}
+              className="w-9 h-9 rounded-full object-cover"
+              alt=""
+            />
           ) : (
-            <div className="w-6 h-6 rounded-full bg-[#2a2a2a]" />
+            <div className="w-9 h-9 rounded-full bg-[#2a2a2a]" />
           )}
         </Link>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1 mb-0.5">
+          <div className="flex items-center gap-2 flex-wrap mb-1">
             <Link
               href={`/perfil/${arg.username}`}
-              className="text-xs text-gray-300 font-medium hover:text-white transition-colors"
+              className="text-sm text-white font-semibold hover:text-gray-300 transition-colors"
             >
               {arg.username}
             </Link>
-            <span className="text-xs">{arg.fighter_flag}</span>
-            <span className="text-[10px] text-gray-600">
+            {arg.fighter_flag && (
+              <span className="text-sm">{arg.fighter_flag}</span>
+            )}
+            <span className="text-xs text-gray-500">
               apoya a {arg.fighter_name}
             </span>
-          </div>
-          <p className="text-xs text-gray-400 leading-relaxed">{arg.text}</p>
-          {arg.edited && (
-            <span className="text-xs text-gray-600 mt-0.5 block">
-              ✏️ editado
+            <span className="text-xs text-gray-600 ml-auto">
+              {arg.time_ago}
             </span>
+          </div>
+          <p className="text-sm text-gray-300 leading-relaxed">{arg.text}</p>
+          {arg.edited && (
+            <span className="text-xs text-gray-600 mt-1 block">✏️ editado</span>
           )}
         </div>
 
-        {/* Botón votar */}
+        {/* Votar */}
         <button
           onClick={() => !isOwn && onVote(arg.id)}
           disabled={isOwn || isVoting}
@@ -68,27 +72,27 @@ export function ArgumentCard({
               : "text-gray-500 hover:text-gray-300"
           }`}
         >
-          <span className="text-xs">{arg.user_voted ? "❤️" : "👍"}</span>
-          <span className="text-[10px]">{arg.vote_count}</span>
+          <span className="text-sm">{arg.user_voted ? "❤️" : "🤍"}</span>
+          <span className="text-xs font-medium">{arg.vote_count}</span>
         </button>
       </div>
 
       {/* Respuestas */}
       {arg.replies && arg.replies.length > 0 && (
-        <div className="mt-2 ml-8 flex flex-col gap-1.5">
+        <div className="ml-12 flex flex-col gap-2 border-l border-[#2a2a2a] pl-3">
           {arg.replies.map((reply) => (
             <ArgumentReplyItem key={reply.id} reply={reply} />
           ))}
         </div>
       )}
 
-      {/* Formulario para responder */}
+      {/* Responder */}
       {!isOwn && currentUsername && (
-        <div className="mt-2 ml-8">
+        <div className="ml-12">
           {!showReply ? (
             <button
               onClick={() => setShowReply(true)}
-              className="text-[10px] text-gray-600 hover:text-gray-400 transition-colors"
+              className="text-xs text-gray-600 hover:text-gray-400 transition-colors"
             >
               💬 Responder
             </button>
@@ -99,24 +103,24 @@ export function ArgumentCard({
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value.slice(0, 280))}
                 placeholder="Tu respuesta..."
-                className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded px-2 py-1 text-white text-[10px] placeholder-gray-600 focus:outline-none focus:border-[#e63946]"
+                className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-white text-xs placeholder-gray-600 focus:outline-none focus:border-[#e63946]"
                 autoFocus
               />
               <button
                 onClick={() => {
                   if (replyText.trim()) {
-                    onReply(arg.id, replyText.trim()); // ← aquí se llama correctamente
+                    onReply(arg.id, replyText.trim());
                     setReplyText("");
                     setShowReply(false);
                   }
                 }}
-                className="text-[10px] bg-[#e63946] hover:bg-[#c1121f] text-white px-2 py-1 rounded transition-colors"
+                className="text-xs bg-[#e63946] hover:bg-[#c1121f] text-white px-3 py-1.5 rounded-lg transition-colors"
               >
                 ↩
               </button>
               <button
                 onClick={() => setShowReply(false)}
-                className="text-[10px] text-gray-600 hover:text-gray-400"
+                className="text-xs text-gray-600 hover:text-gray-400"
               >
                 ✕
               </button>

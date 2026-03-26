@@ -30,24 +30,17 @@ class PredictionSerializer(serializers.ModelSerializer):
         read_only_fields = ["ai_comment", "is_correct", "betrayal_count", "created_at"]
 
 
-class SimpleUserSerializer(serializers.Serializer):
-    """Serializer simple para el usuario"""
-
-    id = serializers.IntegerField()
-    username = serializers.CharField()
-    avatar = serializers.SerializerMethodField()
-
-    def get_avatar(self, obj):
-        return getattr(obj, "avatar_url", None)
-
-
 class ArgumentReplySerializer(serializers.ModelSerializer):
-    user = SimpleUserSerializer(read_only=True)
+    username = serializers.CharField(source="user.username", read_only=True)
+    avatar = serializers.SerializerMethodField()
     time_ago = serializers.SerializerMethodField()
 
     class Meta:
         model = ArgumentReply
-        fields = ["id", "user", "text", "created_at", "time_ago"]
+        fields = ["id", "username", "avatar", "text", "created_at", "time_ago"]
+
+    def get_avatar(self, obj):
+        return getattr(obj.user, "avatar_url", None)
 
     def get_time_ago(self, obj):
         return f"Hace {timesince(obj.created_at, now())}"
@@ -55,6 +48,7 @@ class ArgumentReplySerializer(serializers.ModelSerializer):
 
 class ArgumentSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source="user.username", read_only=True)
+    avatar = serializers.SerializerMethodField()
     fighter_name = serializers.CharField(
         source="fighter_supported.name", read_only=True
     )
@@ -76,6 +70,7 @@ class ArgumentSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "username",
+            "avatar",
             "text",
             "fight",  # ← añadir
             "fighter_supported",
