@@ -91,6 +91,9 @@ class ArgumentSerializer(serializers.ModelSerializer):
             "time_ago",
             "replies",
         ]
+    
+    def get_avatar(self, obj):  
+        return getattr(obj.user, "avatar_url", None)
 
     def get_vote_count(self, obj):
         return obj.argument_votes.count()
