@@ -1,10 +1,8 @@
 import requests
 from django.conf import settings
-from django.db.models import Prefetch
-from rest_framework.request import Request
-from rest_framework.request import Request as DRFRequest
-from typing import cast
-from rest_framework import viewsets, status
+from django.db.models import Prefetch, QuerySet, Manager
+from typing import cast, Optional
+from rest_framework import viewsets, serializers, status
 from rest_framework.decorators import action
 from rest_framework.permissions import (
     IsAuthenticated,
@@ -13,6 +11,8 @@ from rest_framework.permissions import (
 )
 from rest_framework.response import Response
 from django.core.cache import cache
+from rest_framework.request import Request as DRFRequest
+
 from .models import Argument, ArgumentReply, Prediction
 from .serializers import ArgumentSerializer, PredictionSerializer
 from veladazone.apps.fighters.models import Fight, Fighter
@@ -221,36 +221,53 @@ class PredictionViewSet(viewsets.ModelViewSet):
             }
         )
 
-
 class ArgumentViewSet(viewsets.ModelViewSet):
     serializer_class = ArgumentSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[Argument]:
+        request = cast(DRFRequest, self.request)
         queryset = Argument.objects.select_related(
-            'user', 'fighter_supported'
+            "user", "fighter_supported"
         ).prefetch_related(
-            Prefetch(
-                'replies',
-                queryset=ArgumentReply.objects.select_related('user')
-            ),
-            'argument_votes'   # para vote_count
+            Prefetch("replies", queryset=ArgumentReply.objects.select_related("user")),
+            "argument_votes",
         )
 
-        fight_id = self.request.query_params.get('fight')
-        if fight_id and fight_id.isdigit():
-            queryset = queryset.filter(fight_id=int(fight_id))
+        fight_id_str: Optional[str] = request.query_params.get("fight")  # IDE-friendly
+        if fight_id_str and fight_id_str.isdigit():
+            queryset = queryset.filter(fight_id=int(fight_id_str))
 
-        return queryset.order_by('-created_at')
+        return queryset.order_by("-created_at")
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+    def perform_create(self, serializer: ArgumentSerializer) -> None:
+        """Guardar argumento asegurando que fighter_supported exista"""
+        request = cast(DRFRequest, self.request)
+        data: dict = cast(dict, request.data)
 
-    # Endpoint para responder (recomendado)
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
-    def reply(self, request, pk=None):
+        fighter_id: Optional[str] = data.get("fighter_supported")
+        if not fighter_id:
+            raise serializers.ValidationError(
+                {"fighter_supported": "Este campo es obligatorio."}
+            )
+
+        try:
+            fighter = Fighter.objects.get(id=int(fighter_id))
+        except Fighter.DoesNotExist:
+            raise serializers.ValidationError({"fighter_supported": "Fighter no existe."})
+
+        serializer.save(user=request.user, fighter_supported=fighter)
+    def create(self, request: DRFRequest, *args, **kwargs) -> Response:
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def reply(self, request: DRFRequest, pk: Optional[int] = None) -> Response:
         argument = self.get_object()
-        text = request.data.get('text', '').strip()
+        text: str = (request.data.get("text") or "").strip()
 
         if not text:
             return Response({"error": "El texto es requerido"}, status=400)
@@ -261,10 +278,12 @@ class ArgumentViewSet(viewsets.ModelViewSet):
             text=text
         )
 
-        # Invalidar caché de argumentos
-        return Response({
-            "id": reply.id,
-            "user": {"id": reply.user.id, "username": reply.user.username},
-            "text": reply.text,
-            "created_at": reply.created_at
-        }, status=201)
+        return Response(
+            {
+                "id": reply.id,
+                "user": {"id": reply.user.id, "username": reply.user.username},
+                "text": reply.text,
+                "created_at": reply.created_at,
+            },
+            status=201,
+        )
