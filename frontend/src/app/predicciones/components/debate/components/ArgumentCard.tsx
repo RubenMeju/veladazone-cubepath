@@ -81,12 +81,19 @@ export function ArgumentCard({
       {arg.replies && arg.replies.length > 0 && (
         <div className="ml-12 flex flex-col gap-2 border-l border-[#2a2a2a] pl-3">
           {arg.replies.map((reply) => (
-            <ArgumentReplyItem key={reply.id} reply={reply} />
+            <ArgumentReplyItem
+              key={reply.id}
+              reply={reply}
+              onReply={onReply}
+              currentUsername={currentUsername}
+              level={0}
+              maxLevel={3} // límite de anidamiento
+            />
           ))}
         </div>
       )}
 
-      {/* Responder */}
+      {/* Responder al comentario principal */}
       {!isOwn && currentUsername && (
         <div className="ml-12">
           {!showReply ? (
