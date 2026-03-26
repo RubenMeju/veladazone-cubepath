@@ -27,6 +27,13 @@ function CallbackHandler() {
     const refreshToken = urlParams.get("refresh_token");
 
     if (accessToken && refreshToken && pwaFromUrl) {
+      // Limpiar cookies anteriores
+      document.cookie =
+        "access_token=; path=/; max-age=0; secure; samesite=None";
+      document.cookie =
+        "refresh_token=; path=/; max-age=0; secure; samesite=None";
+
+      // Setear las nuevas
       document.cookie = `access_token=${accessToken}; path=/; max-age=${86400 * 7}; secure; samesite=None`;
       document.cookie = `refresh_token=${refreshToken}; path=/; max-age=${86400 * 30}; secure; samesite=None`;
     }

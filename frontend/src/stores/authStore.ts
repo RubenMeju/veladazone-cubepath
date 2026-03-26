@@ -14,7 +14,16 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       setUser: (user) => set({ user }),
-      logout: () => set({ user: null }),
+      logout: () => {
+        // Limpiar Zustand
+        set({ user: null });
+
+        // Limpiar cookies JWT
+        document.cookie =
+          "access_token=; path=/; domain=laveladazone.duckdns.org; max-age=0; secure; samesite=None";
+        document.cookie =
+          "refresh_token=; path=/; domain=laveladazone.duckdns.org; max-age=0; secure; samesite=None";
+      },
       isAuthenticated: () => !!get().user,
     }),
     {

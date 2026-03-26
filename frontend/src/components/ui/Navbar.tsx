@@ -17,7 +17,7 @@ const navLinks = [
 
 export function Navbar() {
   const pathname = usePathname();
-  const { user, logout, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -27,7 +27,10 @@ export function Navbar() {
         { credentials: "include" },
       );
     } catch {}
-    logout();
+
+    // Limpiamos Zustand **y** cookies JWT
+    useAuthStore.getState().logout();
+
     setMenuOpen(false);
   };
 
