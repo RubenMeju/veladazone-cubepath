@@ -16,7 +16,7 @@ from rest_framework.request import Request as DRFRequest
 from veladazone.apps.predictions.pagination import ArgumentPagination
 
 from .models import Argument, ArgumentReply, ArgumentVote, Prediction
-from .serializers import ArgumentSerializer, PredictionSerializer
+from .serializers import ArgumentReplySerializer, ArgumentSerializer, PredictionSerializer
 from veladazone.apps.fighters.models import Fight, Fighter
 
 
