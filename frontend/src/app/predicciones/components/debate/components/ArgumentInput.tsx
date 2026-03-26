@@ -28,7 +28,7 @@ export function ArgumentInput({
         <button
           onClick={onSubmit}
           disabled={!text.trim() || isPending}
-          className="bg-[#e63946] hover:bg-[#c1121f] disabled:opacity-50 px-5 py-2 rounded-lg font-medium transition-colors"
+          className="bg-[#e63946] hover:bg-[#c1121f] disabled:opacity-50 px-5 py-2 rounded-lg font-medium"
         >
           {isPending ? "Publicando..." : "Publicar argumento"}
         </button>
