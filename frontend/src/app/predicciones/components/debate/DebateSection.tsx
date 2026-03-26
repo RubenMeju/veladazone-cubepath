@@ -34,7 +34,10 @@ export function DebateSection({
         const res = await api.get(
           `/predictions/arguments/?fight=${fight.id}&limit=${PAGE_LIMIT}&offset=${pageParam}`,
         );
-        return res as Argument[];
+        // Si la respuesta tiene paginación DRF, extraer results; si no, usar directamente
+        return (res as any).results
+          ? ((res as any).results as Argument[])
+          : (res as Argument[]);
       },
       enabled: isOpen,
       initialPageParam: 0,
@@ -47,7 +50,6 @@ export function DebateSection({
   // Crear nuevo argumento
   const createMutation = useMutation({
     mutationFn: (text: string) =>
-      
       api.post("/predictions/arguments/", {
         fight: fight.id,
         fighter_supported: userPrediction?.predicted_winner.id,
