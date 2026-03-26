@@ -46,13 +46,19 @@ class Argument(models.Model):
     fighter_supported = models.ForeignKey(
         Fighter, on_delete=models.CASCADE, related_name="arguments_supported"
     )
-    text = models.TextField(max_length=600)  # más largo que 280
+    text = models.TextField()  # La longitud se valida en serializer
     edited = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["-created_at"]  # quitamos unique_together
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["fight"]),  # consultas rápidas por combate
+            models.Index(fields=["user"]),  # consultas rápidas por usuario
+            models.Index(fields=["created_at"]),  # para ordenar por fecha rápidamente
+        ]
+        # unique_together = ["user", "fight"]  # opcional: 1 comentario por usuario/fight
 
     def __str__(self):
         return f"{self.user.username} en {self.fight}"

@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.utils.timesince import timesince
+from django.utils.timezone import now
 from .models import Argument, ArgumentReply, ArgumentVote, Prediction
 from veladazone.apps.fighters.serializers import FightSerializer, FighterSerializer
 
@@ -39,48 +41,40 @@ class SimpleUserSerializer(serializers.Serializer):
 
 class ArgumentReplySerializer(serializers.ModelSerializer):
     user = SimpleUserSerializer(read_only=True)
+    time_ago = serializers.SerializerMethodField()
 
     class Meta:
         model = ArgumentReply
-        fields = ["id", "user", "text", "created_at"]
+        fields = ["id", "user", "text", "created_at", "time_ago"]
+
+    def get_time_ago(self, obj):
+        return f"Hace {timesince(obj.created_at, now())}"
 
 
 class ArgumentSerializer(serializers.ModelSerializer):
-    user = SimpleUserSerializer(read_only=True)
-    username = serializers.SerializerMethodField()  # <-- esto es clave
-    fighter_name = serializers.CharField(
-        source="fighter_supported.name", read_only=True
-    )
-    fighter_flag = serializers.SerializerMethodField()
+    username = serializers.CharField(source="user.username", read_only=True)
+    fighter_name = serializers.CharField(source="fighter_supported.name", read_only=True)
     vote_count = serializers.SerializerMethodField()
     user_voted = serializers.SerializerMethodField()
-
-    # Respuestas anidadas
-    replies = ArgumentReplySerializer(many=True, read_only=True)
+    time_ago = serializers.SerializerMethodField()
+    replies = serializers.SerializerMethodField()
 
     class Meta:
         model = Argument
         fields = [
             "id",
-            "user",
-            "username",  # ahora está bien
+            "username",
             "text",
             "fighter_supported",
             "fighter_name",
-            "fighter_flag",
             "vote_count",
             "user_voted",
             "edited",
             "created_at",
+            "time_ago",
             "replies",
         ]
-        read_only_fields = ["user", "edited", "created_at"]
-
-    def get_username(self, obj):
-        return obj.user.username
-
-    def get_fighter_flag(self, obj):
-        return getattr(obj.fighter_supported, "country_flag", "")
+        read_only_fields = ["username", "edited", "created_at", "vote_count", "user_voted", "time_ago", "replies"]
 
     def get_vote_count(self, obj):
         return obj.argument_votes.count()
@@ -89,4 +83,18 @@ class ArgumentSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if not request or not request.user.is_authenticated:
             return False
-        return ArgumentVote.objects.filter(user=request.user, argument=obj).exists()
+        return obj.argument_votes.filter(user=request.user).exists()
+
+    def get_time_ago(self, obj):
+        return f"Hace {timesince(obj.created_at, now())}"
+
+    def get_replies(self, obj):
+        request = self.context.get("request")
+        limit = int(request.query_params.get("replies_limit", 5)) if request else 5
+        qs = obj.replies.all().order_by("created_at")[:limit]
+        return ArgumentReplySerializer(qs, many=True, context=self.context).data
+
+    def validate_text(self, value):
+        if len(value) > 600:
+            raise serializers.ValidationError("El comentario no puede superar 600 caracteres")
+        return value

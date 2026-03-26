@@ -1,6 +1,6 @@
 import requests
 from django.conf import settings
-from django.db.models import Prefetch, QuerySet, Manager
+from django.db.models import Prefetch, QuerySet, Count
 from typing import cast, Optional
 from rest_framework import viewsets, serializers, status
 from rest_framework.decorators import action
@@ -13,7 +13,9 @@ from rest_framework.response import Response
 from django.core.cache import cache
 from rest_framework.request import Request as DRFRequest
 
-from .models import Argument, ArgumentReply, Prediction
+from veladazone.apps.predictions.pagination import ArgumentPagination
+
+from .models import Argument, ArgumentReply, ArgumentVote, Prediction
 from .serializers import ArgumentSerializer, PredictionSerializer
 from veladazone.apps.fighters.models import Fight, Fighter
 
@@ -221,26 +223,45 @@ class PredictionViewSet(viewsets.ModelViewSet):
             }
         )
 
+
 class ArgumentViewSet(viewsets.ModelViewSet):
     serializer_class = ArgumentSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    pagination_class = ArgumentPagination
 
-    def get_queryset(self) -> QuerySet[Argument]:
+    def get_queryset(self):
         request = cast(DRFRequest, self.request)
-        queryset = Argument.objects.select_related(
-            "user", "fighter_supported"
-        ).prefetch_related(
-            Prefetch("replies", queryset=ArgumentReply.objects.select_related("user")),
-            "argument_votes",
+        user = request.user if request.user.is_authenticated else None
+
+        queryset = (
+            Argument.objects.select_related("user", "fighter_supported")
+            .prefetch_related(
+                Prefetch(
+                    "replies",
+                    queryset=ArgumentReply.objects.select_related("user").order_by(
+                        "created_at"
+                    ),
+                ),
+            )
+            .annotate(vote_count=Count("argument_votes"))
         )
 
-        fight_id_str: Optional[str] = request.query_params.get("fight")  # IDE-friendly
+        # Prefetch votos del usuario autenticado para evitar N+1 en user_voted
+        if user:
+            queryset = queryset.prefetch_related(
+                Prefetch(
+                    "argument_votes",
+                    queryset=ArgumentVote.objects.filter(user=user),
+                    to_attr="user_votes",
+                )
+            )
+
+        fight_id_str: Optional[str] = request.query_params.get("fight")
         if fight_id_str and fight_id_str.isdigit():
             queryset = queryset.filter(fight_id=int(fight_id_str))
 
         return queryset.order_by("-created_at")
 
-    
     def perform_create(self, serializer):
         request = cast(DRFRequest, self.request)
         data: dict = cast(dict, request.data)
@@ -248,11 +269,15 @@ class ArgumentViewSet(viewsets.ModelViewSet):
         # Obtener fighter
         fighter_id = data.get("fighter_supported")
         if not fighter_id:
-            raise serializers.ValidationError({"fighter_supported": "Este campo es obligatorio."})
+            raise serializers.ValidationError(
+                {"fighter_supported": "Este campo es obligatorio."}
+            )
         try:
             fighter = Fighter.objects.get(id=int(fighter_id))
         except Fighter.DoesNotExist:
-            raise serializers.ValidationError({"fighter_supported": "Fighter no existe."})
+            raise serializers.ValidationError(
+                {"fighter_supported": "Fighter no existe."}
+            )
 
         # Obtener fight
         fight_id = data.get("fight")
@@ -263,17 +288,16 @@ class ArgumentViewSet(viewsets.ModelViewSet):
         except Fight.DoesNotExist:
             raise serializers.ValidationError({"fight": "El fight no existe."})
 
-        # Guardar con ambos campos
         serializer.save(user=request.user, fighter_supported=fighter, fight=fight)
-
-
 
     def create(self, request: DRFRequest, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
 
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def reply(self, request: DRFRequest, pk: Optional[int] = None) -> Response:
@@ -284,17 +308,9 @@ class ArgumentViewSet(viewsets.ModelViewSet):
             return Response({"error": "El texto es requerido"}, status=400)
 
         reply = ArgumentReply.objects.create(
-            user=request.user,
-            argument=argument,
-            text=text
+            user=request.user, argument=argument, text=text
         )
 
-        return Response(
-            {
-                "id": reply.id,
-                "user": {"id": reply.user.id, "username": reply.user.username},
-                "text": reply.text,
-                "created_at": reply.created_at,
-            },
-            status=201,
-        )
+        # Usar serializer para consistencia con ArgumentReplySerializer
+        serializer = ArgumentReplySerializer(reply, context={"request": request})
+        return Response(serializer.data, status=201)

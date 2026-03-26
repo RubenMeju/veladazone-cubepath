@@ -1,13 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/stores/authStore";
 import { Fight } from "@/types";
 import { Argument } from "./types";
 import { ArgumentCard } from "./components/ArgumentCard";
 import { ArgumentInput } from "./components/ArgumentInput";
+
+const PAGE_LIMIT = 5;
 
 export function DebateSection({
   fight,
@@ -21,13 +27,22 @@ export function DebateSection({
   const [newText, setNewText] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
-  const { data: arguments_ = [], isLoading } = useQuery({
-    queryKey: ["arguments", fight.id],
-    queryFn: () => api.get<Argument[]>(`/predictions/arguments/?fight=${fight.id}`),
-    enabled: isOpen,
-    staleTime: 1000 * 30,
-    refetchOnWindowFocus: false,
-  });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useInfiniteQuery({
+      queryKey: ["arguments", fight.id],
+      queryFn: async ({ pageParam = 0 }) => {
+        const res = await api.get(
+          `/predictions/arguments/?fight=${fight.id}&limit=${PAGE_LIMIT}&offset=${pageParam}`,
+        );
+        return res as Argument[];
+      },
+      enabled: isOpen,
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, allPages) =>
+        lastPage.length < PAGE_LIMIT ? undefined : allPages.length * PAGE_LIMIT,
+    });
+
+  const arguments_ = data?.pages.flat() ?? [];
 
   // Crear nuevo argumento
   const createMutation = useMutation({
@@ -46,21 +61,28 @@ export function DebateSection({
   const voteMutation = useMutation({
     mutationFn: (argumentId: number) =>
       api.post(`/predictions/arguments/${argumentId}/vote/`, {}),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["arguments", fight.id] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["arguments", fight.id] }),
   });
 
   const replyMutation = useMutation({
     mutationFn: ({ argumentId, text }: { argumentId: number; text: string }) =>
       api.post(`/predictions/arguments/${argumentId}/reply/`, { text }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["arguments", fight.id] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["arguments", fight.id] }),
   });
 
-  const f1Count = arguments_.filter(a => a.fighter_name === fight.fighter1.name).length;
-  const f2Count = arguments_.filter(a => a.fighter_name === fight.fighter2.name).length;
+  const f1Count = arguments_.filter(
+    (a) => a.fighter_name === fight.fighter1.name,
+  ).length;
+  const f2Count = arguments_.filter(
+    (a) => a.fighter_name === fight.fighter2.name,
+  ).length;
 
-  const topArgument = arguments_.length > 0
-    ? [...arguments_].sort((a, b) => b.vote_count - a.vote_count)[0]
-    : undefined;
+  const topArgument =
+    arguments_.length > 0
+      ? [...arguments_].sort((a, b) => b.vote_count - a.vote_count)[0]
+      : undefined;
 
   return (
     <div className="mt-3">
@@ -76,19 +98,29 @@ export function DebateSection({
         <div className="mt-3 space-y-4">
           {arguments_.length > 0 && (
             <div className="flex justify-between text-xs text-gray-500 bg-[#0f0f0f] rounded-lg px-4 py-2">
-              <span>{fight.fighter1.name}: <span className="text-[#e63946]">{f1Count}</span></span>
-              <span>{fight.fighter2.name}: <span className="text-[#9146FF]">{f2Count}</span></span>
+              <span>
+                {fight.fighter1.name}:{" "}
+                <span className="text-[#e63946]">{f1Count}</span>
+              </span>
+              <span>
+                {fight.fighter2.name}:{" "}
+                <span className="text-[#9146FF]">{f2Count}</span>
+              </span>
             </div>
           )}
 
           {topArgument && topArgument.vote_count > 2 && (
             <div className="bg-[#f4a261]/5 border border-[#f4a261]/30 rounded-xl p-4">
-              <div className="text-[#f4a261] text-xs tracking-widest mb-2">🏆 MÁS VOTADO</div>
+              <div className="text-[#f4a261] text-xs tracking-widest mb-2">
+                🏆 MÁS VOTADO
+              </div>
               <ArgumentCard
                 arg={topArgument}
                 currentUsername={user?.twitch_username}
                 onVote={voteMutation.mutate}
-                onReply={(id, text) => replyMutation.mutate({ argumentId: id, text })}
+                onReply={(id, text) =>
+                  replyMutation.mutate({ argumentId: id, text })
+                }
                 isVoting={voteMutation.isPending}
               />
             </div>
@@ -98,7 +130,9 @@ export function DebateSection({
             {isLoading ? (
               <p className="text-center py-8 text-gray-600">Cargando...</p>
             ) : arguments_.length === 0 ? (
-              <p className="text-center py-8 text-gray-600">Sé el primero en dejar tu argumento 🔥</p>
+              <p className="text-center py-8 text-gray-600">
+                Sé el primero en dejar tu argumento 🔥
+              </p>
             ) : (
               arguments_.map((arg) => (
                 <ArgumentCard
@@ -106,14 +140,29 @@ export function DebateSection({
                   arg={arg}
                   currentUsername={user?.twitch_username}
                   onVote={voteMutation.mutate}
-                  onReply={(id, text) => replyMutation.mutate({ argumentId: id, text })}
+                  onReply={(id, text) =>
+                    replyMutation.mutate({ argumentId: id, text })
+                  }
                   isVoting={voteMutation.isPending}
                 />
               ))
             )}
+
+            {/* Botón para cargar más */}
+            {hasNextPage && (
+              <div className="flex justify-center mt-2">
+                <button
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                  className="text-xs bg-gray-700 hover:bg-gray-600 text-white px-4 py-1 rounded"
+                >
+                  {isFetchingNextPage ? "Cargando..." : "Mostrar más"}
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Input siempre para crear nuevo */}
+          {/* Input para crear nuevo */}
           {user && userPrediction ? (
             <ArgumentInput
               text={newText}
