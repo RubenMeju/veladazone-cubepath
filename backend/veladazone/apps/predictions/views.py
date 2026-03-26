@@ -240,23 +240,34 @@ class ArgumentViewSet(viewsets.ModelViewSet):
 
         return queryset.order_by("-created_at")
 
-    def perform_create(self, serializer: ArgumentSerializer) -> None:
-        """Guardar argumento asegurando que fighter_supported exista"""
+    
+    def perform_create(self, serializer):
         request = cast(DRFRequest, self.request)
         data: dict = cast(dict, request.data)
 
-        fighter_id: Optional[str] = data.get("fighter_supported")
+        # Obtener fighter
+        fighter_id = data.get("fighter_supported")
         if not fighter_id:
-            raise serializers.ValidationError(
-                {"fighter_supported": "Este campo es obligatorio."}
-            )
-
+            raise serializers.ValidationError({"fighter_supported": "Este campo es obligatorio."})
         try:
             fighter = Fighter.objects.get(id=int(fighter_id))
         except Fighter.DoesNotExist:
             raise serializers.ValidationError({"fighter_supported": "Fighter no existe."})
 
-        serializer.save(user=request.user, fighter_supported=fighter)
+        # Obtener fight
+        fight_id = data.get("fight")
+        if not fight_id:
+            raise serializers.ValidationError({"fight": "Este campo es obligatorio."})
+        try:
+            fight = Fight.objects.get(id=int(fight_id))
+        except Fight.DoesNotExist:
+            raise serializers.ValidationError({"fight": "El fight no existe."})
+
+        # Guardar con ambos campos
+        serializer.save(user=request.user, fighter_supported=fighter, fight=fight)
+
+
+
     def create(self, request: DRFRequest, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
