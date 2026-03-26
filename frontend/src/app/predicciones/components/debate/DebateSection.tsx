@@ -105,7 +105,9 @@ export function DebateSection({
               arg={topArgument}
               currentUsername={user?.twitch_username}
               onVote={voteMutation.mutate}
-              onReply={replyMutation.mutate}
+              onReply={(id, text) =>
+                replyMutation.mutate({ argumentId: id, text })
+              }
               isVoting={voteMutation.isPending}
             />
           </div>
@@ -119,7 +121,9 @@ export function DebateSection({
               arg={arg}
               currentUsername={user?.twitch_username}
               onVote={voteMutation.mutate}
-              onReply={replyMutation.mutate}
+              onReply={(id, text) =>
+                replyMutation.mutate({ argumentId: id, text })
+              }
               isVoting={voteMutation.isPending}
             />
           ))}

@@ -9,13 +9,13 @@ export function ArgumentCard({
   arg,
   currentUsername,
   onVote,
-  onReply,
+  onReply, // ahora recibe (id, text)
   isVoting,
 }: {
   arg: Argument;
   currentUsername?: string;
   onVote: (id: number) => void;
-  onReply: (id: number, text: string) => void;
+  onReply: (id: number, text: string) => void; // ← se mantiene igual
   isVoting: boolean;
 }) {
   const [showReply, setShowReply] = useState(false);
@@ -25,7 +25,7 @@ export function ArgumentCard({
   return (
     <div className="bg-[#0f0f0f] rounded-lg p-3">
       <div className="flex items-start gap-2">
-        {/* Avatar con link */}
+        {/* Avatar */}
         <Link
           href={`/perfil/${arg.username}`}
           className="flex-shrink-0 hover:opacity-80 transition-opacity"
@@ -39,7 +39,6 @@ export function ArgumentCard({
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1 mb-0.5">
-            {/* Username con link */}
             <Link
               href={`/perfil/${arg.username}`}
               className="text-xs text-gray-300 font-medium hover:text-white transition-colors"
@@ -74,8 +73,8 @@ export function ArgumentCard({
         </button>
       </div>
 
-      {/* Respuestas existentes */}
-      {arg.replies.length > 0 && (
+      {/* Respuestas */}
+      {arg.replies && arg.replies.length > 0 && (
         <div className="mt-2 ml-8 flex flex-col gap-1.5">
           {arg.replies.map((reply) => (
             <ArgumentReplyItem key={reply.id} reply={reply} />
@@ -83,8 +82,8 @@ export function ArgumentCard({
         </div>
       )}
 
-      {/* Botón responder */}
-      {!isOwn && currentUsername && !arg.user_replied && (
+      {/* Formulario para responder */}
+      {!isOwn && currentUsername && (
         <div className="mt-2 ml-8">
           {!showReply ? (
             <button
@@ -106,7 +105,7 @@ export function ArgumentCard({
               <button
                 onClick={() => {
                   if (replyText.trim()) {
-                    onReply(arg.id, replyText.trim());
+                    onReply(arg.id, replyText.trim()); // ← aquí se llama correctamente
                     setReplyText("");
                     setShowReply(false);
                   }
@@ -123,12 +122,6 @@ export function ArgumentCard({
               </button>
             </div>
           )}
-        </div>
-      )}
-
-      {arg.user_replied && (
-        <div className="mt-1 ml-8">
-          <span className="text-[10px] text-gray-600">✓ Ya has respondido</span>
         </div>
       )}
     </div>
