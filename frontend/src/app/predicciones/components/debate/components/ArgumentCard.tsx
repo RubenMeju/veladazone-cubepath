@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArgumentReplyItem } from "./ArgumentReplyItem";
-import { Argument } from "../types";
+import { Argument, ArgumentReply } from "../types";
 
 export function ArgumentCard({
   arg,
@@ -21,6 +21,20 @@ export function ArgumentCard({
   const [showReply, setShowReply] = useState(false);
   const [replyText, setReplyText] = useState("");
   const isOwn = arg.username === currentUsername;
+
+  // Función auxiliar para agregar reply a la estructura correcta
+  const handleReply = (parentId: number, text: string) => {
+    const newReply: ArgumentReply = {
+      id: Date.now(),
+      username: currentUsername!,
+      avatar: null,
+      text,
+      created_at: new Date().toISOString(),
+      time_ago: "ahora",
+      replies: [],
+    };
+    onReply(parentId, text); // llamar función externa para backend o estado global
+  };
 
   return (
     <div className="bg-[#111111] border border-[#1e1e1e] rounded-xl p-4 flex flex-col gap-3">
@@ -77,17 +91,17 @@ export function ArgumentCard({
         </button>
       </div>
 
-      {/* Respuestas */}
+      {/* Respuestas recursivas */}
       {arg.replies && arg.replies.length > 0 && (
         <div className="ml-12 flex flex-col gap-2 border-l border-[#2a2a2a] pl-3">
           {arg.replies.map((reply) => (
             <ArgumentReplyItem
               key={reply.id}
               reply={reply}
-              onReply={onReply}
+              onReply={handleReply}
               currentUsername={currentUsername}
               level={0}
-              maxLevel={3} // límite de anidamiento
+              maxLevel={3}
             />
           ))}
         </div>
@@ -116,7 +130,7 @@ export function ArgumentCard({
               <button
                 onClick={() => {
                   if (replyText.trim()) {
-                    onReply(arg.id, replyText.trim());
+                    handleReply(arg.id, replyText.trim());
                     setReplyText("");
                     setShowReply(false);
                   }

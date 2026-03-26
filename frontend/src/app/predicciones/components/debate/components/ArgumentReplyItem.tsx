@@ -46,7 +46,8 @@ export function ArgumentReplyItem({
           <span className="text-xs text-gray-400">{reply.text}</span>
         </div>
 
-        {!isOwn && currentUsername && (
+        {/* Botón de responder disponible para todos los niveles */}
+        {!isOwn && currentUsername && level < maxLevel && (
           <button
             onClick={() => setShowReply(!showReply)}
             className="text-xs text-gray-600 hover:text-gray-400 ml-2"
