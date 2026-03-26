@@ -47,6 +47,7 @@ export function DebateSection({
   // Crear nuevo argumento
   const createMutation = useMutation({
     mutationFn: (text: string) =>
+      
       api.post("/predictions/arguments/", {
         fight: fight.id,
         fighter_supported: userPrediction?.predicted_winner.id,

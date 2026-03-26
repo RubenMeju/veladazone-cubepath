@@ -2,6 +2,8 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.utils.timesince import timesince
 from django.utils.timezone import now
+
+from veladazone.apps.fighters.models import Fight, Fighter
 from .models import Argument, ArgumentReply, ArgumentVote, Prediction
 from veladazone.apps.fighters.serializers import FightSerializer, FighterSerializer
 
@@ -53,11 +55,21 @@ class ArgumentReplySerializer(serializers.ModelSerializer):
 
 class ArgumentSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source="user.username", read_only=True)
-    fighter_name = serializers.CharField(source="fighter_supported.name", read_only=True)
+    fighter_name = serializers.CharField(
+        source="fighter_supported.name", read_only=True
+    )
     vote_count = serializers.SerializerMethodField()
     user_voted = serializers.SerializerMethodField()
     time_ago = serializers.SerializerMethodField()
     replies = serializers.SerializerMethodField()
+
+    # ← Añadir estos dos campos write-only
+    fight = serializers.PrimaryKeyRelatedField(
+        queryset=Fight.objects.all(), write_only=True
+    )
+    fighter_supported = serializers.PrimaryKeyRelatedField(
+        queryset=Fighter.objects.all(), write_only=True
+    )
 
     class Meta:
         model = Argument
@@ -65,6 +77,7 @@ class ArgumentSerializer(serializers.ModelSerializer):
             "id",
             "username",
             "text",
+            "fight",  # ← añadir
             "fighter_supported",
             "fighter_name",
             "vote_count",
@@ -74,7 +87,15 @@ class ArgumentSerializer(serializers.ModelSerializer):
             "time_ago",
             "replies",
         ]
-        read_only_fields = ["username", "edited", "created_at", "vote_count", "user_voted", "time_ago", "replies"]
+        read_only_fields = [
+            "username",
+            "edited",
+            "created_at",
+            "vote_count",
+            "user_voted",
+            "time_ago",
+            "replies",
+        ]
 
     def get_vote_count(self, obj):
         return obj.argument_votes.count()
@@ -96,5 +117,7 @@ class ArgumentSerializer(serializers.ModelSerializer):
 
     def validate_text(self, value):
         if len(value) > 600:
-            raise serializers.ValidationError("El comentario no puede superar 600 caracteres")
+            raise serializers.ValidationError(
+                "El comentario no puede superar 600 caracteres"
+            )
         return value

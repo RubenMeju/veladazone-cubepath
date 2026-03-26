@@ -264,31 +264,7 @@ class ArgumentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         request = cast(DRFRequest, self.request)
-        data: dict = cast(dict, request.data)
-
-        # Obtener fighter
-        fighter_id = data.get("fighter_supported")
-        if not fighter_id:
-            raise serializers.ValidationError(
-                {"fighter_supported": "Este campo es obligatorio."}
-            )
-        try:
-            fighter = Fighter.objects.get(id=int(fighter_id))
-        except Fighter.DoesNotExist:
-            raise serializers.ValidationError(
-                {"fighter_supported": "Fighter no existe."}
-            )
-
-        # Obtener fight
-        fight_id = data.get("fight")
-        if not fight_id:
-            raise serializers.ValidationError({"fight": "Este campo es obligatorio."})
-        try:
-            fight = Fight.objects.get(id=int(fight_id))
-        except Fight.DoesNotExist:
-            raise serializers.ValidationError({"fight": "El fight no existe."})
-
-        serializer.save(user=request.user, fighter_supported=fighter, fight=fight)
+        serializer.save(user=request.user)
 
     def create(self, request: DRFRequest, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
