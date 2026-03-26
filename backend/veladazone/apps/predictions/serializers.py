@@ -47,6 +47,7 @@ class ArgumentReplySerializer(serializers.ModelSerializer):
 
 class ArgumentSerializer(serializers.ModelSerializer):
     user = SimpleUserSerializer(read_only=True)
+    username = serializers.SerializerMethodField()  # <-- esto es clave
     fighter_name = serializers.CharField(
         source="fighter_supported.name", read_only=True
     )
@@ -62,7 +63,7 @@ class ArgumentSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "user",
-            "username",  # para compatibilidad con frontend
+            "username",  # ahora está bien
             "text",
             "fighter_supported",
             "fighter_name",
