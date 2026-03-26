@@ -1,11 +1,19 @@
 import requests
 from django.conf import settings
+from django.db.models import Prefetch
+from rest_framework.request import Request
+from rest_framework.request import Request as DRFRequest
+from typing import cast
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import (
+    IsAuthenticated,
+    AllowAny,
+    IsAuthenticatedOrReadOnly,
+)
 from rest_framework.response import Response
 from django.core.cache import cache
-from .models import Argument, Prediction
+from .models import Argument, ArgumentReply, Prediction
 from .serializers import ArgumentSerializer, PredictionSerializer
 from veladazone.apps.fighters.models import Fight, Fighter
 
@@ -216,122 +224,47 @@ class PredictionViewSet(viewsets.ModelViewSet):
 
 class ArgumentViewSet(viewsets.ModelViewSet):
     serializer_class = ArgumentSerializer
-    http_method_names = ["get", "post", "delete"]
-
-    def get_permissions(self):
-        if self.action in ["list", "retrieve"]:
-            return [AllowAny()]
-        return [IsAuthenticated()]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        qs = Argument.objects.select_related(
-            "user", "fighter_supported", "fight"
-        ).prefetch_related("replies__user", "argument_votes")
-        fight_id = self.request.query_params.get("fight")  # type: ignore
-        if fight_id:
-            qs = qs.filter(fight_id=fight_id)
-        return qs
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["request"] = self.request
-        return context
-
-    def create(self, request, *args, **kwargs):
-        fight_id = request.data.get("fight_id")
-        fighter_id = request.data.get("fighter_id")
-        text = request.data.get("text", "").strip()
-
-        if not text or len(text) > 280:
-            return Response(
-                {"error": "El argumento debe tener entre 1 y 280 caracteres"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        try:
-            fight = Fight.objects.get(id=fight_id)
-            fighter = Fighter.objects.get(id=fighter_id)
-        except (Fight.DoesNotExist, Fighter.DoesNotExist):
-            return Response(
-                {"error": "Combate o luchador no encontrado"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        if fighter not in [fight.fighter1, fight.fighter2]:
-            return Response(
-                {"error": "El luchador no participa en este combate"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        # Comprueba si ya existe y si puede editar
-        existing = Argument.objects.filter(user=request.user, fight=fight).first()
-        if existing:
-            if existing.edited:
-                return Response(
-                    {"error": "Solo puedes editar tu argumento una vez"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            if existing.vote_count >= 3:
-                return Response(
-                    {"error": "No puedes editar un argumento con 3 o más votos"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-        argument, created = Argument.objects.update_or_create(
-            user=request.user,
-            fight=fight,
-            defaults={
-                "fighter_supported": fighter,
-                "text": text,
-                "edited": existing
-                is not None,  # True si estaba editando, False si es nuevo
-            },
+        queryset = Argument.objects.select_related(
+            'user', 'fighter_supported'
+        ).prefetch_related(
+            Prefetch(
+                'replies',
+                queryset=ArgumentReply.objects.select_related('user')
+            ),
+            'argument_votes'   # para vote_count
         )
 
-        return Response(
-            ArgumentSerializer(argument, context={"request": request}).data,
-            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
-        )
+        fight_id = self.request.query_params.get('fight')
+        if fight_id and fight_id.isdigit():
+            queryset = queryset.filter(fight_id=int(fight_id))
 
-    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
-    def vote(self, request, pk=None):
-        argument = self.get_object()
-        if argument.user == request.user:
-            return Response(
-                {"error": "No puedes votar tu propio argumento"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        return queryset.order_by('-created_at')
 
-        vote, created = ArgumentVote.objects.get_or_create(
-            user=request.user, argument=argument
-        )
-        if not created:
-            vote.delete()
-            return Response({"voted": False, "vote_count": argument.vote_count})
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
-        return Response({"voted": True, "vote_count": argument.vote_count})
-
-    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    # Endpoint para responder (recomendado)
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def reply(self, request, pk=None):
         argument = self.get_object()
-        text = request.data.get("text", "").strip()
+        text = request.data.get('text', '').strip()
 
-        if not text or len(text) > 280:
-            return Response(
-                {"error": "La respuesta debe tener entre 1 y 280 caracteres"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        if not text:
+            return Response({"error": "El texto es requerido"}, status=400)
 
-        reply, created = ArgumentReply.objects.get_or_create(
-            user=request.user, argument=argument, defaults={"text": text}
+        reply = ArgumentReply.objects.create(
+            user=request.user,
+            argument=argument,
+            text=text
         )
 
-        if not created:
-            return Response(
-                {"error": "Ya has respondido a este argumento"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        return Response(
-            ArgumentReplySerializer(reply).data, status=status.HTTP_201_CREATED
-        )
+        # Invalidar caché de argumentos
+        return Response({
+            "id": reply.id,
+            "user": {"id": reply.user.id, "username": reply.user.username},
+            "text": reply.text,
+            "created_at": reply.created_at
+        }, status=201)

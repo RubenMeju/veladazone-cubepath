@@ -23,72 +23,85 @@ class PredictionSerializer(serializers.ModelSerializer):
         read_only_fields = ["ai_comment", "is_correct", "betrayal_count", "created_at"]
 
 
-class ArgumentReplySerializer(serializers.ModelSerializer):
-    username = serializers.SerializerMethodField()
+class SimpleUserSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    username = serializers.CharField()
     avatar = serializers.SerializerMethodField()
+
+    def get_avatar(self, obj):
+        return getattr(obj, 'avatar_url', None)
+
+
+class ArgumentReplySerializer(serializers.ModelSerializer):
+    user = SimpleUserSerializer(read_only=True)
 
     class Meta:
         model = ArgumentReply
-        fields = ["id", "username", "avatar", "text", "created_at"]
-
-    def get_username(self, obj):
-        return obj.user.display_name  # type: ignore
-
-    def get_avatar(self, obj):
-        return obj.user.avatar_url  # type: ignore
+        fields = ['id', 'user', 'text', 'created_at']
+        # Quitamos la recursión profunda por ahora (evita complicaciones)
 
 
 class ArgumentSerializer(serializers.ModelSerializer):
-    username = serializers.SerializerMethodField()
-    avatar = serializers.SerializerMethodField()
-    fighter_name = serializers.SerializerMethodField()
-    fighter_flag = serializers.SerializerMethodField()
+    user = SimpleUserSerializer(read_only=True)
+    fighter_name = serializers.CharField(source='fighter_supported.name', read_only=True)
+    fighter_flag = serializers.SerializerMethodField()   # si tienes bandera en Fighter
     vote_count = serializers.SerializerMethodField()
-    replies = ArgumentReplySerializer(many=True, read_only=True)
     user_voted = serializers.SerializerMethodField()
-    user_replied = serializers.SerializerMethodField()
-    edited = serializers.BooleanField(read_only=True)
+
+    replies = ArgumentReplySerializer(many=True, read_only=True)
 
     class Meta:
         model = Argument
         fields = [
-            "id",
-            "username",
-            "avatar",
-            "fighter_name",
-            "fighter_flag",
-            "text",
-            "vote_count",
-            "replies",
-            "user_voted",
-            "user_replied",
-            "edited",
-            "created_at",
+            'id',
+            'user',
+            'username',                    # para compatibilidad temporal
+            'text',
+            'fighter_supported',
+            'fighter_name',
+            'fighter_flag',
+            'vote_count',
+            'user_voted',
+            'edited',
+            'created_at',
+            'replies'
         ]
+        read_only_fields = ['user', 'edited', 'created_at']
 
     def get_username(self, obj):
-        return obj.user.display_name  # type: ignore
-
-    def get_avatar(self, obj):
-        return obj.user.avatar_url  # type: ignore
-
-    def get_fighter_name(self, obj):
-        return obj.fighter_supported.name
+        return obj.user.username
 
     def get_fighter_flag(self, obj):
-        return obj.fighter_supported.country_flag
+        # Ajusta según tu modelo Fighter (puede ser None)
+        return getattr(obj.fighter_supported, 'country_flag', '')
 
     def get_vote_count(self, obj):
-        return obj.argument_votes.count()  # type: ignore
+        return obj.argument_votes.count()
 
     def get_user_voted(self, obj):
-        request = self.context.get("request")
+        request = self.context.get('request')
         if not request or not request.user.is_authenticated:
             return False
-        return obj.argument_votes.filter(user=request.user).exists()  # type: ignore
+        return ArgumentVote.objects.filter(
+            user=request.user, 
+            argument=obj
+        ).exists()
+    user = serializers.SerializerMethodField()
+    fighter_supported_name = serializers.CharField(source='fighter_supported.name', read_only=True)
+    vote_count = serializers.IntegerField(source='vote_count', read_only=True)
+    replies = ArgumentReplySerializer(many=True, read_only=True, source='replies')
 
-    def get_user_replied(self, obj):
-        request = self.context.get("request")
-        if not request or not request.user.is_authenticated:
-            return False
-        return obj.replies.filter(user=request.user).exists()  # type: ignore
+    class Meta:
+        model = Argument
+        fields = [
+            'id', 'user', 'text', 'fighter_supported', 'fighter_supported_name',
+            'vote_count', 'created_at', 'updated_at', 'edited', 'replies'
+        ]
+        read_only_fields = ['user', 'edited']
+
+    def get_user(self, obj):
+        return {
+            "id": obj.user.id,
+            "username": obj.user.username,
+            # añade avatar si lo tienes
+        }

@@ -37,27 +37,25 @@ class Prediction(models.Model):
 
 ## MODO DEBATE
 class Argument(models.Model):
+    """Comentario principal defendiendo a un luchador"""
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="arguments"
     )
     fight = models.ForeignKey(Fight, on_delete=models.CASCADE, related_name="arguments")
     fighter_supported = models.ForeignKey(
-        Fighter, on_delete=models.CASCADE, related_name="arguments"
+        Fighter, on_delete=models.CASCADE, related_name="arguments_supported"
     )
-    text = models.CharField(max_length=280)
+    text = models.TextField(max_length=600)  # más largo que 280
     edited = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ["user", "fight"]
-        ordering = ["-created_at"]
+        ordering = ["-created_at"]  # quitamos unique_together
 
     def __str__(self):
-        return f"{self.user} defiende a {self.fighter_supported} en {self.fight}"
-
-    @property
-    def vote_count(self):
-        return self.argument_votes.count()
+        return f"{self.user.username} en {self.fight}"
 
 
 class ArgumentVote(models.Model):
@@ -79,20 +77,35 @@ class ArgumentVote(models.Model):
 
 
 class ArgumentReply(models.Model):
+    """Respuestas (soporta 1 o 2 niveles de anidación)"""
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="argument_replies",
     )
+    # Respuesta a un comentario principal
     argument = models.ForeignKey(
-        Argument, on_delete=models.CASCADE, related_name="replies"
+        Argument,
+        on_delete=models.CASCADE,
+        related_name="replies",
+        null=True,
+        blank=True,
     )
-    text = models.CharField(max_length=280)
+    # Respuesta a otra respuesta (para hilos anidados)
+    parent = models.ForeignKey(
+        "self",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="child_replies",
+    )
+    text = models.TextField(max_length=500)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ["user", "argument"]
         ordering = ["created_at"]
 
     def __str__(self):
-        return f"{self.user} respondió a {self.argument}"
+        return f"Reply by {self.user} "
