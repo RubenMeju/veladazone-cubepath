@@ -232,11 +232,11 @@ export default function ProfilePage() {
           {/* Argumentos del debate */}
           <div className="bg-[#0d0d0d] border border-white/5 rounded-2xl p-5">
             <h2 className="font-bebas text-xl text-white tracking-wider mb-4">
-              💬 Argumentos
+              💬 Comentarios
             </h2>
             {data.arguments.length === 0 ? (
               <p className="text-gray-600 text-sm text-center py-4">
-                Sin argumentos aún
+                Sin comentarios aún
               </p>
             ) : (
               <div className="flex flex-col gap-3">

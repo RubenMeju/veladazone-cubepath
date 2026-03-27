@@ -176,11 +176,12 @@ class PublicProfileView(APIView):
             .order_by("-created_at")
         )
 
-        # Argumentos
+        # Argumentos del usuario (primer nivel) con votos
         arguments = (
             Argument.objects.filter(user=user)
             .select_related("fight__fighter1", "fight__fighter2", "fighter_supported")
-            .order_by("-created_at")[:5]
+            .annotate(vote_count=Count("argument_votes"))  # ✅ agrega vote_count
+            .order_by("-created_at")[:5]  # top 5 recientes
         )
 
         # Traiciones
@@ -230,7 +231,7 @@ class PublicProfileView(APIView):
                         "fight": f"{a.fight.fighter1.name} vs {a.fight.fighter2.name}",
                         "fighter": a.fighter_supported.name,
                         "text": a.text,
-                        "votes": a.vote_count,
+                        "votes": getattr(a, "vote_count", 0),
                     }
                     for a in arguments
                 ],
