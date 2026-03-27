@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   db:
     image: postgres:16-alpine
@@ -10,9 +12,17 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
   backend:
     build: ./backend
-    command: python manage.py runserver 0.0.0.0:8000 --settings=veladazone.settings.dev
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py create_dev_user --settings=veladazone.settings.dev &&
+             python manage.py runserver 0.0.0.0:8000 --settings=veladazone.settings.dev"
     volumes:
       - ./backend:/app
     ports:
@@ -21,8 +31,10 @@ services:
       - ./backend/.env
     depends_on:
       - db
+      - redis
     environment:
-      - DB_HOST=db
+      DB_HOST: db
+      REDIS_HOST: redis
 
   frontend:
     build: ./frontend
@@ -34,8 +46,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
-      - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+      NEXT_PUBLIC_BACKEND_URL: http://localhost:8000
     depends_on:
       - backend
 

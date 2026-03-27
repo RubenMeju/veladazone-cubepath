@@ -5,7 +5,16 @@ const API_URL =
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
+const isDev = process.env.NODE_ENV === "development";
+
 let isRefreshing = false;
+
+function getDevHeaders(): Record<string, string> {
+  if (isDev) {
+    return { "x-dev-user": "devuser" };
+  }
+  return {};
+}
 
 async function fetchAPI<T>(
   endpoint: string,
@@ -16,6 +25,7 @@ async function fetchAPI<T>(
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
+      ...getDevHeaders(),
       ...options?.headers,
     },
   });
@@ -23,7 +33,6 @@ async function fetchAPI<T>(
   if (res.status === 401 && !isRefreshing) {
     isRefreshing = true;
     try {
-      // Intenta refrescar el token
       const refreshRes = await fetch(`${API_URL}/users/token/refresh/`, {
         method: "POST",
         credentials: "include",
@@ -31,12 +40,12 @@ async function fetchAPI<T>(
 
       if (refreshRes.ok) {
         isRefreshing = false;
-        // Reintenta el request original con el nuevo token
         const retryRes = await fetch(`${API_URL}${endpoint}`, {
           ...options,
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
+            ...getDevHeaders(),
             ...options?.headers,
           },
         });
@@ -48,7 +57,6 @@ async function fetchAPI<T>(
       isRefreshing = false;
     }
 
-    // Refresh falló — hace logout
     useAuthStore.getState().logout();
     throw new Error("Unauthorized");
   }

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/ui/Navbar";
 import PwaInstallBanner from "@/components/PwaInstallBanner";
+import { DevAuthInit } from "@/components/DevAuthInit";
 
 const bebas = Bebas_Neue({
   weight: "400",
@@ -48,6 +49,7 @@ export default function RootLayout({
     <html lang="es" className={`${bebas.variable} ${inter.variable}`}>
       <body className="bg-[#0f0f0f] text-white min-h-screen">
         <Providers>
+          <DevAuthInit />
           <Navbar />
           <main>{children}</main>
           <PwaInstallBanner />
