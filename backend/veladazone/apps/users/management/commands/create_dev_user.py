@@ -15,8 +15,15 @@ class Command(BaseCommand):
                 "email": "dev@local.com",
                 "is_staff": True,
                 "is_active": True,
+                "twitch_username": "devuser",  # 👈 esto faltaba
             },
         )
+
+        if not created and not user.twitch_username:
+            # Actualiza si ya existía pero sin twitch_username
+            user.twitch_username = "devuser"
+            user.save()
+            self.stdout.write(self.style.SUCCESS("✅ twitch_username actualizado"))
 
         if created:
             user.set_unusable_password()

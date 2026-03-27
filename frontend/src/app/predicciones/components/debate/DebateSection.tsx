@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   useInfiniteQuery,
   useMutation,
+  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -23,9 +24,23 @@ export function DebateSection({
   userPrediction?: { predicted_winner: { id: number; name: string } };
 }) {
   const { user } = useAuthStore();
+  console.log("USER DEBUG:", user);
   const queryClient = useQueryClient();
   const [newText, setNewText] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+
+  // Query solo para el count — siempre activa
+  const { data: countData } = useQuery({
+    queryKey: ["arguments-count", fight.id],
+    queryFn: async () => {
+      const res = await api.get(
+        `/predictions/arguments/?fight=${fight.id}&limit=1&offset=0`,
+      );
+      return (res as any).count ?? 0;
+    },
+  });
+
+  const totalCount = countData ?? 0;
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
@@ -34,7 +49,6 @@ export function DebateSection({
         const res = await api.get(
           `/predictions/arguments/?fight=${fight.id}&limit=${PAGE_LIMIT}&offset=${pageParam}`,
         );
-        // Si la respuesta tiene paginación DRF, extraer results; si no, usar directamente
         return (res as any).results
           ? ((res as any).results as Argument[])
           : (res as Argument[]);
@@ -47,7 +61,6 @@ export function DebateSection({
 
   const arguments_ = data?.pages.flat() ?? [];
 
-  // Crear nuevo argumento
   const createMutation = useMutation({
     mutationFn: (text: string) =>
       api.post("/predictions/arguments/", {
@@ -57,6 +70,9 @@ export function DebateSection({
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["arguments", fight.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["arguments-count", fight.id],
+      });
       setNewText("");
     },
   });
@@ -88,34 +104,56 @@ export function DebateSection({
       : undefined;
 
   return (
-    <div className="mt-3">
+    <div className="mt-4">
+      {/* Trigger */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full text-left text-xs text-gray-500 hover:text-gray-300 flex items-center gap-2 py-1"
+        className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-white/5 hover:border-white/10 hover:bg-white/[0.02] transition-all text-xs text-gray-500 hover:text-gray-300"
       >
-        <span>{isOpen ? "▲" : "▼"}</span>
-        💬 Debate ({arguments_.length} argumentos)
+        <span className="flex items-center gap-2">
+          <span>💬</span>
+          <span>
+            Debate
+            {totalCount > 0 && (
+              <span className="ml-1.5 bg-[#e63946]/20 text-[#e63946] text-[10px] font-medium px-1.5 py-0.5 rounded-full">
+                {totalCount}
+              </span>
+            )}
+          </span>
+        </span>
+        <span className="text-[10px] tracking-wider">
+          {isOpen ? "▲ cerrar" : "▼ ver debate"}
+        </span>
       </button>
 
       {isOpen && (
         <div className="mt-3 space-y-4">
+          {/* Barra de bandos */}
           {arguments_.length > 0 && (
-            <div className="flex justify-between text-xs text-gray-500 bg-[#0f0f0f] rounded-lg px-4 py-2">
-              <span>
-                {fight.fighter1.name}:{" "}
-                <span className="text-[#e63946]">{f1Count}</span>
+            <div className="flex items-center gap-3 text-xs bg-[#0a0a0a] border border-white/5 rounded-xl px-4 py-2.5">
+              <span className="text-[#e63946] font-medium">
+                {fight.fighter1.name}
               </span>
-              <span>
-                {fight.fighter2.name}:{" "}
-                <span className="text-[#9146FF]">{f2Count}</span>
+              <div className="flex-1 h-1.5 rounded-full bg-[#1a1a1a] overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#e63946] to-[#9146FF] rounded-full transition-all duration-500"
+                  style={{
+                    width: `${f1Count + f2Count > 0 ? Math.round((f1Count / (f1Count + f2Count)) * 100) : 50}%`,
+                  }}
+                />
+              </div>
+              <span className="text-[#9146FF] font-medium">
+                {fight.fighter2.name}
               </span>
             </div>
           )}
 
+          {/* Top argumento */}
           {topArgument && topArgument.vote_count > 2 && (
-            <div className="bg-[#f4a261]/5 border border-[#f4a261]/30 rounded-xl p-4">
-              <div className="text-[#f4a261] text-xs tracking-widest mb-2">
-                🏆 MÁS VOTADO
+            <div className="relative overflow-hidden bg-[#0a0a0a] border border-[#f4a261]/20 rounded-xl p-4">
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#f4a261]/30 to-transparent" />
+              <div className="text-[10px] text-[#f4a261]/70 font-medium tracking-[0.3em] uppercase mb-3">
+                🏆 Argumento más votado
               </div>
               <ArgumentCard
                 arg={topArgument}
@@ -129,13 +167,26 @@ export function DebateSection({
             </div>
           )}
 
-          <div className="space-y-3 max-h-[400px] overflow-y-auto">
+          {/* Lista de argumentos */}
+          <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
             {isLoading ? (
-              <p className="text-center py-8 text-gray-600">Cargando...</p>
+              <div className="flex flex-col items-center gap-2 py-10 text-gray-600">
+                <div className="flex gap-1">
+                  {[0, 1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className="w-1.5 h-1.5 rounded-full bg-[#e63946]/50 animate-bounce"
+                      style={{ animationDelay: `${i * 0.15}s` }}
+                    />
+                  ))}
+                </div>
+                <span className="text-xs">Cargando argumentos...</span>
+              </div>
             ) : arguments_.length === 0 ? (
-              <p className="text-center py-8 text-gray-600">
-                Sé el primero en dejar tu argumento 🔥
-              </p>
+              <div className="flex flex-col items-center gap-2 py-10 text-gray-600">
+                <span className="text-3xl">🔥</span>
+                <span className="text-sm">Sé el primero en argumentar</span>
+              </div>
             ) : (
               arguments_.map((arg) => (
                 <ArgumentCard
@@ -151,21 +202,18 @@ export function DebateSection({
               ))
             )}
 
-            {/* Botón para cargar más */}
             {hasNextPage && (
-              <div className="flex justify-center mt-2">
-                <button
-                  onClick={() => fetchNextPage()}
-                  disabled={isFetchingNextPage}
-                  className="text-xs bg-gray-700 hover:bg-gray-600 text-white px-4 py-1 rounded"
-                >
-                  {isFetchingNextPage ? "Cargando..." : "Mostrar más"}
-                </button>
-              </div>
+              <button
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                className="w-full text-xs text-gray-500 hover:text-gray-300 py-2 border border-white/5 hover:border-white/10 rounded-xl transition-all"
+              >
+                {isFetchingNextPage ? "Cargando..." : "Ver más argumentos"}
+              </button>
             )}
           </div>
 
-          {/* Input para crear nuevo */}
+          {/* Input */}
           {user && userPrediction ? (
             <ArgumentInput
               text={newText}
@@ -175,11 +223,11 @@ export function DebateSection({
               isPending={createMutation.isPending}
             />
           ) : user ? (
-            <p className="text-center text-xs text-gray-600 py-4">
+            <p className="text-center text-xs text-gray-600 py-4 border border-white/5 rounded-xl">
               Haz tu predicción primero para participar en el debate
             </p>
           ) : (
-            <p className="text-center text-xs text-gray-600 py-4">
+            <p className="text-center text-xs text-gray-600 py-4 border border-white/5 rounded-xl">
               Inicia sesión con Twitch para participar
             </p>
           )}
