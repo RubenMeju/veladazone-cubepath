@@ -18,7 +18,7 @@ CORS_ALLOW_HEADERS = [
     "user-agent",
     "x-csrftoken",
     "x-requested-with",
-    "x-dev-user",  # 👈 esto es lo que faltaba
+    "x-dev-user",  # solo para localhost
 ]
 
 # DRF en modo DEV

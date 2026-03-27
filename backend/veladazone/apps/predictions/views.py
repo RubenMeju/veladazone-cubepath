@@ -16,7 +16,11 @@ from rest_framework.request import Request as DRFRequest
 from veladazone.apps.predictions.pagination import ArgumentPagination
 
 from .models import Argument, ArgumentReply, ArgumentVote, Prediction
-from .serializers import ArgumentReplySerializer, ArgumentSerializer, PredictionSerializer
+from .serializers import (
+    ArgumentReplySerializer,
+    ArgumentSerializer,
+    PredictionSerializer,
+)
 from veladazone.apps.fighters.models import Fight, Fighter
 
 
@@ -238,15 +242,22 @@ class ArgumentViewSet(viewsets.ModelViewSet):
             .prefetch_related(
                 Prefetch(
                     "replies",
-                    queryset=ArgumentReply.objects.select_related("user").order_by(
-                        "created_at"
-                    ),
+                    queryset=ArgumentReply.objects.select_related("user")
+                    .prefetch_related(
+                        Prefetch(
+                            "child_replies",
+                            queryset=ArgumentReply.objects.select_related(
+                                "user"
+                            ).order_by("created_at"),
+                        )
+                    )
+                    .filter(parent=None)
+                    .order_by("created_at"),
                 ),
             )
             .annotate(vote_count=Count("argument_votes"))
         )
 
-        # Prefetch votos del usuario autenticado para evitar N+1 en user_voted
         if user:
             queryset = queryset.prefetch_related(
                 Prefetch(
@@ -279,14 +290,26 @@ class ArgumentViewSet(viewsets.ModelViewSet):
     def reply(self, request: DRFRequest, pk: Optional[int] = None) -> Response:
         argument = self.get_object()
         text: str = (request.data.get("text") or "").strip()
+        parent_reply_id = request.data.get("parent_reply_id")
 
         if not text:
             return Response({"error": "El texto es requerido"}, status=400)
 
+        parent = None
+        if parent_reply_id is not None:  # ✅ cambio clave
+            try:
+                parent = ArgumentReply.objects.get(
+                    id=parent_reply_id, argument=argument
+                )
+            except ArgumentReply.DoesNotExist:
+                return Response({"error": "Reply padre no encontrado"}, status=400)
+
         reply = ArgumentReply.objects.create(
-            user=request.user, argument=argument, text=text
+            user=request.user,
+            argument=argument,
+            parent=parent,
+            text=text,
         )
 
-        # Usar serializer para consistencia con ArgumentReplySerializer
         serializer = ArgumentReplySerializer(reply, context={"request": request})
         return Response(serializer.data, status=201)

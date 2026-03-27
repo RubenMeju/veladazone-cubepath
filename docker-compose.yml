@@ -18,7 +18,9 @@ services:
       - "6379:6379"
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
     command: >
       sh -c "python manage.py migrate --noinput &&
              python manage.py create_dev_user --settings=veladazone.settings.dev &&
