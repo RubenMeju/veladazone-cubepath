@@ -113,10 +113,20 @@ class FantasyLeagueViewSet(viewsets.ModelViewSet):
 @permission_classes([AllowAny])
 class LeaguePreviewView(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = []  # Desactiva autenticación para esta view
 
     def get(self, request):
-        invite_code = request.query_params.get("invite_code")
+        invite_code = request.query_params.get("invite_code", "")
+        if not invite_code:
+            return Response({"error": "invite_code es requerido"}, status=400)
+
+        # Normalizar el código a mayúsculas
+        invite_code = invite_code.upper()
+
+        # Buscar la liga
         league = get_object_or_404(FantasyLeague, invite_code=invite_code)
+
+        # Respuesta con información de la liga
         return Response(
             {
                 "id": league.id,
