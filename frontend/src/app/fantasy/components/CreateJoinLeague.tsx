@@ -13,10 +13,12 @@ export function CreateJoinLeague({
   const [newLeagueName, setNewLeagueName] = useState("");
   const [inviteCode, setInviteCode] = useState("");
   const [activeTab, setActiveTab] = useState<"create" | "join">("create");
+  const [isPrivate, setIsPrivate] = useState(true); // Nuevo: liga privada por defecto
 
+  // Crear liga
   const createMutation = useMutation({
-    mutationFn: (name: string) =>
-      api.post<{ id: number }>("/fantasy/leagues/", { name }),
+    mutationFn: (data: { name: string; is_private: boolean }) =>
+      api.post<{ id: number }>("/fantasy/leagues/", data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["my-leagues"] });
       setNewLeagueName("");
@@ -24,9 +26,10 @@ export function CreateJoinLeague({
     },
   });
 
+  // Unirse a liga
   const joinMutation = useMutation({
-    mutationFn: (code: string) =>
-      api.post<{ id: number }>("/fantasy/leagues/join/", { invite_code: code }),
+    mutationFn: (data: { invite_code?: string; league_id?: number }) =>
+      api.post<{ id: number }>("/fantasy/leagues/join/", data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["my-leagues"] });
       setInviteCode("");
@@ -36,6 +39,7 @@ export function CreateJoinLeague({
 
   return (
     <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl p-6">
+      {/* Tabs */}
       <div className="flex gap-2 mb-5">
         {(["create", "join"] as const).map((tab) => (
           <button
@@ -52,6 +56,7 @@ export function CreateJoinLeague({
         ))}
       </div>
 
+      {/* Crear liga */}
       {activeTab === "create" ? (
         <div className="flex flex-col gap-3">
           <input
@@ -61,10 +66,23 @@ export function CreateJoinLeague({
             onChange={(e) => setNewLeagueName(e.target.value)}
             className="bg-[#0f0f0f] border border-[#2a2a2a] rounded-lg px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#e63946]"
           />
+          {/* Toggle privado / público */}
+          <label className="flex items-center gap-2 text-sm text-gray-400">
+            <input
+              type="checkbox"
+              checked={isPrivate}
+              onChange={(e) => setIsPrivate(e.target.checked)}
+              className="accent-[#e63946]"
+            />
+            Liga privada (requiere código)
+          </label>
           <button
             onClick={() =>
               newLeagueName.trim() &&
-              createMutation.mutate(newLeagueName.trim())
+              createMutation.mutate({
+                name: newLeagueName.trim(),
+                is_private: isPrivate,
+              })
             }
             disabled={!newLeagueName.trim() || createMutation.isPending}
             className="bg-[#e63946] hover:bg-[#c1121f] disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition-colors"
@@ -73,6 +91,7 @@ export function CreateJoinLeague({
           </button>
         </div>
       ) : (
+        /* Unirse a liga */
         <div className="flex flex-col gap-3">
           <input
             type="text"
@@ -84,16 +103,21 @@ export function CreateJoinLeague({
           />
           <button
             onClick={() =>
-              inviteCode.trim() && joinMutation.mutate(inviteCode.trim())
+              joinMutation.mutate(
+                inviteCode ? { invite_code: inviteCode.trim() } : {},
+              )
             }
-            disabled={inviteCode.length < 6 || joinMutation.isPending}
+            disabled={
+              (inviteCode.length < 6 && inviteCode !== "") ||
+              joinMutation.isPending
+            }
             className="bg-[#e63946] hover:bg-[#c1121f] disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition-colors"
           >
             {joinMutation.isPending ? "Uniéndose..." : "Unirse a liga"}
           </button>
           {joinMutation.isError && (
             <p className="text-[#e63946] text-xs text-center">
-              Código no válido
+              Código no válido o ya eres miembro
             </p>
           )}
         </div>
