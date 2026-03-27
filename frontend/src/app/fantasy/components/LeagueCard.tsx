@@ -51,6 +51,18 @@ export function LeagueCard({
           >
             📋
           </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              const url = `${window.location.origin}/fantasy/invite/${league.invite_code}`;
+              navigator.share?.({ title: league.name, url }) ??
+                navigator.clipboard.writeText(url);
+            }}
+            className="text-xs text-gray-500 hover:text-white transition-colors"
+            title="Compartir enlace de invitación"
+          >
+            🔗
+          </button>
         </div>
       ) : (
         // Liga pública: mostrar botón "Unirse" si no eres miembro

@@ -1,6 +1,8 @@
 from rest_framework import viewsets, status
+from rest_framework.generics import get_object_or_404
+from rest_framework.views import APIView
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.db.models import Q
 from .models import FantasyLeague, LeagueMember
@@ -104,3 +106,19 @@ class FantasyLeagueViewSet(viewsets.ModelViewSet):
             d["rank"] = i + 1
 
         return Response(data)
+
+
+class LeaguePreviewView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        invite_code = request.query_params.get("invite_code")
+        league = get_object_or_404(FantasyLeague, invite_code=invite_code)
+        return Response(
+            {
+                "id": league.id,
+                "name": league.name,
+                "member_count": league.members.count(),
+                "is_private": league.is_private,
+            }
+        )

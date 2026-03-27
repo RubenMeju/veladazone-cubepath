@@ -285,9 +285,10 @@ export default function ProfilePage() {
                       Creadas
                     </h3>
                     {data.leagues_created.map((league) => (
-                      <div
+                      <Link
                         key={league.id}
-                        className="bg-[#0a0a0a] border border-white/5 rounded-lg p-3 flex justify-between items-center"
+                        href={`/fantasy/${league.id}`}
+                        className="bg-[#0a0a0a] border border-white/5 rounded-lg p-3 flex justify-between items-center hover:border-white/10 transition-colors"
                       >
                         <span className="text-white text-sm">
                           {league.name}
@@ -295,7 +296,7 @@ export default function ProfilePage() {
                         {league.is_private && (
                           <span className="text-xs text-gray-500">Privada</span>
                         )}
-                      </div>
+                      </Link>
                     ))}
                   </>
                 )}
@@ -307,9 +308,10 @@ export default function ProfilePage() {
                       Unidas
                     </h3>
                     {data.leagues_joined.map((league) => (
-                      <div
+                      <Link
                         key={league.id}
-                        className="bg-[#0a0a0a] border border-white/5 rounded-lg p-3 flex justify-between items-center"
+                        href={`/fantasy/${league.id}`}
+                        className="bg-[#0a0a0a] border border-white/5 rounded-lg p-3 flex justify-between items-center hover:border-white/10 transition-colors"
                       >
                         <span className="text-white text-sm">
                           {league.name}
@@ -317,7 +319,7 @@ export default function ProfilePage() {
                         {league.is_private && (
                           <span className="text-xs text-gray-500">Privada</span>
                         )}
-                      </div>
+                      </Link>
                     ))}
                   </>
                 )}
