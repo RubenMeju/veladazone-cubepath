@@ -8,6 +8,8 @@ from django.shortcuts import redirect
 from django.conf import settings
 from django.views import View
 from django.contrib.auth import get_user_model
+
+from veladazone.apps.fantasy.models import FantasyLeague
 from .serializers import UserSerializer
 
 
@@ -180,14 +182,26 @@ class PublicProfileView(APIView):
         arguments = (
             Argument.objects.filter(user=user)
             .select_related("fight__fighter1", "fight__fighter2", "fighter_supported")
-            .annotate(vote_count=Count("argument_votes"))  # ✅ agrega vote_count
-            .order_by("-created_at")[:5]  # top 5 recientes
+            .annotate(vote_count=Count("argument_votes"))
+            .order_by("-created_at")[:5]
         )
 
         # Traiciones
         betrayals = Prediction.objects.filter(
             user=user, betrayal_count__gt=0
         ).aggregate(total=Count("betrayal_count"))
+
+        # Ligas creadas
+        leagues_created = FantasyLeague.objects.filter(creator=user).values(
+            "id", "name", "is_private"
+        )
+
+        # Ligas en las que está unido (excluyendo creadas para no duplicar)
+        leagues_joined = (
+            FantasyLeague.objects.filter(members=user)
+            .exclude(creator=user)
+            .values("id", "name", "is_private")
+        )
 
         def get_badge(correct, total):
             if total == 0:
@@ -235,6 +249,8 @@ class PublicProfileView(APIView):
                     }
                     for a in arguments
                 ],
+                "leagues_created": list(leagues_created),
+                "leagues_joined": list(leagues_joined),
             }
         )
 

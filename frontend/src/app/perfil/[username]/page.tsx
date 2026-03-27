@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { FantasyLeague } from "@/types";
 
 interface ProfileData {
   username: string;
@@ -33,6 +34,8 @@ interface ProfileData {
     text: string;
     votes: number;
   }[];
+  leagues_created: FantasyLeague[];
+  leagues_joined: FantasyLeague[];
 }
 
 export default function ProfilePage() {
@@ -258,6 +261,66 @@ export default function ProfilePage() {
                     </p>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+
+          {/* Ligas del usuario */}
+          <div className="bg-[#0d0d0d] border border-white/5 rounded-2xl p-5 mt-6">
+            <h2 className="font-bebas text-xl text-white tracking-wider mb-4">
+              🏆 Ligas
+            </h2>
+
+            {data.leagues_created.length === 0 &&
+            data.leagues_joined.length === 0 ? (
+              <p className="text-gray-600 text-sm text-center py-4">
+                No estás en ninguna liga todavía
+              </p>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {/* Ligas creadas */}
+                {data.leagues_created.length > 0 && (
+                  <>
+                    <h3 className="text-gray-400 text-xs uppercase mb-1">
+                      Creadas
+                    </h3>
+                    {data.leagues_created.map((league) => (
+                      <div
+                        key={league.id}
+                        className="bg-[#0a0a0a] border border-white/5 rounded-lg p-3 flex justify-between items-center"
+                      >
+                        <span className="text-white text-sm">
+                          {league.name}
+                        </span>
+                        {league.is_private && (
+                          <span className="text-xs text-gray-500">Privada</span>
+                        )}
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                {/* Ligas unidas */}
+                {data.leagues_joined.length > 0 && (
+                  <>
+                    <h3 className="text-gray-400 text-xs uppercase mt-3 mb-1">
+                      Unidas
+                    </h3>
+                    {data.leagues_joined.map((league) => (
+                      <div
+                        key={league.id}
+                        className="bg-[#0a0a0a] border border-white/5 rounded-lg p-3 flex justify-between items-center"
+                      >
+                        <span className="text-white text-sm">
+                          {league.name}
+                        </span>
+                        {league.is_private && (
+                          <span className="text-xs text-gray-500">Privada</span>
+                        )}
+                      </div>
+                    ))}
+                  </>
+                )}
               </div>
             )}
           </div>
