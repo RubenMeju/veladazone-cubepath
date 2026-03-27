@@ -5,13 +5,15 @@ import { ArgumentReply } from "../types";
 
 export function ArgumentReplyItem({
   reply,
+  argumentId, // 👈 nuevo: id del argumento raíz
   onReply,
   currentUsername,
   level = 0,
-  maxLevel = 3,
+  maxLevel = 2,
 }: {
   reply: ArgumentReply;
-  onReply: (id: number, text: string) => void;
+  argumentId: number; // 👈 nuevo
+  onReply: (argumentId: number, text: string, parentReplyId?: number) => void; // 👈
   currentUsername?: string;
   level?: number;
   maxLevel?: number;
@@ -21,6 +23,14 @@ export function ArgumentReplyItem({
   const isOwn = reply.username === currentUsername;
   const canReply = !isOwn && currentUsername && level < maxLevel;
   const initials = reply.username?.slice(0, 2).toUpperCase() ?? "??";
+
+  const handleSubmitReply = () => {
+    if (replyText.trim()) {
+      onReply(argumentId, replyText.trim(), reply.id); // 👈 pasa argumentId y reply.id como parent
+      setReplyText("");
+      setShowReply(false);
+    }
+  };
 
   return (
     <div className="flex gap-2.5">
@@ -71,21 +81,11 @@ export function ArgumentReplyItem({
               className="flex-1 bg-[#161616] border border-[#222] rounded-full px-3 py-1.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-[#9146FF]/40 transition-colors"
               autoFocus
               onKeyDown={(e) => {
-                if (e.key === "Enter" && replyText.trim()) {
-                  onReply(reply.id, replyText.trim());
-                  setReplyText("");
-                  setShowReply(false);
-                }
+                if (e.key === "Enter") handleSubmitReply();
               }}
             />
             <button
-              onClick={() => {
-                if (replyText.trim()) {
-                  onReply(reply.id, replyText.trim());
-                  setReplyText("");
-                  setShowReply(false);
-                }
-              }}
+              onClick={handleSubmitReply}
               className="w-7 h-7 bg-[#9146FF] hover:bg-[#7a3fd4] rounded-full flex items-center justify-center text-xs transition-colors flex-shrink-0"
             >
               ↩
@@ -99,6 +99,7 @@ export function ArgumentReplyItem({
               <ArgumentReplyItem
                 key={child.id}
                 reply={child}
+                argumentId={argumentId} // 👈 propaga el mismo argumentId raíz
                 onReply={onReply}
                 currentUsername={currentUsername}
                 level={level + 1}

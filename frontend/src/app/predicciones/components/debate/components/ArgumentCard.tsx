@@ -15,18 +15,24 @@ export function ArgumentCard({
   arg: Argument;
   currentUsername?: string;
   onVote: (id: number) => void;
-  onReply: (id: number, text: string) => void;
+  onReply: (argumentId: number, text: string, parentReplyId?: number) => void; // 👈
   isVoting: boolean;
 }) {
   const [showReply, setShowReply] = useState(false);
   const [replyText, setReplyText] = useState("");
   const isOwn = arg.username === currentUsername;
-
   const initials = arg.username?.slice(0, 2).toUpperCase() ?? "??";
+
+  const handleSubmitReply = () => {
+    if (replyText.trim()) {
+      onReply(arg.id, replyText.trim()); // sin parentReplyId = reply directa al argumento
+      setReplyText("");
+      setShowReply(false);
+    }
+  };
 
   return (
     <div className="flex gap-3 py-2 px-1 rounded-xl hover:bg-white/[0.02] transition-colors">
-      {/* Avatar */}
       <Link href={`/perfil/${arg.username}`} className="flex-shrink-0 mt-0.5">
         {arg.avatar ? (
           <img
@@ -42,7 +48,6 @@ export function ArgumentCard({
       </Link>
 
       <div className="flex-1 min-w-0">
-        {/* Burbuja */}
         <div className="bg-[#161616] rounded-2xl rounded-tl-none px-4 py-3 inline-block w-full">
           <div className="flex items-center gap-2 flex-wrap mb-1.5">
             <Link
@@ -60,13 +65,16 @@ export function ArgumentCard({
               </span>
             )}
           </div>
-          <p className="text-[14px] text-gray-200 leading-relaxed">{arg.text}</p>
+          <p className="text-[14px] text-gray-200 leading-relaxed">
+            {arg.text}
+          </p>
           {arg.edited && (
-            <span className="text-[11px] text-gray-600 mt-1 block">✏️ editado</span>
+            <span className="text-[11px] text-gray-600 mt-1 block">
+              ✏️ editado
+            </span>
           )}
         </div>
 
-        {/* Acciones */}
         <div className="flex items-center gap-4 mt-1.5 pl-2">
           <button
             onClick={() => !isOwn && onVote(arg.id)}
@@ -89,26 +97,27 @@ export function ArgumentCard({
             </button>
           )}
 
-          <span className="text-[11px] text-gray-600 ml-auto">{arg.time_ago}</span>
+          <span className="text-[11px] text-gray-600 ml-auto">
+            {arg.time_ago}
+          </span>
         </div>
 
-        {/* Replies */}
         {arg.replies && arg.replies.length > 0 && (
           <div className="mt-3 pl-2 border-l-2 border-[#1e1e1e] flex flex-col gap-3">
             {arg.replies.map((reply) => (
               <ArgumentReplyItem
                 key={reply.id}
                 reply={reply}
+                argumentId={arg.id} // 👈 necesario para saber a qué argumento pertenece
                 onReply={onReply}
                 currentUsername={currentUsername}
                 level={0}
-                maxLevel={3}
+                maxLevel={2} // 👈 max 2 niveles de replies (0 y 1), el 2 no muestra botón
               />
             ))}
           </div>
         )}
 
-        {/* Reply input */}
         {showReply && currentUsername && (
           <div className="mt-3 flex gap-2 items-center pl-2">
             <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#e63946] to-[#9146FF] flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0">
@@ -122,21 +131,11 @@ export function ArgumentCard({
               className="flex-1 bg-[#161616] border border-[#222] rounded-full px-4 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#9146FF]/40 transition-colors"
               autoFocus
               onKeyDown={(e) => {
-                if (e.key === "Enter" && replyText.trim()) {
-                  onReply(arg.id, replyText.trim());
-                  setReplyText("");
-                  setShowReply(false);
-                }
+                if (e.key === "Enter") handleSubmitReply();
               }}
             />
             <button
-              onClick={() => {
-                if (replyText.trim()) {
-                  onReply(arg.id, replyText.trim());
-                  setReplyText("");
-                  setShowReply(false);
-                }
-              }}
+              onClick={handleSubmitReply}
               className="w-8 h-8 bg-[#9146FF] hover:bg-[#7a3fd4] rounded-full flex items-center justify-center text-sm transition-colors flex-shrink-0"
             >
               ↩

@@ -24,7 +24,7 @@ export function DebateSection({
   userPrediction?: { predicted_winner: { id: number; name: string } };
 }) {
   const { user } = useAuthStore();
-  console.log("USER DEBUG:", user);
+  // console.log("USER DEBUG:", user);
   const queryClient = useQueryClient();
   const [newText, setNewText] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -85,8 +85,19 @@ export function DebateSection({
   });
 
   const replyMutation = useMutation({
-    mutationFn: ({ argumentId, text }: { argumentId: number; text: string }) =>
-      api.post(`/predictions/arguments/${argumentId}/reply/`, { text }),
+    mutationFn: ({
+      argumentId,
+      text,
+      parentReplyId,
+    }: {
+      argumentId: number;
+      text: string;
+      parentReplyId?: number; // 👈 nuevo
+    }) =>
+      api.post(`/predictions/arguments/${argumentId}/reply/`, {
+        text,
+        parent_reply_id: parentReplyId ?? null, // 👈 nuevo
+      }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["arguments", fight.id] }),
   });
@@ -159,8 +170,8 @@ export function DebateSection({
                 arg={topArgument}
                 currentUsername={user?.twitch_username}
                 onVote={voteMutation.mutate}
-                onReply={(id, text) =>
-                  replyMutation.mutate({ argumentId: id, text })
+                onReply={(argumentId, text, parentReplyId) =>
+                  replyMutation.mutate({ argumentId, text, parentReplyId })
                 }
                 isVoting={voteMutation.isPending}
               />
@@ -194,8 +205,8 @@ export function DebateSection({
                   arg={arg}
                   currentUsername={user?.twitch_username}
                   onVote={voteMutation.mutate}
-                  onReply={(id, text) =>
-                    replyMutation.mutate({ argumentId: id, text })
+                  onReply={(argumentId, text, parentReplyId) =>
+                    replyMutation.mutate({ argumentId, text, parentReplyId })
                   }
                   isVoting={voteMutation.isPending}
                 />
