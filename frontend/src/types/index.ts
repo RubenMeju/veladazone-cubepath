@@ -73,6 +73,7 @@ export interface FantasyLeague {
   name: string;
   invite_code: string | null;
   member_count: number;
+  is_private: boolean;
   created_at: string;
 }
 
