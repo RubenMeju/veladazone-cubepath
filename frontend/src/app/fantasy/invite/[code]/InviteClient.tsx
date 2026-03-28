@@ -60,7 +60,7 @@ export default function InviteClient({ league, inviteCode }: Props) {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl p-8 text-center">
+      <div className="md:min-w-lg mx-auto bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl p-8 text-center">
         <div className="text-6xl mb-4">🏆</div>
 
         <h1 className="font-bebas text-4xl text-white tracking-wider mb-1">
