@@ -40,7 +40,7 @@ export function MiCartelContent() {
   const predList = Array.isArray(predictions) ? predictions : [];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
+    <div className="page-container">
       <div className="mb-10 text-center">
         <h1 className="font-bebas text-5xl md:text-7xl text-white tracking-wider mb-2">
           MI <span className="text-[#e63946]">CARTEL</span>
