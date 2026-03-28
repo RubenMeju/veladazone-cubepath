@@ -1,4 +1,4 @@
-import { Edition, Fighter } from "@/types";
+import { Edition, Fight, Fighter } from "@/types";
 import { FighterCard } from "./components/FighterCard";
 import { FightRow } from "./components/FightRow";
 import { EditionInfo } from "./components/EditionInfo";
@@ -66,7 +66,7 @@ export default async function StatsPage({
             )}
           </div>
           <div className="flex flex-col gap-6">
-            {currentEdition?.fights.map((fight) => (
+            {currentEdition?.fights.map((fight: Fight) => (
               <FightRow key={fight.id} fight={fight} />
             ))}
           </div>
