@@ -5,11 +5,10 @@
  * Nunca importar desde Client Components.
  */
 
-// En producción Docker: http://backend:8000/api/v1
-// En desarrollo local: http://localhost:8000/api/v1
-const SERVER_API_URL = process.env.BACKEND_URL
+const SERVER_API_URL = process.env.BACKEND_URL // Docker prod → http://backend:8000
   ? `${process.env.BACKEND_URL}/api/v1`
-  : process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+  : (process.env.NEXT_PUBLIC_API_URL ?? // local → http://localhost:8000/api/v1
+    "http://localhost:8000/api/v1"); // fallback hardcodeado
 
 export async function serverFetch<T>(
   endpoint: string,
