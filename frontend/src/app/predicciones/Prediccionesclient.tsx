@@ -41,31 +41,29 @@ function LoginBanner() {
 
 // ---------------------------------------------------------------------------
 // Client Component principal
-// No recibe props — consume el cache hidratado por HydrationBoundary
+// No recibe props — consume el cache hidratado por HydrationBoundary.
+// El header ya está renderizado en el Server Component (page.tsx).
 // ---------------------------------------------------------------------------
 export function PrediccionesClient() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const [pendingFightId, setPendingFightId] = useState<number | null>(null);
 
-  // ✅ El cache ya tiene estos datos (prefetchados en el servidor).
-  // React Query NO hace fetch extra porque staleTime coincide con el servidor.
-  // Si el dato caduca, refetchea solo en background sin bloquear UI.
+  // Cache ya hidratado desde el servidor — 0 fetches extra en el mount
   const { data: fights = [] } = useQuery({
     queryKey: ["fights", 6],
     queryFn: () => api.get<Fight[]>("/fighters/fights/?edition=6"),
-    staleTime: 5 * 60 * 1000, // combates: 5 min
+    staleTime: 5 * 60 * 1000,
   });
 
   const { data: communityStats = [] } = useQuery({
     queryKey: ["community-stats"],
     queryFn: () => api.get<CommunityStats[]>("/predictions/community_stats/"),
-    staleTime: 30 * 1000, // termómetro: 30s
+    staleTime: 30 * 1000,
     refetchInterval: 30 * 1000,
   });
 
-  // ✅ Solo se ejecuta si el usuario está autenticado.
-  // Depende de la cookie JWT → nunca puede ir al servidor.
+  // Solo client — depende de cookie JWT, no puede ir al servidor
   const { data: predictions = [] } = useQuery({
     queryKey: ["my-predictions"],
     queryFn: () => api.get<Prediction[]>("/predictions/"),
@@ -105,23 +103,7 @@ export function PrediccionesClient() {
   const totalPredictions = (predictions as Prediction[]).length;
 
   return (
-    <div className="page-container">
-      {/* Header */}
-      <div className="mb-6 sm:mb-8">
-        <div className="text-sm text-[#e63946]/60 tracking-[0.4em] uppercase mb-2 font-medium">
-          Velada del Año 6 · 25 Julio 2026
-        </div>
-        <h1
-          className="font-bebas text-white tracking-wide leading-none mb-2"
-          style={{ fontSize: "clamp(2.5rem, 12vw, 6rem)" }}
-        >
-          PREDIC<span className="text-[#e63946]">CIONES</span>
-        </h1>
-        <p className="text-gray-500 text-sm">
-          Elige tu ganador en cada combate y compite por ser el mejor predictor
-        </p>
-      </div>
-
+    <>
       <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
         {/* Main — combates */}
         <div className="lg:col-span-2 min-w-0">
@@ -131,7 +113,6 @@ export function PrediccionesClient() {
             <LoginBanner />
           )}
 
-          {/* Sin skeleton — los combates ya vienen renderizados del servidor */}
           <div className="flex flex-col gap-4">
             {fights.map((fight) => (
               <FightCard
@@ -146,7 +127,7 @@ export function PrediccionesClient() {
           </div>
         </div>
 
-        {/* Sidebar — cada componente hace su propio useQuery */}
+        {/* Sidebar */}
         <div className="flex flex-col gap-4 sm:gap-5 min-w-0">
           <Leaderboard />
           <DNAPredictor />
@@ -157,6 +138,6 @@ export function PrediccionesClient() {
       </div>
 
       <CompletionCelebration total={totalPredictions} />
-    </div>
+    </>
   );
 }
