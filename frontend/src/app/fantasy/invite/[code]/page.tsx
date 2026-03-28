@@ -19,6 +19,9 @@ async function getLeagueByCode(code: string) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { code } = await params;
+
+  console.log("code metadata", code);
   const league = await getLeagueByCode(params.code);
 
   if (!league) {
@@ -47,8 +50,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function InvitePage({ params }: Props) {
-  const league = await getLeagueByCode(params.code);
+export default async function InvitePage({
+  params,
+}: {
+  params: Promise<{ code: string }>;
+}) {
+  const { code } = await params;
+  const league = await getLeagueByCode(code);
+  console.log("code ssr", code);
 
-  return <InviteClient league={league} inviteCode={params.code} />;
+  return <InviteClient league={league} inviteCode={code} />;
 }

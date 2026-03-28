@@ -110,7 +110,6 @@ class FantasyLeagueViewSet(viewsets.ModelViewSet):
         return Response(data)
 
 
-@permission_classes([AllowAny])
 class LeaguePreviewView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []  # Desactiva autenticación para esta view

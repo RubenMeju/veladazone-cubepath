@@ -5,6 +5,6 @@ from .views import FantasyLeagueViewSet, LeaguePreviewView
 router = DefaultRouter()
 router.register("leagues", FantasyLeagueViewSet, basename="league")
 
-urlpatterns = router.urls + [
-    path("leagues/preview/", LeaguePreviewView.as_view()),
-]
+urlpatterns = [
+    path("leagues/preview/", LeaguePreviewView.as_view()),  # 👈 primero
+] + router.urls
