@@ -1,156 +1,86 @@
-"use client";
+/**
+ * /app/predicciones/page.tsx  —  Server Component
+ *
+ * Prefetcha datos públicos con React Query + HydrationBoundary.
+ * El cliente hereda el cache con timestamps correctos → 0 refetches extra.
+ *
+ * (HydrationBoundary):
+ *   - El cache se serializa en el HTML con sus timestamps
+ *   - El cliente lo hidrata exactamente como si él hubiera hecho el fetch
+ *   - staleTime funciona correctamente
+ *   - Sin props — cualquier componente hijo puede usar useQuery directamente
+ */
 
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/lib/api";
-import { CommunityStats, Fight, Prediction } from "@/types";
-import { useAuthStore } from "@/stores/authStore";
-import { FightCard } from "./components/FightCard";
-import { PredictionProgress } from "./components/Predictionprogress";
-import { Leaderboard } from "./components/Leaderboard";
-import { CraziestPrediction } from "./components/Craziestprediction";
-import { BetrayalCounter } from "./components/BetrayalCounter";
-import { AIPrediction } from "./components/AIPrediction";
-import { DNAPredictor } from "./components/DNAPredictor";
-import { CompletionCelebration } from "./components/CompletionCelebration";
-import { TwitchLoginButton } from "@/components/ui/TwitchLoginButton";
+import { Metadata } from "next";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
+import { Fight, CommunityStats } from "@/types";
+import { serverFetch } from "@/lib/api.server";
+import { PrediccionesClient } from "./Prediccionesclient";
 
-function LoginBanner() {
-  return (
-    <div className="relative overflow-hidden bg-[#0d0d0d] border border-[#9146FF]/20 rounded-2xl p-5 sm:p-6 mb-6 text-center">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#9146FF]/40 to-transparent" />
-      <p className="text-gray-400 text-sm mb-4">
-        Inicia sesión con Twitch para guardar tus predicciones
-      </p>
-      <TwitchLoginButton className="inline-flex items-center gap-2 bg-[#9146FF] hover:bg-[#7c3bdb] text-white font-bebas text-lg tracking-widest px-6 py-2.5 rounded transition-colors">
-        <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z" />
-        </svg>
-        ENTRAR CON TWITCH
-      </TwitchLoginButton>
-    </div>
-  );
-}
+// ---------------------------------------------------------------------------
+// SEO
+// ---------------------------------------------------------------------------
+export const metadata: Metadata = {
+  title: "Predicciones · VeladaZone",
+  description:
+    "Elige tu ganador en cada combate de La Velada del Año 6 y compite con la comunidad.",
+  openGraph: {
+    title: "Predicciones · VeladaZone",
+    description: "¿Quién ganará en La Velada del Año 6? Haz tus predicciones.",
+    url: "https://laveladazone.duckdns.org/predicciones",
+    siteName: "VeladaZone",
+    type: "website",
+  },
+};
 
-export default function PrediccionesPage() {
-  const { user } = useAuthStore();
-  const queryClient = useQueryClient();
-  const [pendingFightId, setPendingFightId] = useState<number | null>(null);
+// ISR: la página se revalida cada 30s en el servidor
+export const revalidate = 30;
 
-  const { data: fights, isLoading: loadingFights } = useQuery({
-    queryKey: ["fights", 6],
-    queryFn: () => api.get<Fight[]>("/fighters/fights/?edition=6"),
-  });
-
-  const { data: predictions } = useQuery({
-    queryKey: ["my-predictions"],
-    queryFn: () => api.get<Prediction[]>("/predictions/"),
-    enabled: !!user,
-  });
-
-  const { data: communityStats } = useQuery({
-    queryKey: ["community-stats"],
-    queryFn: () => api.get<CommunityStats[]>("/predictions/community_stats/"),
-    refetchInterval: 30000,
-  });
-
-  const mutation = useMutation({
-    mutationFn: ({
-      fightId,
-      winnerId,
-    }: {
-      fightId: number;
-      winnerId: number;
-    }) =>
-      api.post("/predictions/", {
-        fight_id: fightId,
-        predicted_winner_id: winnerId,
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["my-predictions"] });
-      queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
-      queryClient.invalidateQueries({ queryKey: ["community-stats"] });
-      queryClient.invalidateQueries({ queryKey: ["betrayals"] });
-      setPendingFightId(null);
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
+export default async function PrediccionesPage() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        // Mismo staleTime que usaremos en el cliente
+        // Así el cliente no refetchea nada al hidratar
+        staleTime: 30 * 1000,
+      },
     },
   });
 
-  const handlePredict = (fightId: number, winnerId: number) => {
-    if (!user) return;
-    setPendingFightId(fightId);
-    mutation.mutate({ fightId, winnerId });
-  };
-
-  const getPredictionForFight = (fightId: number) =>
-    (Array.isArray(predictions) ? predictions : []).find(
-      (p: Prediction) => p.fight.id === fightId,
-    );
-
-  const totalPredictions = Array.isArray(predictions) ? predictions.length : 0;
+  // Prefetch en paralelo — ambas queries se resuelven antes de renderizar
+  await Promise.all([
+    queryClient.prefetchQuery({
+      queryKey: ["fights", 6],
+      queryFn: () =>
+        serverFetch<Fight[]>("/fighters/fights/?edition=6", {
+          next: { revalidate: 300 }, // combates: cache 5 min (no cambian)
+        }),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ["community-stats"],
+      queryFn: () =>
+        serverFetch<CommunityStats[]>("/predictions/community_stats/", {
+          next: { revalidate: 30 }, // termómetro: cache 30s
+        }),
+    }),
+  ]);
 
   return (
-    <div className="page-container ">
-      {/* Header */}
-      <div className="mb-6 sm:mb-8">
-        <div className="text-sm text-[#e63946]/60 tracking-[0.4em] uppercase mb-2 font-medium">
-          Velada del Año 6 · 25 Julio 2026
-        </div>
-        <h1
-          className="font-bebas text-white tracking-wide leading-none mb-2"
-          style={{ fontSize: "clamp(2.5rem, 12vw, 6rem)" }}
-        >
-          PREDIC<span className="text-[#e63946]">CIONES</span>
-        </h1>
-        <p className="text-gray-500 text-sm">
-          Elige tu ganador en cada combate y compite por ser el mejor predictor
-        </p>
-      </div>
-
-      <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
-        {/* Main — combates */}
-        <div className="lg:col-span-2 min-w-0">
-          {user ? (
-            <PredictionProgress total={totalPredictions} />
-          ) : (
-            <LoginBanner />
-          )}
-
-          {loadingFights ? (
-            <div className="flex flex-col gap-3">
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-[#0d0d0d] border border-white/5 rounded-2xl h-40 animate-pulse"
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              {fights?.map((fight) => (
-                <FightCard
-                  key={fight.id}
-                  fight={fight}
-                  prediction={getPredictionForFight(fight.id)}
-                  onPredict={handlePredict}
-                  isPending={pendingFightId === fight.id && mutation.isPending}
-                  stats={communityStats?.find((s) => s.fight_id === fight.id)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Sidebar */}
-        <div className="flex flex-col gap-4 sm:gap-5 min-w-0">
-          <Leaderboard />
-          <DNAPredictor />
-
-          <AIPrediction fights={fights} />
-          <BetrayalCounter />
-          <CraziestPrediction stats={communityStats} />
-        </div>
-      </div>
-      <CompletionCelebration total={totalPredictions} />
-    </div>
+    /**
+     * dehydrate() → serializa el QueryClient a JSON plano
+     * HydrationBoundary → lo inyecta en el QueryClient del cliente durante la hidratación
+     * Resultado: PrediccionesClient y TODOS sus hijos pueden llamar useQuery
+     * con las mismas queryKeys y obtener los datos sin fetch adicional
+     */
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <PrediccionesClient />
+    </HydrationBoundary>
   );
 }
