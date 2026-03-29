@@ -48,10 +48,11 @@ function CallbackHandler() {
           // BroadcastChannel funciona entre popup y ventana padre del mismo origen
           const channel = new BroadcastChannel("auth");
           channel.postMessage({ type: "auth_complete" });
-          setTimeout(() => {
-            channel.close();
-            window.close();
-          }, 100);
+          console.log("✅ BroadcastChannel message sent");
+          // setTimeout(() => {
+          //   channel.close();
+          //   window.close();  // <-- comentado temporalmente
+          // }, 100);
         }
       })
       .catch(() => {
