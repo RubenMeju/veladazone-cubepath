@@ -1,9 +1,6 @@
 "use client";
 
 import { twitchLoginUrl } from "@/lib/api";
-import { useAuthStore } from "@/stores/authStore";
-import { api } from "@/lib/api";
-import { User } from "@/types";
 
 interface Props {
   className?: string;
@@ -17,61 +14,11 @@ export function TwitchLoginButton({ className, children }: Props) {
     const isPWA = window.matchMedia("(display-mode: standalone)").matches;
     if (isPWA) {
       sessionStorage.setItem("from_pwa", "true");
-      window.location.href = twitchLoginUrl + "?from_pwa=true";
-      return;
     }
 
-    const width = 550;
-    const height = 650;
-    const left = window.screenX + (window.outerWidth - width) / 2;
-    const top = window.screenY + (window.outerHeight - height) / 2;
-    const popup = window.open(
-      twitchLoginUrl,
-      "twitch_login",
-      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`,
-    );
-
-    if (!popup) return;
-
-    // Escucha cambios en localStorage desde el popup
-    // El evento "storage" solo se dispara en ventanas DISTINTAS a la que escribe,
-    // por eso funciona perfectamente para comunicación popup → ventana principal
-    const onStorage = (e: StorageEvent) => {
-      if (e.key !== "veladazone-auth") return;
-      if (!e.newValue) return;
-
-      try {
-        const parsed = JSON.parse(e.newValue);
-        const user: User | null = parsed?.state?.user;
-        if (user) {
-          window.removeEventListener("storage", onStorage);
-          clearInterval(pollClosed);
-          useAuthStore.getState().setUser(user);
-          if (!popup.closed) popup.close();
-        }
-      } catch {
-        // JSON malformado, ignorar
-      }
-    };
-
-    window.addEventListener("storage", onStorage);
-
-    // Solo para cerrar el polling si el popup se cierra sin loguearse
-    const pollClosed = setInterval(() => {
-      if (popup.closed) {
-        clearInterval(pollClosed);
-        window.removeEventListener("storage", onStorage);
-      }
-    }, 500);
-
-    // Timeout de seguridad: 3 minutos
-    setTimeout(
-      () => {
-        clearInterval(pollClosed);
-        window.removeEventListener("storage", onStorage);
-      },
-      3 * 60 * 1000,
-    );
+    window.location.href = isPWA
+      ? `${twitchLoginUrl}?from_pwa=true`
+      : twitchLoginUrl;
   };
 
   return (

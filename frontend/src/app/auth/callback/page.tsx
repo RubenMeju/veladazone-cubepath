@@ -1,26 +1,25 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { api } from "@/lib/api";
 import { User } from "@/types";
+import Link from "next/link";
 
 function CallbackHandler() {
+  const router = useRouter();
   const { setUser } = useAuthStore();
-  const [fromPWA] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const urlParams = new URLSearchParams(window.location.search);
-    return (
-      sessionStorage.getItem("from_pwa") === "true" ||
-      urlParams.get("from_pwa") === "true"
-    );
-  });
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const pwaFromUrl = urlParams.get("from_pwa") === "true";
+    const pwaFromSession = sessionStorage.getItem("from_pwa") === "true";
+    const isPWA = pwaFromUrl || pwaFromSession;
 
-    // PWA móvil — tokens en URL
+    // PWA móvil — tokens vienen en la URL porque las cookies
+    // no sobreviven el cambio de navegador en Android
     const accessToken = urlParams.get("access_token");
     const refreshToken = urlParams.get("refresh_token");
 
@@ -34,21 +33,49 @@ function CallbackHandler() {
       .then((user) => {
         setUser(user);
         sessionStorage.removeItem("from_pwa");
-        // No es PWA → es popup, simplemente cerrarse
-        // La ventana principal detecta el login via polling a /users/me/
-        if (!fromPWA) {
-          setTimeout(() => window.close(), 300);
+
+        if (isPWA) {
+          // PWA: muestra pantalla de éxito, no redirige
+          // (el usuario vuelve manualmente a la app)
+          return;
         }
+
+        // Navegador normal: redirige al inicio
+        router.replace("/");
       })
       .catch(() => {
         sessionStorage.removeItem("from_pwa");
-        if (!fromPWA) {
-          setTimeout(() => window.close(), 300);
-        }
+        setError(true);
       });
-  }, [fromPWA, setUser]);
+  }, [setUser, router]);
 
-  if (fromPWA) {
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#050505]">
+        <div className="text-center px-6">
+          <div className="text-5xl mb-4">❌</div>
+          <div className="font-bebas text-3xl text-white mb-2 tracking-wider">
+            Error al iniciar sesión
+          </div>
+          <div className="text-gray-400 text-sm mb-6">
+            Algo salió mal con Twitch. Inténtalo de nuevo.
+          </div>
+
+          <Link href="/" className="text-[#e63946] underline text-sm">
+            Volver al inicio
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // PWA exitosa
+  const isPWA =
+    typeof window !== "undefined" &&
+    (new URLSearchParams(window.location.search).get("from_pwa") === "true" ||
+      sessionStorage.getItem("from_pwa") === "true");
+
+  if (isPWA) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#050505]">
         <div className="text-center px-6">
@@ -65,6 +92,7 @@ function CallbackHandler() {
     );
   }
 
+  // Cargando (navegador normal, esperando redirect)
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
