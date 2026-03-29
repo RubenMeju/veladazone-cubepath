@@ -58,10 +58,10 @@ function CallbackHandler() {
           // Enviamos el usuario completo, no solo el tipo
           channel.postMessage({ type: "auth_complete", user });
           console.log("✅ BroadcastChannel sent");
-          setTimeout(() => {
-            channel.close();
-            window.close();
-          }, 100);
+          // setTimeout(() => {
+          //   channel.close();
+          //   window.close();
+          // }, 100);
         }
       })
       .catch((err) => {

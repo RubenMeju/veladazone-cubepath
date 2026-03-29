@@ -32,10 +32,12 @@ export function TwitchLoginButton({ className, children }: Props) {
     const channel = new BroadcastChannel("auth");
 
     channel.onmessage = (e) => {
+      console.log("📡 BroadcastChannel received:", e.data);
       channel.close();
       clearInterval(timer);
       popup?.close();
       if (e.data.type === "auth_complete") {
+        console.log("✅ Auth complete, setting user in Zustand:", e.data.user);
         // Seteamos el usuario directamente desde el mensaje
         // sin necesitar hacer fetch a /users/me/ de nuevo
         useAuthStore.getState().setUser(e.data.user);
