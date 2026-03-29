@@ -28,33 +28,22 @@ export function TwitchLoginButton({ className, children }: Props) {
       `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`,
     );
 
-    const handleStorage = (e: StorageEvent) => {
-      if (e.key === "auth_complete") {
-        cleanup();
+    const channel = new BroadcastChannel("auth");
+
+    channel.onmessage = (e) => {
+      channel.close();
+      clearInterval(timer);
+      popup?.close();
+      if (e.data.type === "auth_complete") {
         window.location.reload();
-      } else if (e.key === "auth_failed") {
-        cleanup();
       }
     };
 
-    const cleanup = () => {
-      window.removeEventListener("storage", handleStorage);
-      clearInterval(timer);
-      localStorage.removeItem("auth_complete");
-      localStorage.removeItem("auth_failed");
-      popup?.close();
-    };
-
-    window.addEventListener("storage", handleStorage);
-
-    // Timer solo como safety net si el usuario cierra el popup manualmente
-    // sin completar el login — NO recarga si el popup se cierra con éxito
+    // Safety net: usuario cierra el popup manualmente sin completar login
     const timer = setInterval(() => {
       if (popup?.closed) {
         clearInterval(timer);
-        window.removeEventListener("storage", handleStorage);
-        // No hacemos reload aquí — si auth_complete llegó, ya se recargó
-        // Si el popup se cerró sin login, simplemente limpiamos
+        channel.close();
       }
     }, 500);
   };

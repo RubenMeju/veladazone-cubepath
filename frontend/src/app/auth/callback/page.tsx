@@ -45,17 +45,23 @@ function CallbackHandler() {
         sessionStorage.removeItem("from_pwa");
 
         if (!fromPWARef.current) {
-          // 1. Guardar en localStorage PRIMERO
-          localStorage.setItem("auth_complete", Date.now().toString());
-          // 2. Cerrar el popup después de un tick para que el evento llegue
-          setTimeout(() => window.close(), 100);
+          // BroadcastChannel funciona entre popup y ventana padre del mismo origen
+          const channel = new BroadcastChannel("auth");
+          channel.postMessage({ type: "auth_complete" });
+          setTimeout(() => {
+            channel.close();
+            window.close();
+          }, 100);
         }
       })
       .catch(() => {
         sessionStorage.removeItem("from_pwa");
-        localStorage.setItem("auth_failed", Date.now().toString());
-        window.close();
-        setTimeout(() => router.push("/?error=auth_failed"), 300);
+        const channel = new BroadcastChannel("auth");
+        channel.postMessage({ type: "auth_failed" });
+        setTimeout(() => {
+          channel.close();
+          window.close();
+        }, 100);
       });
   }, []);
 
