@@ -49,28 +49,30 @@ function CallbackHandler() {
       .get<User>("/users/me/")
       .then((user) => {
         console.log("✅ user fetched:", user);
-        console.log("🔍 fromPWARef at then:", fromPWARef.current);
         setUser(user);
         sessionStorage.removeItem("from_pwa");
 
         if (!fromPWARef.current) {
           console.log("📡 sending BroadcastChannel...");
           const channel = new BroadcastChannel("auth");
-          channel.postMessage({ type: "auth_complete" });
+          // Enviamos el usuario completo, no solo el tipo
+          channel.postMessage({ type: "auth_complete", user });
           console.log("✅ BroadcastChannel sent");
-        } else {
-          console.log("⚠️ fromPWA es true, NO se envía BroadcastChannel");
+          setTimeout(() => {
+            channel.close();
+            window.close();
+          }, 100);
         }
       })
       .catch((err) => {
         console.error("❌ /users/me/ failed:", err);
-        // sessionStorage.removeItem("from_pwa");
-        // const channel = new BroadcastChannel("auth");
-        // channel.postMessage({ type: "auth_failed" });
-        // setTimeout(() => {
-        //   channel.close();
-        //   window.close();
-        // }, 100);
+        sessionStorage.removeItem("from_pwa");
+        const channel = new BroadcastChannel("auth");
+        channel.postMessage({ type: "auth_failed" });
+        setTimeout(() => {
+          channel.close();
+          window.close();
+        }, 100);
       });
   }, []);
 

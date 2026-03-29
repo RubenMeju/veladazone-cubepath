@@ -1,6 +1,7 @@
 "use client";
 
 import { twitchLoginUrl } from "@/lib/api";
+import { useAuthStore } from "@/stores/authStore";
 
 interface Props {
   className?: string;
@@ -35,7 +36,10 @@ export function TwitchLoginButton({ className, children }: Props) {
       clearInterval(timer);
       popup?.close();
       if (e.data.type === "auth_complete") {
-        window.location.reload();
+        // Seteamos el usuario directamente desde el mensaje
+        // sin necesitar hacer fetch a /users/me/ de nuevo
+        useAuthStore.getState().setUser(e.data.user);
+        // Sin reload — el estado de Zustand ya tiene el usuario
       }
     };
 
