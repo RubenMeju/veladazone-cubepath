@@ -1,102 +1,95 @@
 "use client";
 
-import { twitchLoginUrl } from "@/lib/api";
+import { Suspense, useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
+import { api } from "@/lib/api";
 import { User } from "@/types";
 
-interface Props {
-  className?: string;
-  children?: React.ReactNode;
-}
+function CallbackHandler() {
+  const { setUser } = useAuthStore();
+  const [fromPWA] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const urlParams = new URLSearchParams(window.location.search);
+    return (
+      sessionStorage.getItem("from_pwa") === "true" ||
+      urlParams.get("from_pwa") === "true"
+    );
+  });
 
-export function TwitchLoginButton({ className, children }: Props) {
-  const handleLogin = (e: React.MouseEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const pwaFromUrl = urlParams.get("from_pwa") === "true";
 
-    const isPWA = window.matchMedia("(display-mode: standalone)").matches;
-    if (isPWA) {
-      sessionStorage.setItem("from_pwa", "true");
-      window.location.href = twitchLoginUrl + "?from_pwa=true";
-      return;
+    // PWA móvil — tokens en URL
+    const accessToken = urlParams.get("access_token");
+    const refreshToken = urlParams.get("refresh_token");
+
+    if (accessToken && refreshToken && pwaFromUrl) {
+      document.cookie = `access_token=${accessToken}; path=/; max-age=${86400 * 7}; secure; samesite=None`;
+      document.cookie = `refresh_token=${refreshToken}; path=/; max-age=${86400 * 30}; secure; samesite=None`;
     }
 
-    const width = 550;
-    const height = 650;
-    const left = window.screenX + (window.outerWidth - width) / 2;
-    const top = window.screenY + (window.outerHeight - height) / 2;
-    const popup = window.open(
-      twitchLoginUrl,
-      "twitch_login",
-      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`,
-    );
-
-    if (!popup) return;
-
-    const poll = setInterval(() => {
-      const authUser = localStorage.getItem("auth_user");
-      const authTs = localStorage.getItem("auth_ts");
-
-      // ✅ Detecta login exitoso
-      if (authUser && authTs) {
-        const age = Date.now() - parseInt(authTs);
-        if (age < 60_000) {
-          clearInterval(poll);
-          localStorage.removeItem("auth_user");
-          localStorage.removeItem("auth_ts");
-          const user = JSON.parse(authUser) as User;
-          useAuthStore.getState().setUser(user);
-          popup?.close();
+    api
+      .get<User>("/users/me/")
+      .then((user) => {
+        setUser(user);
+        sessionStorage.removeItem("from_pwa");
+        // No es PWA → es popup, simplemente cerrarse
+        // La ventana principal detecta el login via polling a /users/me/
+        if (!fromPWA) {
+          setTimeout(() => window.close(), 300);
         }
-        return;
-      }
+      })
+      .catch(() => {
+        sessionStorage.removeItem("from_pwa");
+        if (!fromPWA) {
+          setTimeout(() => window.close(), 300);
+        }
+      });
+  }, [fromPWA, setUser]);
 
-      // ✅ Detecta fallo explícito
-      if (localStorage.getItem("auth_failed")) {
-        clearInterval(poll);
-        localStorage.removeItem("auth_failed");
-        popup?.close();
-        return;
-      }
-
-      // ✅ Popup cerrado: espera 400ms por si localStorage se escribió
-      // justo antes del cierre (race condition entre setInterval 500ms y close)
-      if (popup?.closed) {
-        clearInterval(poll);
-        setTimeout(() => {
-          const user = localStorage.getItem("auth_user");
-          const ts = localStorage.getItem("auth_ts");
-          if (user && ts) {
-            const age = Date.now() - parseInt(ts);
-            if (age < 60_000) {
-              useAuthStore.getState().setUser(JSON.parse(user) as User);
-            }
-          } else {
-            window.location.reload();
-          }
-          localStorage.removeItem("auth_user");
-          localStorage.removeItem("auth_ts");
-          localStorage.removeItem("auth_failed");
-        }, 400);
-      }
-    }, 500);
-
-    setTimeout(() => clearInterval(poll), 3 * 60 * 1000);
-  };
+  if (fromPWA) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#050505]">
+        <div className="text-center px-6">
+          <div className="text-5xl mb-4">✅</div>
+          <div className="font-bebas text-3xl text-white mb-2 tracking-wider">
+            ¡Login completado!
+          </div>
+          <div className="text-gray-400 text-sm mb-6">
+            Vuelve a la app VeladaZone en tu pantalla de inicio para continuar.
+          </div>
+          <div className="text-6xl">🥊</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <a href={twitchLoginUrl} onClick={handleLogin} className={className}>
-      {children ?? (
-        <>
-          <svg
-            className="w-4 h-4 flex-shrink-0"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z" />
-          </svg>
-          <span>Entrar con Twitch</span>
-        </>
-      )}
-    </a>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="font-bebas text-3xl text-white mb-2">
+          Iniciando sesión...
+        </div>
+        <div className="text-gray-500 text-sm">Conectando con Twitch</div>
+        <div className="mt-6 flex justify-center gap-1">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="w-2 h-2 rounded-full bg-[#e63946] animate-bounce"
+              style={{ animationDelay: `${i * 0.15}s` }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense>
+      <CallbackHandler />
+    </Suspense>
   );
 }
