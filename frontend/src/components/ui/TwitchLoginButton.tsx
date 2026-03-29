@@ -2,6 +2,8 @@
 
 import { twitchLoginUrl } from "@/lib/api";
 import { useAuthStore } from "@/stores/authStore";
+import { api } from "@/lib/api";
+import { User } from "@/types";
 
 interface Props {
   className?: string;
@@ -29,29 +31,33 @@ export function TwitchLoginButton({ className, children }: Props) {
       `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`,
     );
 
-    const channel = new BroadcastChannel("auth");
+    if (!popup) return;
 
-    channel.onmessage = (e) => {
-      console.log("📡 BroadcastChannel received:", e.data);
-      channel.close();
-      clearInterval(timer);
-      popup?.close();
-      if (e.data.type === "auth_complete") {
-        console.log("✅ Auth complete, setting user in Zustand:", e.data.user);
-        // Seteamos el usuario directamente desde el mensaje
-        // sin necesitar hacer fetch a /users/me/ de nuevo
-        useAuthStore.getState().setUser(e.data.user);
-        // Sin reload — el estado de Zustand ya tiene el usuario
+    // Polling: pregunta /users/me/ cada segundo.
+    // Django setea las cookies JWT en el dominio compartido durante el OAuth,
+    // así que en cuanto el popup completa el login, la ventana principal
+    // puede leer las cookies y autenticarse sin reload.
+    const poll = setInterval(async () => {
+      // Si el usuario cerró el popup manualmente, paramos
+      if (popup.closed) {
+        clearInterval(poll);
+        return;
       }
-    };
 
-    // Safety net: usuario cierra el popup manualmente sin completar login
-    const timer = setInterval(() => {
-      if (popup?.closed) {
-        clearInterval(timer);
-        channel.close();
+      try {
+        const user = await api.get<User>("/users/me/");
+        if (user) {
+          clearInterval(poll);
+          useAuthStore.getState().setUser(user);
+          popup.close();
+        }
+      } catch {
+        // 401 — OAuth aún en curso, seguimos esperando
       }
-    }, 500);
+    }, 1000);
+
+    // Safety net: máximo 3 minutos de polling
+    setTimeout(() => clearInterval(poll), 3 * 60 * 1000);
   };
 
   return (

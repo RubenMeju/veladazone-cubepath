@@ -1,14 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { api } from "@/lib/api";
 import { User } from "@/types";
-import { Suspense } from "react";
 
 function CallbackHandler() {
-  const router = useRouter();
   const { setUser } = useAuthStore();
   const [fromPWA, setFromPWA] = useState(false);
   const fromPWARef = useRef(false);
@@ -19,60 +16,41 @@ function CallbackHandler() {
     const pwaFromUrl = urlParams.get("from_pwa") === "true";
     fromPWARef.current = pwaFromSession || pwaFromUrl;
 
-    console.log("🔍 fromPWA:", fromPWARef.current, {
-      pwaFromSession,
-      pwaFromUrl,
-    });
-    console.log("🔍 URL params:", window.location.search);
-    console.log("🔍 Cookies:", document.cookie);
-
     if (fromPWARef.current) {
-      setTimeout(() => setFromPWA(true), 0);
+      setFromPWA(true);
     }
 
+    // PWA móvil — los tokens vienen en la URL porque las cookies
+    // no sobreviven el cambio de navegador en Android
     const accessToken = urlParams.get("access_token");
     const refreshToken = urlParams.get("refresh_token");
 
     if (accessToken && refreshToken && pwaFromUrl) {
-      // Limpiar cookies anteriores
-      document.cookie =
-        "access_token=; path=/; max-age=0; secure; samesite=None";
-      document.cookie =
-        "refresh_token=; path=/; max-age=0; secure; samesite=None";
-
-      // Setear las nuevas
       document.cookie = `access_token=${accessToken}; path=/; max-age=${86400 * 7}; secure; samesite=None`;
       document.cookie = `refresh_token=${refreshToken}; path=/; max-age=${86400 * 30}; secure; samesite=None`;
     }
 
+    // En todos los casos (PWA y navegador) intentamos obtener el usuario.
+    // En navegador: el popup ya completó el OAuth y las cookies están en el
+    // dominio — pero aquí estamos EN el popup, así que solo actualizamos
+    // Zustand y cerramos. La ventana padre detecta el login por polling.
     api
       .get<User>("/users/me/")
       .then((user) => {
-        console.log("✅ user fetched:", user);
         setUser(user);
         sessionStorage.removeItem("from_pwa");
 
         if (!fromPWARef.current) {
-          console.log("📡 sending BroadcastChannel...");
-          const channel = new BroadcastChannel("auth");
-          // Enviamos el usuario completo, no solo el tipo
-          channel.postMessage({ type: "auth_complete", user });
-          console.log("✅ BroadcastChannel sent");
-          // setTimeout(() => {
-          //   channel.close();
-          //   window.close();
-          // }, 100);
+          // Popup de navegador — cerramos y la ventana padre detecta por polling
+          setTimeout(() => window.close(), 300);
         }
+        // PWA — no cerramos, mostramos la pantalla de éxito (fromPWA=true)
       })
-      .catch((err) => {
-        console.error("❌ /users/me/ failed:", err);
+      .catch(() => {
         sessionStorage.removeItem("from_pwa");
-        const channel = new BroadcastChannel("auth");
-        channel.postMessage({ type: "auth_failed" });
-        setTimeout(() => {
-          channel.close();
-          window.close();
-        }, 100);
+        if (!fromPWARef.current) {
+          setTimeout(() => window.close(), 300);
+        }
       });
   }, []);
 
