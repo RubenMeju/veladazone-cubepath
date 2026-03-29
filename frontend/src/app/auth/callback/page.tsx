@@ -7,7 +7,6 @@ import { User } from "@/types";
 
 function CallbackHandler() {
   const { setUser } = useAuthStore();
-  // Calculado en render, no en efecto → sin warning
   const [fromPWA] = useState(() => {
     if (typeof window === "undefined") return false;
     const urlParams = new URLSearchParams(window.location.search);
@@ -35,20 +34,15 @@ function CallbackHandler() {
       .then((user) => {
         setUser(user);
         sessionStorage.removeItem("from_pwa");
-
+        // No es PWA → es popup, simplemente cerrarse
+        // La ventana principal detecta el login via polling a /users/me/
         if (!fromPWA) {
-          // ✅ Escribe para que el polling de la ventana principal lo lea
-          localStorage.setItem("auth_user", JSON.stringify(user));
-          localStorage.setItem("auth_ts", Date.now().toString());
           setTimeout(() => window.close(), 300);
         }
       })
       .catch(() => {
         sessionStorage.removeItem("from_pwa");
-
         if (!fromPWA) {
-          // ✅ Señaliza fallo
-          localStorage.setItem("auth_failed", "true");
           setTimeout(() => window.close(), 300);
         }
       });
