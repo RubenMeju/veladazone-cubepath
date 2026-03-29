@@ -19,6 +19,13 @@ function CallbackHandler() {
     const pwaFromUrl = urlParams.get("from_pwa") === "true";
     fromPWARef.current = pwaFromSession || pwaFromUrl;
 
+    console.log("🔍 fromPWA:", fromPWARef.current, {
+      pwaFromSession,
+      pwaFromUrl,
+    });
+    console.log("🔍 URL params:", window.location.search);
+    console.log("🔍 Cookies:", document.cookie);
+
     if (fromPWARef.current) {
       setTimeout(() => setFromPWA(true), 0);
     }
@@ -41,28 +48,29 @@ function CallbackHandler() {
     api
       .get<User>("/users/me/")
       .then((user) => {
+        console.log("✅ user fetched:", user);
+        console.log("🔍 fromPWARef at then:", fromPWARef.current);
         setUser(user);
         sessionStorage.removeItem("from_pwa");
 
         if (!fromPWARef.current) {
-          // BroadcastChannel funciona entre popup y ventana padre del mismo origen
+          console.log("📡 sending BroadcastChannel...");
           const channel = new BroadcastChannel("auth");
           channel.postMessage({ type: "auth_complete" });
-          console.log("✅ BroadcastChannel message sent");
-          // setTimeout(() => {
-          //   channel.close();
-          //   window.close();  // <-- comentado temporalmente
-          // }, 100);
+          console.log("✅ BroadcastChannel sent");
+        } else {
+          console.log("⚠️ fromPWA es true, NO se envía BroadcastChannel");
         }
       })
-      .catch(() => {
-        sessionStorage.removeItem("from_pwa");
-        const channel = new BroadcastChannel("auth");
-        channel.postMessage({ type: "auth_failed" });
-        setTimeout(() => {
-          channel.close();
-          window.close();
-        }, 100);
+      .catch((err) => {
+        console.error("❌ /users/me/ failed:", err);
+        // sessionStorage.removeItem("from_pwa");
+        // const channel = new BroadcastChannel("auth");
+        // channel.postMessage({ type: "auth_failed" });
+        // setTimeout(() => {
+        //   channel.close();
+        //   window.close();
+        // }, 100);
       });
   }, []);
 
