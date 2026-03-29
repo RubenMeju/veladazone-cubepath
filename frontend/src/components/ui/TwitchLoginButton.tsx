@@ -12,7 +12,6 @@ export function TwitchLoginButton({ className, children }: Props) {
     e.preventDefault();
 
     const isPWA = window.matchMedia("(display-mode: standalone)").matches;
-
     if (isPWA) {
       sessionStorage.setItem("from_pwa", "true");
       window.location.href = twitchLoginUrl + "?from_pwa=true";
@@ -31,25 +30,31 @@ export function TwitchLoginButton({ className, children }: Props) {
 
     const handleStorage = (e: StorageEvent) => {
       if (e.key === "auth_complete") {
-        window.removeEventListener("storage", handleStorage);
-        clearInterval(timer);
-        localStorage.removeItem("auth_complete");
-        popup?.close();
+        cleanup();
         window.location.reload();
       } else if (e.key === "auth_failed") {
-        window.removeEventListener("storage", handleStorage);
-        clearInterval(timer);
-        localStorage.removeItem("auth_failed");
-        popup?.close();
+        cleanup();
       }
     };
+
+    const cleanup = () => {
+      window.removeEventListener("storage", handleStorage);
+      clearInterval(timer);
+      localStorage.removeItem("auth_complete");
+      localStorage.removeItem("auth_failed");
+      popup?.close();
+    };
+
     window.addEventListener("storage", handleStorage);
 
+    // Timer solo como safety net si el usuario cierra el popup manualmente
+    // sin completar el login — NO recarga si el popup se cierra con éxito
     const timer = setInterval(() => {
       if (popup?.closed) {
         clearInterval(timer);
         window.removeEventListener("storage", handleStorage);
-        window.location.reload();
+        // No hacemos reload aquí — si auth_complete llegó, ya se recargó
+        // Si el popup se cerró sin login, simplemente limpiamos
       }
     }, 500);
   };

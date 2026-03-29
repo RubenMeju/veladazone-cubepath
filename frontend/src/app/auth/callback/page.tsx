@@ -43,12 +43,12 @@ function CallbackHandler() {
       .then((user) => {
         setUser(user);
         sessionStorage.removeItem("from_pwa");
-        if (fromPWARef.current) {
-          // PWA móvil — ya muestra el mensaje
-        } else {
+
+        if (!fromPWARef.current) {
+          // 1. Guardar en localStorage PRIMERO
           localStorage.setItem("auth_complete", Date.now().toString());
-          window.close();
-          setTimeout(() => router.push("/predicciones"), 300);
+          // 2. Cerrar el popup después de un tick para que el evento llegue
+          setTimeout(() => window.close(), 100);
         }
       })
       .catch(() => {
