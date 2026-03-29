@@ -66,6 +66,12 @@ export function TwitchLoginButton({ className, children }: Props) {
       // Si el popup se cerró sin escribir nada, paramos
       if (popup?.closed) {
         clearInterval(poll);
+
+        // Si no llegó auth_user, recarga como fallback
+        if (!localStorage.getItem("auth_user")) {
+          window.location.reload();
+        }
+
         localStorage.removeItem("auth_user");
         localStorage.removeItem("auth_ts");
         localStorage.removeItem("auth_failed");

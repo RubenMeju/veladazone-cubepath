@@ -30,28 +30,19 @@ function CallbackHandler() {
       document.cookie = `refresh_token=${refreshToken}; path=/; max-age=${86400 * 30}; secure; samesite=None`;
     }
 
-    // En todos los casos (PWA y navegador) intentamos obtener el usuario.
-    // En navegador: el popup ya completó el OAuth y las cookies están en el
-    // dominio — pero aquí estamos EN el popup, así que solo actualizamos
-    // Zustand y cerramos. La ventana padre detecta el login por polling.
     api
       .get<User>("/users/me/")
       .then((user) => {
         setUser(user);
         sessionStorage.removeItem("from_pwa");
-
         if (!fromPWARef.current) {
-          // Escribe el usuario en localStorage para que la ventana principal lo lea
-          localStorage.setItem("auth_user", JSON.stringify(user));
-          localStorage.setItem("auth_ts", Date.now().toString());
-          setTimeout(() => window.close(), 200);
+          setTimeout(() => window.close(), 300);
         }
       })
       .catch(() => {
         sessionStorage.removeItem("from_pwa");
         if (!fromPWARef.current) {
-          localStorage.setItem("auth_failed", "1");
-          setTimeout(() => window.close(), 200);
+          setTimeout(() => window.close(), 300);
         }
       });
   }, []);
