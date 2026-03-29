@@ -33,25 +33,45 @@ export function TwitchLoginButton({ className, children }: Props) {
 
     if (!popup) return;
 
-    // Polling directo a /users/me/ — funciona con cookies sin depender
-    // de localStorage (que no se comparte entre navegadores en móvil)
-    const poll = setInterval(async () => {
-      try {
-        const user = await api.get<User>("/users/me/");
-        // Si llegamos aquí, las cookies ya están seteadas → login OK
-        clearInterval(poll);
-        useAuthStore.getState().setUser(user);
-        if (!popup.closed) popup.close();
-      } catch {
-        // Aún no logueado, seguir esperando
-        // Si el popup se cerró sin completar login, parar
-        if (popup.closed) {
-          clearInterval(poll);
-        }
-      }
-    }, 1000);
+    // Escucha cambios en localStorage desde el popup
+    // El evento "storage" solo se dispara en ventanas DISTINTAS a la que escribe,
+    // por eso funciona perfectamente para comunicación popup → ventana principal
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== "veladazone-auth") return;
+      if (!e.newValue) return;
 
-    setTimeout(() => clearInterval(poll), 3 * 60 * 1000);
+      try {
+        const parsed = JSON.parse(e.newValue);
+        const user: User | null = parsed?.state?.user;
+        if (user) {
+          window.removeEventListener("storage", onStorage);
+          clearInterval(pollClosed);
+          useAuthStore.getState().setUser(user);
+          if (!popup.closed) popup.close();
+        }
+      } catch {
+        // JSON malformado, ignorar
+      }
+    };
+
+    window.addEventListener("storage", onStorage);
+
+    // Solo para cerrar el polling si el popup se cierra sin loguearse
+    const pollClosed = setInterval(() => {
+      if (popup.closed) {
+        clearInterval(pollClosed);
+        window.removeEventListener("storage", onStorage);
+      }
+    }, 500);
+
+    // Timeout de seguridad: 3 minutos
+    setTimeout(
+      () => {
+        clearInterval(pollClosed);
+        window.removeEventListener("storage", onStorage);
+      },
+      3 * 60 * 1000,
+    );
   };
 
   return (
