@@ -38,9 +38,22 @@ export function TwitchLoginButton({ className, children }: Props) {
     // así que en cuanto el popup completa el login, la ventana principal
     // puede leer las cookies y autenticarse sin reload.
     const poll = setInterval(async () => {
-      // Si el usuario cerró el popup manualmente, paramos
       if (popup.closed) {
+        console.log("Popup cerrado por el usuario");
         clearInterval(poll);
+        // ✅ Popup cerrado — hacer UN intento final con las cookies recién seteadas
+        try {
+          console.log(
+            "Intentando obtener usuario después de cierre de popup...",
+          );
+          const user = await api.get<User>("/users/me/");
+          if (user) {
+            useAuthStore.getState().setUser(user);
+          }
+        } catch {
+          // Login cancelado por el usuario
+          console.log("Login cancelado o fallido");
+        }
         return;
       }
 
@@ -52,7 +65,7 @@ export function TwitchLoginButton({ className, children }: Props) {
           popup.close();
         }
       } catch {
-        // 401 — OAuth aún en curso, seguimos esperando
+        // 401 — OAuth aún en curso
       }
     }, 1000);
 
