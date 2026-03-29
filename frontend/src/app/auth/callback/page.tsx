@@ -1,27 +1,27 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { api } from "@/lib/api";
 import { User } from "@/types";
 
 function CallbackHandler() {
   const { setUser } = useAuthStore();
-  const [fromPWA, setFromPWA] = useState(false);
-  const fromPWARef = useRef(false);
+  // Calculado en render, no en efecto → sin warning
+  const [fromPWA] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const urlParams = new URLSearchParams(window.location.search);
+    return (
+      sessionStorage.getItem("from_pwa") === "true" ||
+      urlParams.get("from_pwa") === "true"
+    );
+  });
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const pwaFromSession = sessionStorage.getItem("from_pwa") === "true";
     const pwaFromUrl = urlParams.get("from_pwa") === "true";
-    fromPWARef.current = pwaFromSession || pwaFromUrl;
 
-    if (fromPWARef.current) {
-      setFromPWA(true);
-    }
-
-    // PWA móvil — los tokens vienen en la URL porque las cookies
-    // no sobreviven el cambio de navegador en Android
+    // PWA móvil — tokens en URL
     const accessToken = urlParams.get("access_token");
     const refreshToken = urlParams.get("refresh_token");
 
@@ -36,8 +36,8 @@ function CallbackHandler() {
         setUser(user);
         sessionStorage.removeItem("from_pwa");
 
-        if (!fromPWARef.current) {
-          // ✅ Escribe los datos para que la ventana principal los lea
+        if (!fromPWA) {
+          // ✅ Escribe para que el polling de la ventana principal lo lea
           localStorage.setItem("auth_user", JSON.stringify(user));
           localStorage.setItem("auth_ts", Date.now().toString());
           setTimeout(() => window.close(), 300);
@@ -46,13 +46,13 @@ function CallbackHandler() {
       .catch(() => {
         sessionStorage.removeItem("from_pwa");
 
-        if (!fromPWARef.current) {
-          // ✅ Señaliza el fallo
+        if (!fromPWA) {
+          // ✅ Señaliza fallo
           localStorage.setItem("auth_failed", "true");
           setTimeout(() => window.close(), 300);
         }
       });
-  }, []);
+  }, [fromPWA, setUser]);
 
   if (fromPWA) {
     return (

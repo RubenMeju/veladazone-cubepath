@@ -2,7 +2,6 @@
 
 import { twitchLoginUrl } from "@/lib/api";
 import { useAuthStore } from "@/stores/authStore";
-import { api } from "@/lib/api";
 import { User } from "@/types";
 
 interface Props {
@@ -33,29 +32,25 @@ export function TwitchLoginButton({ className, children }: Props) {
 
     if (!popup) return;
 
-    // Polling: pregunta /users/me/ cada segundo.
-    // Django setea las cookies JWT en el dominio compartido durante el OAuth,
-    // así que en cuanto el popup completa el login, la ventana principal
-    // puede leer las cookies y autenticarse sin reload.
     const poll = setInterval(() => {
-      // Comprueba si el popup escribió el resultado
       const authUser = localStorage.getItem("auth_user");
       const authTs = localStorage.getItem("auth_ts");
 
+      // ✅ Detecta login exitoso
       if (authUser && authTs) {
         const age = Date.now() - parseInt(authTs);
         if (age < 60_000) {
-          // válido por 1 minuto
           clearInterval(poll);
           localStorage.removeItem("auth_user");
           localStorage.removeItem("auth_ts");
-          const user = JSON.parse(authUser);
+          const user = JSON.parse(authUser) as User;
           useAuthStore.getState().setUser(user);
           popup?.close();
         }
         return;
       }
 
+      // ✅ Detecta fallo explícito
       if (localStorage.getItem("auth_failed")) {
         clearInterval(poll);
         localStorage.removeItem("auth_failed");
@@ -63,18 +58,25 @@ export function TwitchLoginButton({ className, children }: Props) {
         return;
       }
 
-      // Si el popup se cerró sin escribir nada, paramos
+      // ✅ Popup cerrado: espera 400ms por si localStorage se escribió
+      // justo antes del cierre (race condition entre setInterval 500ms y close)
       if (popup?.closed) {
         clearInterval(poll);
-
-        // Si no llegó auth_user, recarga como fallback
-        if (!localStorage.getItem("auth_user")) {
-          window.location.reload();
-        }
-
-        localStorage.removeItem("auth_user");
-        localStorage.removeItem("auth_ts");
-        localStorage.removeItem("auth_failed");
+        setTimeout(() => {
+          const user = localStorage.getItem("auth_user");
+          const ts = localStorage.getItem("auth_ts");
+          if (user && ts) {
+            const age = Date.now() - parseInt(ts);
+            if (age < 60_000) {
+              useAuthStore.getState().setUser(JSON.parse(user) as User);
+            }
+          } else {
+            window.location.reload();
+          }
+          localStorage.removeItem("auth_user");
+          localStorage.removeItem("auth_ts");
+          localStorage.removeItem("auth_failed");
+        }, 400);
       }
     }, 500);
 
