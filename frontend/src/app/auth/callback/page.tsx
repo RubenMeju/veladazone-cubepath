@@ -35,13 +35,20 @@ function CallbackHandler() {
       .then((user) => {
         setUser(user);
         sessionStorage.removeItem("from_pwa");
+
         if (!fromPWARef.current) {
+          // ✅ Escribe los datos para que la ventana principal los lea
+          localStorage.setItem("auth_user", JSON.stringify(user));
+          localStorage.setItem("auth_ts", Date.now().toString());
           setTimeout(() => window.close(), 300);
         }
       })
       .catch(() => {
         sessionStorage.removeItem("from_pwa");
+
         if (!fromPWARef.current) {
+          // ✅ Señaliza el fallo
+          localStorage.setItem("auth_failed", "true");
           setTimeout(() => window.close(), 300);
         }
       });
