@@ -37,39 +37,41 @@ export function TwitchLoginButton({ className, children }: Props) {
     // Django setea las cookies JWT en el dominio compartido durante el OAuth,
     // así que en cuanto el popup completa el login, la ventana principal
     // puede leer las cookies y autenticarse sin reload.
-    const poll = setInterval(async () => {
-      if (popup.closed) {
-        console.log("Popup cerrado por el usuario");
-        clearInterval(poll);
-        // ✅ Popup cerrado — hacer UN intento final con las cookies recién seteadas
-        try {
-          console.log(
-            "Intentando obtener usuario después de cierre de popup...",
-          );
-          const user = await api.get<User>("/users/me/");
-          if (user) {
-            useAuthStore.getState().setUser(user);
-          }
-        } catch {
-          // Login cancelado por el usuario
-          console.log("Login cancelado o fallido");
+    const poll = setInterval(() => {
+      // Comprueba si el popup escribió el resultado
+      const authUser = localStorage.getItem("auth_user");
+      const authTs = localStorage.getItem("auth_ts");
+
+      if (authUser && authTs) {
+        const age = Date.now() - parseInt(authTs);
+        if (age < 60_000) {
+          // válido por 1 minuto
+          clearInterval(poll);
+          localStorage.removeItem("auth_user");
+          localStorage.removeItem("auth_ts");
+          const user = JSON.parse(authUser);
+          useAuthStore.getState().setUser(user);
+          popup?.close();
         }
         return;
       }
 
-      try {
-        const user = await api.get<User>("/users/me/");
-        if (user) {
-          clearInterval(poll);
-          useAuthStore.getState().setUser(user);
-          popup.close();
-        }
-      } catch {
-        // 401 — OAuth aún en curso
+      if (localStorage.getItem("auth_failed")) {
+        clearInterval(poll);
+        localStorage.removeItem("auth_failed");
+        popup?.close();
+        return;
       }
-    }, 1000);
 
-    // Safety net: máximo 3 minutos de polling
+      // Si el popup se cerró sin escribir nada, paramos
+      if (popup?.closed) {
+        clearInterval(poll);
+        localStorage.removeItem("auth_user");
+        localStorage.removeItem("auth_ts");
+        localStorage.removeItem("auth_failed");
+      }
+    }, 500);
+
     setTimeout(() => clearInterval(poll), 3 * 60 * 1000);
   };
 

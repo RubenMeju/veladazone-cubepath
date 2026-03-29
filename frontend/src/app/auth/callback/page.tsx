@@ -41,15 +41,17 @@ function CallbackHandler() {
         sessionStorage.removeItem("from_pwa");
 
         if (!fromPWARef.current) {
-          // Popup de navegador — cerramos y la ventana padre detecta por polling
-          setTimeout(() => window.close(), 300);
+          // Escribe el usuario en localStorage para que la ventana principal lo lea
+          localStorage.setItem("auth_user", JSON.stringify(user));
+          localStorage.setItem("auth_ts", Date.now().toString());
+          setTimeout(() => window.close(), 200);
         }
-        // PWA — no cerramos, mostramos la pantalla de éxito (fromPWA=true)
       })
       .catch(() => {
         sessionStorage.removeItem("from_pwa");
         if (!fromPWARef.current) {
-          setTimeout(() => window.close(), 300);
+          localStorage.setItem("auth_failed", "1");
+          setTimeout(() => window.close(), 200);
         }
       });
   }, []);
