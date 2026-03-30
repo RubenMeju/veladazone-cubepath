@@ -1,9 +1,13 @@
-// app/predicciones/ranking/page.tsx
 import { getLeaderboard } from "@/lib/api.server";
 import { RankingClient } from "./RankingClient";
+import { LeaderboardEntry } from "@/types";
 
 export default async function RankingPage() {
-  let initial = { results: [], nextOffset: 0 };
+  // Tipamos explícitamente
+  let initial: { results: LeaderboardEntry[]; nextOffset: number } = {
+    results: [],
+    nextOffset: 0,
+  };
 
   try {
     const data = await getLeaderboard({ limit: 50, offset: 0 });
@@ -19,7 +23,6 @@ export default async function RankingPage() {
   return (
     <div className="page-container">
       <h1 className="text-3xl font-bebas text-white mb-6">🏆 Ranking global</h1>
-      {/* Pasamos datos iniciales al cliente */}
       <RankingClient
         initialEntries={initial.results}
         initialNextOffset={initial.nextOffset}
