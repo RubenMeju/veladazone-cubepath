@@ -160,7 +160,6 @@ export function RankingClient({ initialEntries, initialNextOffset }: Props) {
       <div className="flex flex-col gap-3">
         {rest.map((entry, idx) => {
           const position = idx + 4;
-
           return (
             <Link
               key={`${entry.username}-${idx}`}
