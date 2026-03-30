@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import {
   dehydrate,
   HydrationBoundary,
@@ -8,82 +8,60 @@ import {
 import { Fight, CommunityStats } from "@/types";
 import { serverFetch } from "@/lib/api.server";
 import { PrediccionesClient } from "./Prediccionesclient";
+import PrediccionesSkeleton from "./components/PrediccionesSkeleton";
 
 // ---------------------------------------------------------------------------
-// SEO
+// Metadata dinámica + SEO
 // ---------------------------------------------------------------------------
-export const metadata: Metadata = {
-  title: "Predicciones · VeladaZone",
-  description:
-    "Elige tu ganador en cada combate de La Velada del Año 6 y compite con la comunidad.",
-  openGraph: {
+export async function generateMetadata(): Promise<Metadata> {
+  return {
     title: "Predicciones · VeladaZone",
-    description: "¿Quién ganará en La Velada del Año 6? Haz tus predicciones.",
-    url: "https://laveladazone.duckdns.org/predicciones",
-    siteName: "VeladaZone",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Predicciones · VeladaZone",
-    description: "¿Quién ganará en La Velada del Año 6? Haz tus predicciones.",
-  },
-};
-
-export const revalidate = 30;
-
-// ---------------------------------------------------------------------------
-// Skeleton — se muestra mientras los fetches resuelven
-// ---------------------------------------------------------------------------
-function PrediccionesSkeleton() {
-  return (
-    <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
-      <div className="lg:col-span-2 flex flex-col gap-4">
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            className="bg-[#0d0d0d] border border-white/5 rounded-2xl h-40 animate-pulse"
-          />
-        ))}
-      </div>
-      <div className="flex flex-col gap-4">
-        {[...Array(3)].map((_, i) => (
-          <div
-            key={i}
-            className="bg-[#0d0d0d] border border-white/5 rounded-2xl h-32 animate-pulse"
-          />
-        ))}
-      </div>
-    </div>
-  );
+    description:
+      "Elige tu ganador en cada combate de La Velada del Año 6 y compite con la comunidad.",
+    openGraph: {
+      title: "Predicciones · VeladaZone",
+      description:
+        "¿Quién ganará en La Velada del Año 6? Haz tus predicciones.",
+      url: "https://laveladazone.com/predicciones",
+      siteName: "VeladaZone",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Predicciones · VeladaZone",
+      description:
+        "¿Quién ganará en La Velada del Año 6? Haz tus predicciones.",
+    },
+  };
 }
 
 // ---------------------------------------------------------------------------
-// Server Component interno — espera los fetches y entrega el cache hidratado
-// Suspense lo aisla: el header llega al browser mientras este resuelve
+// Server Component que hace el prefetch y entrega el HydrationBoundary
 // ---------------------------------------------------------------------------
 async function PrediccionesData() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: 30 * 1000 } },
   });
 
+  // Prefetch simultáneo
   await Promise.all([
     queryClient.prefetchQuery({
       queryKey: ["fights", 6],
       queryFn: () =>
         serverFetch<Fight[]>("/fighters/fights/?edition=6", {
-          next: { revalidate: 300 }, // combates: cache 5 min
+          next: { revalidate: 300 },
         }),
     }),
     queryClient.prefetchQuery({
       queryKey: ["community-stats"],
       queryFn: () =>
         serverFetch<CommunityStats[]>("/predictions/community_stats/", {
-          next: { revalidate: 30 }, // termómetro: cache 30s
+          next: { revalidate: 30 },
         }),
     }),
   ]);
 
+  // Datos precargados → cliente React Query
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <PrediccionesClient />
@@ -92,15 +70,13 @@ async function PrediccionesData() {
 }
 
 // ---------------------------------------------------------------------------
-// Page — Server Component 
-// El header se streamea al browser INMEDIATAMENTE.
-// Suspense muestra el skeleton mientras PrediccionesData resuelve los fetches.
+// Page Component — SSR + Suspense
 // ---------------------------------------------------------------------------
 export default function PrediccionesPage() {
   return (
     <div className="page-container">
-      {/* SSR puro — llega al browser antes de que empiecen los fetches */}
-      <div className="mb-6 sm:mb-8">
+      {/* Header estático SSR */}
+      <header className="mb-6 sm:mb-8">
         <div className="text-sm text-[#e63946]/60 tracking-[0.4em] uppercase mb-2 font-medium">
           Velada del Año 6 · 25 Julio 2026
         </div>
@@ -113,12 +89,33 @@ export default function PrediccionesPage() {
         <p className="text-gray-500 text-sm">
           Elige tu ganador en cada combate y compite por ser el mejor predictor
         </p>
-      </div>
+      </header>
 
-      {/* Streaming: skeleton → datos reales en cuanto resuelven los fetches */}
+      {/* Streaming de datos con skeleton */}
       <Suspense fallback={<PrediccionesSkeleton />}>
         <PrediccionesData />
       </Suspense>
+
+      {/* Structured Data JSON-LD para combates */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Event",
+            name: "Predicciones La Velada del Año 6",
+            startDate: "2026-07-25T20:00:00+02:00",
+            location: {
+              "@type": "Place",
+              name: "VeladaZone",
+              address: "España",
+            },
+            description:
+              "Haz tus predicciones de los combates de La Velada del Año 6 y compite con la comunidad.",
+            url: "https://laveladazone.com/predicciones",
+          }),
+        }}
+      />
     </div>
   );
 }
