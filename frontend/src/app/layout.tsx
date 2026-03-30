@@ -5,6 +5,8 @@ import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/ui/Navbar";
 import PwaInstallBanner from "@/components/PwaInstallBanner";
 import { DevAuthInit } from "@/components/DevAuthInit";
+import { CookieBanner } from "./(legal)/components/CookieBanner";
+import { Footer } from "@/components/ui/Footer";
 
 const bebas = Bebas_Neue({
   weight: "400",
@@ -52,6 +54,8 @@ export default function RootLayout({
           <DevAuthInit />
           <Navbar />
           <main>{children}</main>
+          <Footer />
+          <CookieBanner />
           <PwaInstallBanner />
         </Providers>
       </body>
