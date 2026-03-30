@@ -1,3 +1,21 @@
+export interface User {
+  id: number;
+  twitch_username: string;
+  avatar_url: string | null;
+  username: string;
+}
+
+export interface Argument {
+  id: number;
+  user: User;
+  fight: Fight;
+  fighter_supported: Fighter;
+  text: string;
+  edited: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Fighter {
   id: number;
   name: string;
@@ -46,12 +64,6 @@ export interface Prediction {
   created_at: string;
 }
 
-export interface User {
-  id: number;
-  twitch_username: string;
-  avatar_url: string | null;
-}
-
 export interface Badge {
   label: string;
   color: string;
@@ -59,6 +71,7 @@ export interface Badge {
 }
 
 export interface LeaderboardEntry {
+  id?: number; // opcional si no viene del backend
   rank: number;
   username: string;
   avatar: string | null;

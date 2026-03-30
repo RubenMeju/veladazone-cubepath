@@ -5,6 +5,8 @@
  * Nunca importar desde Client Components.
  */
 
+import { LeaderboardEntry } from "@/types";
+
 const SERVER_API_URL = process.env.BACKEND_URL // Docker prod → http://backend:8000
   ? `${process.env.BACKEND_URL}/api/v1`
   : (process.env.NEXT_PUBLIC_API_URL ?? // local → http://localhost:8000/api/v1
@@ -29,4 +31,28 @@ export async function serverFetch<T>(
   }
 
   return res.json();
+}
+
+export async function getLeaderboard({
+  limit = 50,
+  offset = 0,
+  search,
+}: {
+  limit?: number;
+  offset?: number;
+  search?: string;
+} = {}): Promise<{ results: LeaderboardEntry[]; nextOffset?: number }> {
+  const params = new URLSearchParams({
+    limit: limit.toString(),
+    offset: offset.toString(),
+  });
+  if (search) params.append("search", search);
+
+  const data = await serverFetch<{ results: LeaderboardEntry[] }>(
+    `/predictions/leaderboard/?${params.toString()}`,
+  );
+
+  const nextOffset = data.results.length === limit ? offset + limit : undefined;
+
+  return { results: data.results, nextOffset };
 }

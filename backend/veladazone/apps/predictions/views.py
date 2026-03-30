@@ -1,8 +1,9 @@
 import requests
 from django.conf import settings
-from django.db.models import Prefetch, QuerySet, Count
+from django.contrib.auth import get_user_model
+from django.db.models import Prefetch, Count, Q
 from typing import cast, Optional
-from rest_framework import viewsets, serializers, status
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import (
     IsAuthenticated,
@@ -13,6 +14,7 @@ from rest_framework.response import Response
 from django.core.cache import cache
 from rest_framework.request import Request as DRFRequest
 
+from veladazone.apps.users.models import User as CustomUser
 from veladazone.apps.predictions.pagination import ArgumentPagination
 
 from .models import Argument, ArgumentReply, ArgumentVote, Prediction
@@ -54,6 +56,19 @@ def generate_ai_comment(fighter_name: str, opponent_name: str, edition: int) -> 
         return data["choices"][0]["message"]["content"].strip()
     except Exception:
         return f"¡{fighter_name} ha sido elegido para escribir su leyenda esta noche!"
+
+
+def get_badge(correct: int, total: int) -> dict:
+    if total == 0:
+        return {"label": "Novato", "color": "#6b7280", "emoji": "🥊"}
+    accuracy = (correct / total) * 100
+    if correct >= 8 and accuracy >= 80:
+        return {"label": "Oráculo", "color": "#f4a261", "emoji": "🔮"}
+    elif correct >= 5 and accuracy >= 65:
+        return {"label": "Experto", "color": "#e63946", "emoji": "🏆"}
+    elif correct >= 3 and accuracy >= 50:
+        return {"label": "Analista", "color": "#9146FF", "emoji": "📊"}
+    return {"label": "Novato", "color": "#6b7280", "emoji": "🥊"}
 
 
 class PredictionViewSet(viewsets.ModelViewSet):
@@ -117,55 +132,78 @@ class PredictionViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
         )
 
-    @action(detail=False, methods=["get"], permission_classes=[AllowAny])
-    def leaderboard(self, request):
-        """Global leaderboard ranked by prediction accuracy."""
-        from django.db.models import Count, Q
-        from django.contrib.auth import get_user_model
-
-        cached = cache.get("leaderboard")
-        if cached:
-            return Response(cached)
-
+    @action(
+        detail=False,
+        methods=["get"],
+        permission_classes=[AllowAny],
+        pagination_class=None,
+    )
+    def top_leaderboard(self, request):
+        """Devuelve solo los 10 primeros del leaderboard, sin paginación"""
         User = get_user_model()
 
-        def get_badge(correct: int, total: int) -> dict:
-            if total == 0:
-                return {"label": "Novato", "color": "#6b7280", "emoji": "🥊"}
-            accuracy = (correct / total) * 100
-            if correct >= 8 and accuracy >= 80:
-                return {"label": "Oráculo", "color": "#f4a261", "emoji": "🔮"}
-            elif correct >= 5 and accuracy >= 65:
-                return {"label": "Experto", "color": "#e63946", "emoji": "🏆"}
-            elif correct >= 3 and accuracy >= 50:
-                return {"label": "Analista", "color": "#9146FF", "emoji": "📊"}
-            return {"label": "Novato", "color": "#6b7280", "emoji": "🥊"}
-
-        users: list = list(
+        users = (
             User.objects.annotate(
                 total=Count("predictions"),
                 correct=Count("predictions", filter=Q(predictions__is_correct=True)),
             )
             .filter(total__gt=0)
-            .order_by("-correct", "-total")[:10]
+            .order_by("-correct", "-total")[:10]  # Solo top 10
         )
 
         data = [
             {
                 "rank": i + 1,
-                "username": u.display_name,
-                "avatar": u.avatar_url,
-                "correct": u.correct,
-                "total": u.total,
-                "accuracy": round((u.correct / u.total) * 100) if u.total > 0 else 0,
-                "badge": get_badge(u.correct, u.total),
+                "username": u.username,
+                "avatar": getattr(u, "avatar_url", None),
+                "correct": getattr(u, "correct", 0),
+                "total": getattr(u, "total", 0),
+                "accuracy": (
+                    round((getattr(u, "correct", 0) / getattr(u, "total", 1)) * 100)
+                    if getattr(u, "total", 0) > 0
+                    else 0
+                ),
+                "badge": get_badge(getattr(u, "correct", 0), getattr(u, "total", 0)),
             }
             for i, u in enumerate(users)
         ]
 
-        cache.set("leaderboard", data, 60 * 5)  # 5 minutos
-
         return Response(data)
+
+    @action(detail=False, methods=["get"], permission_classes=[AllowAny])
+    def leaderboard(self, request):
+        """Paginated leaderboard with limit and offset."""
+        from django.db.models import Count, Q
+
+        UserModel = get_user_model()
+        limit = int(request.query_params.get("limit", 50))
+        offset = int(request.query_params.get("offset", 0))
+
+        users = (
+            UserModel.objects.annotate(
+                total=Count("predictions"),
+                correct=Count("predictions", filter=Q(predictions__is_correct=True)),
+            )
+            .filter(total__gt=0)
+            .order_by("-correct", "-total")[offset : offset + limit]
+            .values("id", "username", "avatar_url", "total", "correct", "twitch_username")
+        )
+
+        data = [
+            {
+                "rank": offset + i + 1,
+                "username": u.get("twitch_username") or u["username"],
+                "avatar": u.get("avatar_url"),
+                "correct": u["correct"],
+                "total": u["total"],
+                "accuracy": round((u["correct"] / u["total"]) * 100) if u["total"] > 0 else 0,
+                "badge": get_badge(u["correct"], u["total"]),
+            }
+            for i, u in enumerate(users)
+        ]
+
+        next_offset = offset + limit if len(users) == limit else None
+        return Response({"results": data, "nextOffset": next_offset})
 
     @action(detail=False, methods=["get"], permission_classes=[AllowAny])
     def community_stats(self, request):
