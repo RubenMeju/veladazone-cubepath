@@ -28,7 +28,7 @@ export async function generateMetadata({
       openGraph: {
         title,
         description,
-        url: `https://laveladazone.duckdns.org/perfil/${username}`,
+        url: `https://laveladazone.com/perfil/${username}`,
         siteName: "VeladaZone",
         type: "profile",
         ...(data.avatar && {

@@ -20,9 +20,9 @@ export const useAuthStore = create<AuthState>()(
 
         // Limpiar cookies JWT
         document.cookie =
-          "access_token=; path=/; domain=laveladazone.duckdns.org; max-age=0; secure; samesite=None";
+          "access_token=; path=/; domain=laveladazone.com; max-age=0; secure; samesite=None";
         document.cookie =
-          "refresh_token=; path=/; domain=laveladazone.duckdns.org; max-age=0; secure; samesite=None";
+          "refresh_token=; path=/; domain=laveladazone.com; max-age=0; secure; samesite=None";
       },
       isAuthenticated: () => !!get().user,
     }),

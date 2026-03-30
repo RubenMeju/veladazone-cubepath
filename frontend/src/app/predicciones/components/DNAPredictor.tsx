@@ -40,7 +40,7 @@ export function DNAPredictor() {
 
   const handleShare = () => {
     if (!data) return;
-    const url = `https://laveladazone.duckdns.org/perfil/${user.twitch_username}`;
+    const url = `https://laveladazone.com/perfil/${user.twitch_username}`;
     const text = `🧬 Mi ADN de predictor para La Velada del Año 6: ${title}. "${analysis.slice(0, 100)}..." #VeladaZone #VeladaDelAño6`;
     window.open(
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,

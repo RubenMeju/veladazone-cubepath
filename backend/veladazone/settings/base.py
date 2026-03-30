@@ -139,7 +139,7 @@ GEMINI_API_KEY = env("GEMINI_API_KEY")
 GROQ_API_KEY = env("GROQ_API_KEY")
 
 # Frontend URL
-FRONTEND_URL = env("FRONTEND_URL", default="https://laveladazone.duckdns.org")
+FRONTEND_URL = env("FRONTEND_URL", default="https://laveladazone.com")
 LOGIN_REDIRECT_URL = f"{FRONTEND_URL}/auth/callback"
 
 
@@ -181,7 +181,7 @@ SESSION_COOKIE_SAMESITE = None
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_AGE = 86400
-SESSION_COOKIE_DOMAIN = "laveladazone.duckdns.org"
+SESSION_COOKIE_DOMAIN = "laveladazone.com"
 SESSION_COOKIE_NAME = "veladazone_session"
 
 # CSRF

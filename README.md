@@ -2,7 +2,7 @@
 
 La plataforma definitiva para La Velada del Año 6. Predicciones con IA, estadísticas históricas, ligas fantasy, modo debate y tu cartel personalizado para compartir.
 
-🌐 [Demo en vivo](https://laveladazone.duckdns.org) · 📺 La Velada del Año 6 — 25 Julio 2026
+🌐 [Demo en vivo](https://laveladazone.com) · 📺 La Velada del Año 6 — 25 Julio 2026
 
 ---
 
@@ -103,7 +103,7 @@ El proyecto usa dos VPS gp.nano de CubePath en Barcelona:
 | Community stats / termómetro    | 1 min |
 | Sesiones de usuario             | 24h   |
 
-**Dominio:** `laveladazone.duckdns.org` con certificado SSL (Let's Encrypt)
+**Dominio:** `laveladazone.com` con certificado SSL (Let's Encrypt)
 
 ### Firewall VPS 1
 

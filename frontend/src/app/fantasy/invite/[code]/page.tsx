@@ -37,9 +37,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      url: `https://laveladazone.duckdns.org/fantasy/invite/${params.code}`,
+      url: `https://laveladazone.com/fantasy/invite/${params.code}`,
       siteName: "VeladaZone",
-      images: [{ url: "https://laveladazone.duckdns.org/og-fantasy.png" }],
+      images: [{ url: "https://laveladazone.com/og-fantasy.png" }],
       type: "website",
     },
     twitter: {

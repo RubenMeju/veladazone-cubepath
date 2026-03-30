@@ -27,7 +27,7 @@ export function ShareFightButton({
   if (!prediction) return null;
 
   const pickedFighter = prediction.predicted_winner;
-  const url = "https://laveladazone.duckdns.org/predicciones";
+  const url = "https://laveladazone.com/predicciones";
   const text = `🥊 Apoyo a ${pickedFighter.name} ${pickedFighter.country_flag} contra ${
     fight.fighter1.id === pickedFighter.id
       ? fight.fighter2.name
