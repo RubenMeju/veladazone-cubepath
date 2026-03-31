@@ -11,9 +11,9 @@ const BACKEND =
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { username: string } },
+  { params }: { params: Promise<{ username: string }> }, // ← Promise
 ) {
-  const { username } = params;
+  const { username } = await params;
 
   let predictions: Prediction[] = [];
   try {
