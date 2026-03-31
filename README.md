@@ -2,6 +2,9 @@
 
 > La plataforma definitiva para vivir La Velada del Año 6 como nunca antes.
 
+![home](https://github.com/user-attachments/assets/ba33b2bb-6b3a-41e0-85f7-037bb7e62e8e)
+
+
 Predice, debate, compite y comparte — todo con tu cuenta de Twitch, todo con IA.
 
 🌐 **[laveladazone.com](https://laveladazone.com)** · 📺 La Velada del Año 6 — 25 Julio 2026
@@ -303,7 +306,11 @@ veladazone-cubepath/
 
 ## 📸 Capturas
 
-_Añadir capturas o GIFs de la app en funcionamiento_
+![perfil](https://github.com/user-attachments/assets/344d8ba2-c91b-46f1-9a56-5b31384c2957)
+![fantasy](https://github.com/user-attachments/assets/8b1d907a-6f30-428b-89de-fb52dc12e6f5)
+![predicciones](https://github.com/user-attachments/assets/4037f759-0e31-4191-a21e-28d6a2e2d645)
+![stats](https://github.com/user-attachments/assets/5cccb3ba-9f59-42bf-a4e2-6e6628308cff)
+
 
 ---
 
