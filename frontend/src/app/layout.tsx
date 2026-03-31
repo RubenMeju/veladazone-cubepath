@@ -1,12 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
+import Script from "next/script";
+
 import "./globals.css";
-import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/ui/Navbar";
 import PwaInstallBanner from "@/components/PwaInstallBanner";
 import { DevAuthInit } from "@/components/DevAuthInit";
 import { CookieBanner } from "./(legal)/components/CookieBanner";
 import { Footer } from "@/components/ui/Footer";
+import { QueryProvider } from "@/components/providers/QueryProvider";
+import { AnalyticsProvider } from "@/components/providers/AnalyticsProvider";
 
 const bebas = Bebas_Neue({
   weight: "400",
@@ -81,14 +84,33 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${bebas.variable} ${inter.variable}`}>
       <body className="bg-[#0f0f0f] text-white min-h-screen">
-        <Providers>
+        <Script
+          strategy="afterInteractive"
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+        />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
+      `,
+          }}
+        />
+
+        <QueryProvider>
           <DevAuthInit />
+          <AnalyticsProvider />
+
           <Navbar />
           <main>{children}</main>
           <Footer />
           <CookieBanner />
           <PwaInstallBanner />
-        </Providers>
+        </QueryProvider>
       </body>
     </html>
   );
