@@ -2,13 +2,15 @@
 
 interface ShareButtonsProps {
   username?: string;
-  imageUrl?: string; // URL del cartel generado
+  shareUrl?: string; // La URL pública del cartel con OG
 }
 
-export function ShareButtons({ username, imageUrl }: ShareButtonsProps) {
-  const url = username
-    ? `https://laveladazone.com/perfil/${username}`
-    : "https://laveladazone.com";
+export function ShareButtons({ username, shareUrl }: ShareButtonsProps) {
+  const url =
+    shareUrl ??
+    (username
+      ? `https://laveladazone.com/mi-cartel/${username}`
+      : "https://laveladazone.com");
 
   const text = username
     ? `🥊 Estas son mis predicciones para La Velada del Año 6. ¿Acertaré? #VeladaZone #VeladaDelAño6`

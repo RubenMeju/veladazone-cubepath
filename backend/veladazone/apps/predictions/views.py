@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Prefetch, Count, Q
 from typing import cast, Optional
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action
 from rest_framework.permissions import (
     IsAuthenticated,
@@ -186,7 +186,9 @@ class PredictionViewSet(viewsets.ModelViewSet):
             )
             .filter(total__gt=0)
             .order_by("-correct", "-total")[offset : offset + limit]
-            .values("id", "username", "avatar_url", "total", "correct", "twitch_username")
+            .values(
+                "id", "username", "avatar_url", "total", "correct", "twitch_username"
+            )
         )
 
         data = [
@@ -196,7 +198,9 @@ class PredictionViewSet(viewsets.ModelViewSet):
                 "avatar": u.get("avatar_url"),
                 "correct": u["correct"],
                 "total": u["total"],
-                "accuracy": round((u["correct"] / u["total"]) * 100) if u["total"] > 0 else 0,
+                "accuracy": (
+                    round((u["correct"] / u["total"]) * 100) if u["total"] > 0 else 0
+                ),
                 "badge": get_badge(u["correct"], u["total"]),
             }
             for i, u in enumerate(users)
@@ -351,3 +355,18 @@ class ArgumentViewSet(viewsets.ModelViewSet):
 
         serializer = ArgumentReplySerializer(reply, context={"request": request})
         return Response(serializer.data, status=201)
+
+
+class CartelPublicoView(generics.ListAPIView):
+    """Predicciones públicas de un usuario por username — sin auth."""
+
+    serializer_class = PredictionSerializer
+    permission_classes = []  # público
+
+    def get_queryset(self):
+        username = self.kwargs["username"]
+        return (
+            Prediction.objects.filter(user__twitch_username=username, fight__edition=6)
+            .select_related("fight__fighter1", "fight__fighter2", "predicted_winner")
+            .order_by("-fight__is_main_event", "fight__order")
+        )

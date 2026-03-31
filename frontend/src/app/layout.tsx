@@ -50,7 +50,7 @@ export const metadata: Metadata = {
       "Predice los ganadores de La Velada del Año 6, compite en el ranking global y comparte tu cartel. Login con Twitch.",
     images: [
       {
-        url: "https://laveladazone.com/og-image.webp",
+        url: "https://laveladazone.com/og-image.png",
         width: 1200,
         height: 630,
         alt: "VeladaZone — La Velada del Año 6",
