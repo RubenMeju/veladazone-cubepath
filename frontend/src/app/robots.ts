@@ -6,7 +6,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin/", "/api/", "/auth/"],
+      disallow: ["/admin/", "/api/", "/auth/", "/_next/"],
+      crawlDelay: 1,
     },
     sitemap: "https://laveladazone.com/sitemap.xml",
   };
