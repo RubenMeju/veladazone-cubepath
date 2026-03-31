@@ -7,5 +7,5 @@ router.register("", PredictionViewSet, basename="prediction")
 
 urlpatterns = router.urls
 urlpatterns = [
-    path("predictions/cartel/<str:username>/", CartelPublicoView.as_view()),
+    path("cartel/<str:username>/", CartelPublicoView.as_view(), name="cartel-publico"),
 ] + router.urls

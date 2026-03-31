@@ -79,7 +79,7 @@ export function MiCartelContent() {
           <ShareButtons
             username={user.twitch_username}
             shareUrl={`https://laveladazone.com/mi-cartel/${user.twitch_username}`}
-          />{" "}
+          />
           <p className="text-gray-600 text-xs text-center">
             ¿Aún te faltan predicciones?{" "}
             <Link

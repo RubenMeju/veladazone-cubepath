@@ -24,9 +24,9 @@ async function getPredictions(username: string): Promise<Prediction[]> {
 export async function generateMetadata({
   params,
 }: {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }): Promise<Metadata> {
-  const { username } = params;
+  const { username } = await params;
   const ogImage = `https://laveladazone.com/api/og/cartel/${username}`;
 
   return {
@@ -61,9 +61,9 @@ export async function generateMetadata({
 export default async function CartelPublicoPage({
   params,
 }: {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }) {
-  const { username } = params;
+  const { username } = await params;
   const predictions = await getPredictions(username);
 
   return (

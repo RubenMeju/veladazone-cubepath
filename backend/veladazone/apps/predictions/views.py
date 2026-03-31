@@ -358,15 +358,20 @@ class ArgumentViewSet(viewsets.ModelViewSet):
 
 
 class CartelPublicoView(generics.ListAPIView):
-    """Predicciones públicas de un usuario por username — sin auth."""
-
     serializer_class = PredictionSerializer
-    permission_classes = []  # público
+    permission_classes = []  # público, sin auth
 
     def get_queryset(self):
         username = self.kwargs["username"]
         return (
-            Prediction.objects.filter(user__twitch_username=username, fight__edition=6)
-            .select_related("fight__fighter1", "fight__fighter2", "predicted_winner")
+            Prediction.objects.filter(
+                user__twitch_username__iexact=username,  # case-insensitive
+                fight__edition=6,
+            )
+            .select_related(
+                "fight__fighter1",
+                "fight__fighter2",
+                "predicted_winner",
+            )
             .order_by("-fight__is_main_event", "fight__order")
         )
