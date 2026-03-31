@@ -48,7 +48,7 @@ export async function StatsData({ edition }: { edition: number }) {
             {fighters.length} participantes
           </span>
         </div>
-        <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-6">
           {fighters.map((fighter: Fighter) => (
             <FighterCard key={fighter.id} fighter={fighter} />
           ))}

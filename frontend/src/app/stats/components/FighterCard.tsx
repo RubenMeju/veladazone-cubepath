@@ -116,7 +116,7 @@ export function FighterCard({ fighter }: { fighter: Fighter }) {
             onClick={() => setShowModal(false)}
           />
 
-          <div className="relative bg-[#0d0d0d] border border-white/10 w-full sm:max-w-96 md:max-w-112.5 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="relative w-full mx-auto max-w-xl md:w-1/2 lg:w:1/3 bg-[#0d0d0d] border border-white/10 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="h-1 w-full bg-linear-to-r from-transparent via-[#e63946] to-transparent opacity-50" />
             <div className="p-6 md:p-8">
               <div className="flex justify-between items-center mb-5">
