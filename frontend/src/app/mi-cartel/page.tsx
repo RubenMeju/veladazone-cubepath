@@ -18,5 +18,9 @@ const MiCartelContent = dynamic(
 );
 
 export default function MiCartelPage() {
-  return <MiCartelContent />;
+  return (
+    <div className="min-h-[80vh]">
+      <MiCartelContent />
+    </div>
+  );
 }

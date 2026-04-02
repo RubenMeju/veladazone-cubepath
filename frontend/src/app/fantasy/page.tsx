@@ -21,5 +21,9 @@ const FantasyContent = dynamic(
 );
 
 export default function FantasyPage() {
-  return <FantasyContent />;
+  return (
+    <div className="min-h-[80vh]">
+      <FantasyContent />
+    </div>
+  );
 }
