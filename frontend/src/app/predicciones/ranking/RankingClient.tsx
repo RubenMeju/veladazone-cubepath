@@ -90,8 +90,9 @@ export function RankingClient({ initialEntries, initialNextOffset }: Props) {
       {top3.length > 0 && (
         <div className="grid md:grid-cols-3 gap-4">
           {top3.map((entry, idx) => (
-            <div
+            <Link
               key={entry.username}
+              href={`/perfil/${entry.username}`}
               className={`relative rounded-2xl border p-5 flex flex-col items-center text-center
                 transition-all duration-500 ease-out
                 hover:-translate-y-1 hover:scale-[1.02]
@@ -135,7 +136,7 @@ export function RankingClient({ initialEntries, initialNextOffset }: Props) {
               <div className="text-gray-500 text-xs">
                 {entry.correct}/{entry.total} aciertos
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}
