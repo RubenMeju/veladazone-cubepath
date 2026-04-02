@@ -19,6 +19,13 @@ interface Props {
 const medals = ["🥇", "🥈", "🥉"];
 
 export function RankingClient({ initialEntries, initialNextOffset }: Props) {
+  console.log(
+    "initialEntries:",
+    initialEntries.length,
+    "initialNextOffset:",
+    initialNextOffset,
+  );
+
   const me = useAuthStore((s) => s.user) as User | null;
   const myTwitchName = me ? me.twitch_username || me.username : null;
 
