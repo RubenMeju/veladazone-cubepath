@@ -151,7 +151,7 @@ class PublicProfileView(APIView):
 
     def get(self, request, username):
         try:
-            user = User.objects.get(twitch_username=username)
+            user = User.objects.get(twitch_username__iexact=username)
         except User.DoesNotExist:
             return Response({"error": "Usuario no encontrado"}, status=404)
 
