@@ -356,6 +356,24 @@ class ArgumentViewSet(viewsets.ModelViewSet):
         serializer = ArgumentReplySerializer(reply, context={"request": request})
         return Response(serializer.data, status=201)
 
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def vote(self, request: DRFRequest, pk: Optional[int] = None) -> Response:
+        argument = self.get_object()
+        user = request.user
+
+        existing_vote = ArgumentVote.objects.filter(
+            user=user, argument=argument
+        ).first()
+
+        if existing_vote:
+            # quitar voto (toggle)
+            existing_vote.delete()
+            return Response({"voted": False})
+        else:
+            # crear voto
+            ArgumentVote.objects.create(user=user, argument=argument)
+            return Response({"voted": True})
+
 
 class CartelPublicoView(generics.ListAPIView):
     serializer_class = PredictionSerializer
