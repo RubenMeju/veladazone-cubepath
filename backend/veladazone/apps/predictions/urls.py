@@ -6,9 +6,13 @@ router = DefaultRouter()
 router.register("", PredictionViewSet, basename="prediction")
 
 urlpatterns = [
+    # path(
+    #     "api/v1/predictions/arguments/",
+    #     include("veladazone.apps.predictions.argument_urls"),
+    # ),
     path(
-        "api/v1/predictions/arguments/",
-        include("veladazone.apps.predictions.argument_urls"),
+        "cartel/<str:username>/",
+        CartelPublicoView.as_view(),
+        name="cartel-publico",
     ),
-    path("cartel/<str:username>/", CartelPublicoView.as_view(), name="cartel-publico"),
 ] + router.urls
