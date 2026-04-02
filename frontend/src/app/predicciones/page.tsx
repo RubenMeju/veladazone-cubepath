@@ -105,6 +105,7 @@ export default function PrediccionesPage() {
             "@type": "Event",
             name: "Predicciones La Velada del Año 6",
             startDate: "2026-07-25T20:00:00+02:00",
+            endDate: "2026-07-25T23:00:00+02:00", // ejemplo de fin
             location: {
               "@type": "Place",
               name: "VeladaZone",
@@ -113,6 +114,23 @@ export default function PrediccionesPage() {
             description:
               "Haz tus predicciones de los combates de La Velada del Año 6 y compite con la comunidad.",
             url: "https://laveladazone.com/predicciones",
+            performer: [
+              { "@type": "Person", name: "Luchador 1" },
+              { "@type": "Person", name: "Luchador 2" },
+            ],
+            organizer: {
+              "@type": "Organization",
+              name: "VeladaZone",
+              url: "https://laveladazone.com",
+            },
+            offers: {
+              "@type": "Offer",
+              url: "https://laveladazone.com/entradas",
+              price: "0",
+              priceCurrency: "EUR",
+              availability: "https://schema.org/InStock",
+            },
+            eventStatus: "https://schema.org/EventScheduled",
           }),
         }}
       />

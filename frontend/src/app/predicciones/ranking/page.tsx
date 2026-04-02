@@ -65,8 +65,8 @@ export default async function RankingPage() {
     console.warn("No se pudo obtener el leaderboard en SSR:", err);
   }
 
-  // Generar JSON-LD de tipo Leaderboard
-  const jsonLd = {
+  // JSON-LD para el ranking
+  const rankingJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Ranking Global · VeladaZone",
@@ -81,12 +81,52 @@ export default async function RankingPage() {
     })),
   };
 
+  // JSON-LD para el evento
+  const eventJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: "Predicciones La Velada del Año 6",
+    startDate: "2026-07-25T20:00:00+02:00",
+    endDate: "2026-07-25T23:00:00+02:00",
+    location: {
+      "@type": "Place",
+      name: "VeladaZone",
+      address: "España",
+    },
+    description:
+      "Haz tus predicciones de los combates de La Velada del Año 6 y compite con la comunidad.",
+    url: "https://laveladazone.com/predicciones",
+    performer: [
+      { "@type": "Person", name: "Luchador 1" },
+      { "@type": "Person", name: "Luchador 2" },
+    ],
+    organizer: {
+      "@type": "Organization",
+      name: "VeladaZone",
+      url: "https://laveladazone.com",
+    },
+    offers: {
+      "@type": "Offer",
+      url: "https://laveladazone.com/entradas",
+      price: "0",
+      priceCurrency: "EUR",
+      availability: "https://schema.org/InStock",
+    },
+    eventStatus: "https://schema.org/EventScheduled",
+  };
+
   return (
     <>
-      {/* JSON-LD para rich snippets */}
+      {/* JSON-LD para el evento */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }}
+      />
+
+      {/* JSON-LD para el ranking */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(rankingJsonLd) }}
       />
 
       <div className="page-container">
