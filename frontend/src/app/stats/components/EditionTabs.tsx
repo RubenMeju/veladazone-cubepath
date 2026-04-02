@@ -19,7 +19,7 @@ export default function EditionTabs({
         <button
           key={num}
           onClick={() => handleChange(num)}
-          className={`relative flex-shrink-0 px-5 py-2.5 rounded-lg font-bebas text-lg tracking-wider transition-all duration-150 overflow-hidden ${
+          className={`relative flex-shrink-0 px-5 py-2.5 rounded-lg font-bebas text-lg tracking-wider transition-all duration-150 overflow-hidden cursor-pointer ${
             selectedEdition === num
               ? "bg-[#e63946] text-white"
               : "bg-[#0d0d0d] text-gray-500 hover:text-white border border-white/5 hover:border-white/10"
