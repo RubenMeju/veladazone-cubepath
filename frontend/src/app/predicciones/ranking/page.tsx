@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getLeaderboard } from "@/lib/api.server";
 import { RankingClient } from "./RankingClient";
 import { LeaderboardEntry } from "@/types";
