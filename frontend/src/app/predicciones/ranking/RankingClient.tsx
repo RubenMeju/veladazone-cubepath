@@ -30,13 +30,13 @@ export function RankingClient({ initialEntries, initialNextOffset }: Props) {
   const myTwitchName = me ? me.twitch_username || me.username : null;
 
   const [entries, setEntries] = useState<LeaderboardEntry[]>(initialEntries);
-  const [hasMore, setHasMore] = useState(initialNextOffset != null);
+  const [hasMore, setHasMore] = useState(!!initialNextOffset);
   const [isFetching, setIsFetching] = useState(false);
 
   const observerElem = useRef<HTMLDivElement>(null);
   const offsetRef = useRef(initialNextOffset ?? 0);
   const isFetchingRef = useRef(false);
-  const hasMoreRef = useRef(initialNextOffset != null);
+  const hasMoreRef = useRef(!!initialNextOffset);
 
   const fetchPage = useCallback(async () => {
     if (isFetchingRef.current || !hasMoreRef.current) return;

@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const data = await getLeaderboard({ limit: 50, offset: 0 });
     initial = {
       results: data.results ?? [],
-      nextOffset: data.nextOffset ?? 0,
+      nextOffset: data.nextOffset
     };
   } catch {
     initial.results = [];
