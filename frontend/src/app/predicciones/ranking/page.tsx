@@ -11,9 +11,9 @@ const BASE_URL = "https://laveladazone.com/predicciones/ranking";
 // Metadata dinámico y JSON-LD para SEO
 // ---------------------------------------------------------------------------
 export async function generateMetadata(): Promise<Metadata> {
-  let initial: { results: LeaderboardEntry[]; nextOffset: number } = {
+  let initial: { results: LeaderboardEntry[]; nextOffset?: number } = {
     results: [],
-    nextOffset: 0,
+    nextOffset: undefined,
   };
 
   try {
@@ -52,16 +52,16 @@ export async function generateMetadata(): Promise<Metadata> {
 // Server Component
 // ---------------------------------------------------------------------------
 export default async function RankingPage() {
-  let initial: { results: LeaderboardEntry[]; nextOffset: number } = {
+  let initial: { results: LeaderboardEntry[]; nextOffset?: number } = {
     results: [],
-    nextOffset: 0,
+    nextOffset: undefined,
   };
 
   try {
     const data = await getLeaderboard({ limit: 50, offset: 0 });
     initial = {
       results: data.results ?? [],
-      nextOffset: data.nextOffset ?? 0,
+      nextOffset: data.nextOffset, // puede ser undefined — está bien
     };
   } catch (err) {
     console.warn("No se pudo obtener el leaderboard en SSR:", err);
