@@ -66,7 +66,7 @@ export function DNAPredictor() {
         {!revealed ? (
           <button
             onClick={handleReveal}
-            className="w-full bg-[#f4a261] hover:bg-[#e8943a] text-black font-bebas text-lg tracking-widest py-3 rounded-xl transition-colors"
+            className="w-full bg-[#f4a261] hover:bg-[#e8943a] text-black font-bebas text-lg tracking-widest py-3 rounded-xl transition-colors cursor-pointer"
           >
             REVELAR MI ADN
           </button>

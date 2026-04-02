@@ -119,7 +119,7 @@ export function DebateSection({
       {/* Trigger */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-white/5 hover:border-white/10 hover:bg-white/[0.02] transition-all text-xs text-gray-500 hover:text-gray-300"
+        className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-white/5 hover:border-white/10 hover:bg-white/[0.02] transition-all text-xs text-gray-500 hover:text-gray-300 cursor-pointer"
       >
         <span className="flex items-center gap-2">
           <span>💬</span>

@@ -100,7 +100,7 @@ export function FighterCard({ fighter }: { fighter: Fighter }) {
             <button
               onClick={handleAnalysis}
               disabled={loading}
-              className="w-full py-2.5 rounded-lg border border-white/10 bg-white/5 text-gray-400 text-[10px] font-bold uppercase tracking-widest hover:bg-[#e63946] hover:text-white transition-all active:scale-95 disabled:opacity-50"
+              className="w-full py-2.5 rounded-lg border border-white/10 bg-white/5 text-gray-400 text-[10px] font-bold uppercase tracking-widest hover:bg-[#e63946] hover:text-white transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
             >
               {loading ? "Analizando..." : "🤖 Análisis IA"}
             </button>
@@ -128,7 +128,7 @@ export function FighterCard({ fighter }: { fighter: Fighter }) {
                 </div>
                 <button
                   onClick={() => setShowModal(false)}
-                  className="text-gray-500 hover:text-white transition-colors p-1"
+                  className="text-gray-500 hover:text-white transition-colors p-1 cursor-pointer"
                 >
                   <span className="text-xl leading-none">✕</span>
                 </button>
@@ -146,7 +146,7 @@ export function FighterCard({ fighter }: { fighter: Fighter }) {
 
               <button
                 onClick={() => setShowModal(false)}
-                className="w-full mt-6 py-3.5 bg-[#e63946] text-white font-black rounded-xl uppercase text-[10px] tracking-widest hover:bg-[#ff4d5a] transition-all active:scale-95"
+                className="w-full mt-6 py-3.5 bg-[#e63946] text-white font-black rounded-xl uppercase text-[10px] tracking-widest hover:bg-[#ff4d5a] transition-all active:scale-95 cursor-pointer"
               >
                 Cerrar Reporte
               </button>

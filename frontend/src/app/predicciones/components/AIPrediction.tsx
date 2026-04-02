@@ -50,7 +50,7 @@ export function AIPrediction({ fights }: { fights?: Fight[] }) {
             <button
               key={fight.id}
               onClick={() => setSelectedFightId(fight.id)}
-              className={`relative text-left text-xs px-3 py-2 rounded-lg transition-all duration-150 border overflow-hidden ${
+              className={`relative text-left text-xs px-3 py-2 rounded-lg transition-all duration-150 border overflow-hidden cursor-pointer ${
                 selectedFightId === fight.id
                   ? "border-[#9146FF]/40 bg-[#9146FF]/8 text-white"
                   : "border-white/5 text-gray-500 hover:text-gray-300 hover:border-white/10 hover:bg-white/2"

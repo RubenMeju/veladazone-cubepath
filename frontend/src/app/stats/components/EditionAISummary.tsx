@@ -23,7 +23,7 @@ export function EditionAISummary({ editionNumber }: { editionNumber: number }) {
       {!requested ? (
         <button
           onClick={() => setRequested(true)}
-          className="w-full relative overflow-hidden bg-[#0d0d0d] border border-[#f4a261]/20 hover:border-[#f4a261]/40 rounded-xl px-5 py-3 transition-all group"
+          className="w-full relative overflow-hidden bg-[#0d0d0d] border border-[#f4a261]/20 hover:border-[#f4a261]/40 rounded-xl px-5 py-3 transition-all group cursor-pointer"
         >
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#f4a261_0%,_transparent_70%)] opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none" />
           <div className="flex items-center justify-center gap-2">

@@ -45,7 +45,7 @@ export function CreateJoinLeague({
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
               activeTab === tab
                 ? "bg-[#e63946] text-white"
                 : "bg-[#0f0f0f] text-gray-400 hover:text-white"
@@ -85,7 +85,7 @@ export function CreateJoinLeague({
               })
             }
             disabled={!newLeagueName.trim() || createMutation.isPending}
-            className="bg-[#e63946] hover:bg-[#c1121f] disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition-colors"
+            className="bg-[#e63946] hover:bg-[#c1121f] disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition-colors cursor-pointer"
           >
             {createMutation.isPending ? "Creando..." : "Crear liga"}
           </button>

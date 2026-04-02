@@ -91,7 +91,7 @@ export function ArgumentCard({
           {!isOwn && currentUsername && (
             <button
               onClick={() => setShowReply((v) => !v)}
-              className="text-xs font-semibold text-gray-500 hover:text-[#9146FF] transition-colors"
+              className="text-xs font-semibold text-gray-500 hover:text-[#9146FF] transition-colors cursor-pointer"
             >
               💬 Responder
             </button>
