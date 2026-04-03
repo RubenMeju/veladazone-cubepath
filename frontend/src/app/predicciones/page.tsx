@@ -151,6 +151,9 @@ export default function PrediccionesPage() {
             name: "La Velada del Año 6",
             startDate: "2026-07-25T20:00:00+02:00",
             endDate: "2026-07-26T00:00:00+02:00",
+            eventStatus: "https://schema.org/EventScheduled",
+            eventAttendanceMode:
+              "https://schema.org/OfflineEventAttendanceMode",
             location: {
               "@type": "Place",
               name: "Estadio de La Cartuja",
@@ -160,8 +163,9 @@ export default function PrediccionesPage() {
                 addressCountry: "ES",
               },
             },
+            image: ["https://laveladazone.com/og-image.webp"],
             description:
-              "La Velada del Año 6 es el evento de boxeo de creadores de contenido organizado por Ibai Llanos. Haz tus predicciones en VeladaZone y compite con la comunidad.",
+              "Evento de boxeo de creadores organizado por Ibai Llanos. Haz tus predicciones en VeladaZone.",
             url: "https://laveladazone.com/predicciones",
             organizer: {
               "@type": "Person",
@@ -177,114 +181,14 @@ export default function PrediccionesPage() {
               { "@type": "Person", name: "Gero Arias" },
               { "@type": "Person", name: "Samy Rivers" },
               { "@type": "Person", name: "Roro" },
-              { "@type": "Person", name: "Marta Díaz" },
-              { "@type": "Person", name: "Tatiana Kaer" },
-              { "@type": "Person", name: "Lit Killah" },
-              { "@type": "Person", name: "Kidd Keo" },
-              { "@type": "Person", name: "Alondrissa" },
-              { "@type": "Person", name: "Angie Velasco" },
-              { "@type": "Person", name: "Clersss" },
-              { "@type": "Person", name: "Natalia MX" },
-              { "@type": "Person", name: "Fabiana Sevillano" },
-              { "@type": "Person", name: "La Parce" },
-              { "@type": "Person", name: "Edu Aguirre" },
-              { "@type": "Person", name: "Gastón Edul" },
             ],
-            subEvent: [
-              {
-                "@type": "Event",
-                name: "IlloJuan vs TheGrefg — Main Event",
-                description: "Main event masculino. Peso: 67 kg.",
-                performer: [
-                  { "@type": "Person", name: "IlloJuan" },
-                  { "@type": "Person", name: "TheGrefg" },
-                ],
-              },
-              {
-                "@type": "Event",
-                name: "Samy Rivers vs Roro — Main Event Femenino",
-                description: "Main event femenino. Peso: 52 kg.",
-                performer: [
-                  { "@type": "Person", name: "Samy Rivers" },
-                  { "@type": "Person", name: "Roro" },
-                ],
-              },
-              {
-                "@type": "Event",
-                name: "Plex vs Fernanfloo",
-                description:
-                  "Ambos con victorias previas en ediciones anteriores.",
-                performer: [
-                  { "@type": "Person", name: "Plex" },
-                  { "@type": "Person", name: "Fernanfloo" },
-                ],
-              },
-              {
-                "@type": "Event",
-                name: "Viruzz vs Gero Arias",
-                description:
-                  "Combate sin casco. Gero Arias aspira a los Juegos Olímpicos.",
-                performer: [
-                  { "@type": "Person", name: "Viruzz" },
-                  { "@type": "Person", name: "Gero Arias" },
-                ],
-              },
-              {
-                "@type": "Event",
-                name: "Lit Killah vs Kidd Keo",
-                description: "Duelo de raperos. Peso: 78 kg.",
-                performer: [
-                  { "@type": "Person", name: "Lit Killah" },
-                  { "@type": "Person", name: "Kidd Keo" },
-                ],
-              },
-              {
-                "@type": "Event",
-                name: "Marta Díaz vs Tatiana Kaer",
-                performer: [
-                  { "@type": "Person", name: "Marta Díaz" },
-                  { "@type": "Person", name: "Tatiana Kaer" },
-                ],
-              },
-              {
-                "@type": "Event",
-                name: "Alondrissa vs Angie Velasco",
-                description: "Streamers amigas que se enfrentan en el ring.",
-                performer: [
-                  { "@type": "Person", name: "Alondrissa" },
-                  { "@type": "Person", name: "Angie Velasco" },
-                ],
-              },
-              {
-                "@type": "Event",
-                name: "Clersss vs Natalia MX",
-                performer: [
-                  { "@type": "Person", name: "Clersss" },
-                  { "@type": "Person", name: "Natalia MX" },
-                ],
-              },
-              {
-                "@type": "Event",
-                name: "Fabiana Sevillano vs La Parce",
-                performer: [
-                  { "@type": "Person", name: "Fabiana Sevillano" },
-                  { "@type": "Person", name: "La Parce" },
-                ],
-              },
-              {
-                "@type": "Event",
-                name: "Edu Aguirre vs Gastón Edul",
-                description:
-                  "Periodistas defensores de Cristiano Ronaldo y Lionel Messi.",
-                performer: [
-                  { "@type": "Person", name: "Edu Aguirre" },
-                  { "@type": "Person", name: "Gastón Edul" },
-                ],
-              },
-            ],
-            eventStatus: "https://schema.org/EventScheduled",
-            eventAttendanceMode:
-              "https://schema.org/OfflineEventAttendanceMode",
+            offers: {
+              "@type": "Offer",
+              url: "https://www.twitch.tv/ibai",
+              price: "0",
+              priceCurrency: "EUR",
+              availability: "https://schema.org/InStock",
+            },
           }),
         }}
       />
