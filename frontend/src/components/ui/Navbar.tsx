@@ -9,8 +9,9 @@ import { TwitchLoginButton } from "./TwitchLoginButton";
 
 const navLinks = [
   { href: "/", label: "Inicio" },
-  { href: "/stats", label: "Stats" },
   { href: "/predicciones", label: "Predicciones" },
+  { href: "/predicciones/ranking", label: "🏆 Ranking" },
+  { href: "/stats", label: "Stats" },
   { href: "/fantasy", label: "Fantasy" },
   { href: "/mi-cartel", label: "🃏 Cartel" },
 ];
