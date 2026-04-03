@@ -16,23 +16,48 @@ import PrediccionesSkeleton from "./components/PrediccionesSkeleton";
 // Metadata dinámica + SEO
 // ---------------------------------------------------------------------------
 export async function generateMetadata(): Promise<Metadata> {
+  const title = "Predicciones · La Velada del Año 6";
+  const description =
+    "Predicciones de La Velada del Año 6: elige ganadores, compite con la comunidad y sube en el ranking global.";
+  const url = "https://laveladazone.com/predicciones";
+  const image = "https://laveladazone.com/og-image.png";
+
   return {
-    title: "Predicciones · VeladaZone",
-    description:
-      "Elige tu ganador en cada combate de La Velada del Año 6 y compite con la comunidad.",
+    title,
+    description,
+
+    keywords: [
+      "predicciones velada 2026",
+      "velada del año 6 predicciones",
+      "quien gana velada ibai",
+      "ranking velada del año",
+    ],
+
+    alternates: {
+      canonical: url,
+    },
+
     openGraph: {
-      title: "Predicciones · VeladaZone",
-      description:
-        "¿Quién ganará en La Velada del Año 6? Haz tus predicciones.",
-      url: "https://laveladazone.com/predicciones",
+      title,
+      description,
+      url,
       siteName: "VeladaZone",
       type: "website",
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: "Predicciones La Velada del Año 6",
+        },
+      ],
     },
+
     twitter: {
       card: "summary_large_image",
-      title: "Predicciones · VeladaZone",
-      description:
-        "¿Quién ganará en La Velada del Año 6? Haz tus predicciones.",
+      title,
+      description,
+      images: [image],
     },
   };
 }
@@ -125,13 +150,7 @@ export default function PrediccionesPage() {
               name: "VeladaZone",
               url: "https://laveladazone.com",
             },
-            offers: {
-              "@type": "Offer",
-              url: "https://laveladazone.com/entradas",
-              price: "0",
-              priceCurrency: "EUR",
-              availability: "https://schema.org/InStock",
-            },
+
             eventStatus: "https://schema.org/EventScheduled",
           }),
         }}

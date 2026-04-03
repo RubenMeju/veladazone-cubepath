@@ -1,29 +1,38 @@
-"use client";
+import type { Metadata } from "next";
+import { FantasyPageClient } from "./FantasyPageClient";
 
-import dynamic from "next/dynamic";
-
-// FantasyContent usa useAuthStore (localStorage) — no puede renderizarse en el servidor
-// dynamic con ssr:false evita el hydration mismatch
-const FantasyContent = dynamic(
-  () => import("./components/FantasyContent").then((m) => m.FantasyContent),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="mb-10">
-          <h1 className="font-bebas text-5xl md:text-7xl text-white tracking-wider mb-2">
-            FANTASY <span className="text-[#e63946]">LEAGUE</span>
-          </h1>
-        </div>
-      </div>
-    ),
+export const metadata: Metadata = {
+  title: "Fantasy League · La Velada del Año 6",
+  description:
+    "Crea o únete a una liga privada, compite con tus amigos prediciendo los ganadores de La Velada del Año 6.",
+  alternates: {
+    canonical: "https://laveladazone.com/fantasy",
   },
-);
+  openGraph: {
+    title: "Fantasy League · La Velada del Año 6",
+    description:
+      "Crea o únete a una liga privada y compite con tus amigos en La Velada del Año 6.",
+    url: "https://laveladazone.com/fantasy",
+    siteName: "VeladaZone",
+    type: "website",
+    images: [
+      {
+        url: "https://laveladazone.com/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Fantasy League · VeladaZone",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Fantasy League · La Velada del Año 6",
+    description:
+      "Crea o únete a una liga privada y compite con tus amigos en La Velada del Año 6.",
+    images: ["https://laveladazone.com/og-image.png"],
+  },
+};
 
 export default function FantasyPage() {
-  return (
-    <div className="min-h-[80vh]">
-      <FantasyContent />
-    </div>
-  );
+  return <FantasyPageClient />;
 }

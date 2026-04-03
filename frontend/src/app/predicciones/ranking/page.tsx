@@ -20,30 +20,54 @@ export async function generateMetadata(): Promise<Metadata> {
     const data = await getLeaderboard({ limit: 50, offset: 0 });
     initial = {
       results: data.results ?? [],
-      nextOffset: data.nextOffset
+      nextOffset: data.nextOffset,
     };
   } catch {
     initial.results = [];
   }
 
-  const topUser = initial.results[0]?.username ?? "VeladaZone";
+  const topUser = initial.results[0]?.username;
+  const hasLeader = Boolean(topUser);
+
+  const title = hasLeader
+    ? `${topUser} lidera el ranking de predicciones`
+    : "Ranking Global · La Velada del Año 6";
+  const description = hasLeader
+    ? `${topUser} lidera el ranking global de predicciones de La Velada del Año 6. Consulta la clasificación completa y compite con la comunidad.`
+    : "Consulta el ranking global de predicciones de La Velada del Año 6 y compite con la comunidad.";
+
+  const url = "https://laveladazone.com/predicciones/ranking";
+  const image = "https://laveladazone.com/og-image.png";
 
   return {
-    title: `Ranking Global · VeladaZone`,
-    description: `Consulta el ranking global de predicciones de La Velada del Año 6. ${topUser} lidera actualmente la clasificación.`,
-    openGraph: {
-      title: `Ranking Global · VeladaZone`,
-      description: `Consulta el ranking global de predicciones de La Velada del Año 6. ${topUser} lidera actualmente la clasificación.`,
-      type: "website",
-      url: BASE_URL,
+    title,
+    description,
+
+    alternates: {
+      canonical: url,
     },
+
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "VeladaZone",
+      type: "website",
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: "Ranking Global La Velada del Año 6",
+        },
+      ],
+    },
+
     twitter: {
       card: "summary_large_image",
-      title: `Ranking Global · VeladaZone`,
-      description: `Consulta el ranking global de predicciones de La Velada del Año 6.`,
-    },
-    alternates: {
-      canonical: BASE_URL,
+      title,
+      description,
+      images: [image],
     },
   };
 }
@@ -107,13 +131,7 @@ export default async function RankingPage() {
       name: "VeladaZone",
       url: "https://laveladazone.com",
     },
-    offers: {
-      "@type": "Offer",
-      url: "https://laveladazone.com/entradas",
-      price: "0",
-      priceCurrency: "EUR",
-      availability: "https://schema.org/InStock",
-    },
+
     eventStatus: "https://schema.org/EventScheduled",
   };
 

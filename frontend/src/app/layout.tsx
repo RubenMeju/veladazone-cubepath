@@ -24,48 +24,56 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://laveladazone.com"),
+
   title: {
     default: "VeladaZone — La Velada del Año 6",
     template: "%s | VeladaZone",
   },
+
   description:
     "Predice los ganadores de La Velada del Año 6, compite en el ranking global y comparte tu cartel. Login con Twitch.",
+
   manifest: "/manifest.json",
+
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "VeladaZone",
   },
+
   icons: {
     icon: "/icons/icon-192.png",
     apple: "/icons/icon-192.png",
   },
+
+  alternates: {
+    canonical: "/", // usa metadataBase
+  },
+
   openGraph: {
     type: "website",
     locale: "es_ES",
-    url: "https://laveladazone.com",
+    url: "/", // usa metadataBase
     siteName: "VeladaZone",
     title: "VeladaZone — La Velada del Año 6",
     description:
       "Predice los ganadores de La Velada del Año 6, compite en el ranking global y comparte tu cartel. Login con Twitch.",
     images: [
       {
-        url: "https://laveladazone.com/og-image.png",
+        url: "/og-image.png", // consistente y relativa
         width: 1200,
         height: 630,
         alt: "VeladaZone — La Velada del Año 6",
       },
     ],
   },
+
   twitter: {
     card: "summary_large_image",
     title: "VeladaZone — La Velada del Año 6",
     description:
       "Predice los ganadores de La Velada del Año 6, compite en el ranking global y comparte tu cartel.",
-    images: ["/og-image.webp"],
-  },
-  alternates: {
-    canonical: "https://laveladazone.com",
+    images: ["/og-image.png"], // unificado (antes mezclabas webp/png)
   },
 };
 

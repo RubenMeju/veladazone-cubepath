@@ -15,32 +15,44 @@ export async function generateMetadata({
   const params = await searchParams;
   const editionNumber = Number(params.edition) || 6;
 
-  const editions = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/fighters/editions/`,
-  ).then((res) => res.json());
+  let editionLabel = `Edición ${editionNumber}`;
 
-  const currentEdition = editions.find(
-    (e: Edition) => e.number === editionNumber,
-  );
+  try {
+    const editions = await fetch(
+      `${process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/fighters/editions/`,
+    ).then((res) => res.json());
 
-  const description = currentEdition
-    ? `Historial completo de la Velada del Año ${currentEdition.number} con combates y luchadores`
-    : "Historial completo de todas las ediciones de La Velada del Año";
+    const current = editions.find((e: Edition) => e.number === editionNumber);
+    if (current) editionLabel = `Edición ${current.number}`;
+  } catch {
+    // fallback al label por defecto
+  }
+
+  const title = `Stats & Historia · ${editionLabel}`;
+  const description = `Historial completo de la Velada del Año ${editionNumber}: combates, luchadores y resultados.`;
+  const url = `https://laveladazone.com/stats?edition=${editionNumber}`;
+  const image = "https://laveladazone.com/og-image.png";
 
   return {
-    title: currentEdition
-      ? `Stats & Historia | VeladaZone ${currentEdition.number}`
-      : "Stats & Historia | VeladaZone",
+    title,
     description,
+    alternates: { canonical: url },
     openGraph: {
-      title: currentEdition
-        ? `VeladaZone - Edición ${currentEdition.number}`
-        : "VeladaZone",
+      title,
       description,
+      url,
+      siteName: "VeladaZone",
+      type: "website",
+      images: [{ url: image, width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
     },
   };
 }
-
 export default async function StatsPage({
   searchParams,
 }: {

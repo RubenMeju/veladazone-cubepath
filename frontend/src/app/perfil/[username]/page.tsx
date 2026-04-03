@@ -19,16 +19,18 @@ export async function generateMetadata({
 
   try {
     const data = await serverFetch<ProfileData>(`/users/profile/${username}/`);
-    const title = `${data.display_name} · VeladaZone`;
+    const title = `${data.display_name}`; 
     const description = `${data.stats.badge.emoji} ${data.stats.badge.label} · ${data.stats.total} predicciones · ${data.stats.accuracy}% de acierto`;
+    const url = `https://laveladazone.com/perfil/${username}`;
 
     return {
       title,
       description,
+      alternates: { canonical: url }, 
       openGraph: {
         title,
         description,
-        url: `https://laveladazone.com/perfil/${username}`,
+        url,
         siteName: "VeladaZone",
         type: "profile",
         ...(data.avatar && {
@@ -44,7 +46,7 @@ export async function generateMetadata({
     };
   } catch {
     return {
-      title: "Perfil · VeladaZone",
+      title: "Perfil", // 👈 sin VeladaZone
       description: "Perfil de predictor en VeladaZone",
     };
   }
