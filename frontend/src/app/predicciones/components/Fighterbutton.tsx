@@ -17,7 +17,7 @@ export function FighterButton({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`group flex-1 relative overflow-hidden rounded-xl p-3 sm:p-5 text-center transition-all duration-200 min-w-0 cursor-pointer ${
+      className={`group flex-1 relative overflow-hidden rounded-xl p-3 sm:p-5 text-center transition-all duration-200 min-w-0 cursor-pointer w-full ${
         isSelected
           ? "bg-[#0d0d0d] border border-[#f4a261]/50"
           : "bg-[#0d0d0d] border border-white/5 hover:border-white/15"
