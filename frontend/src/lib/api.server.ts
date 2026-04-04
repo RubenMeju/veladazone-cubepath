@@ -103,11 +103,11 @@ export async function getMyPredictions(): Promise<{
   try {
     const [userRes, predsRes] = await Promise.all([
       fetch(`${SERVER_API_URL}/users/me/`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `JWT ${token}` },
         cache: "no-store",
       }),
       fetch(`${SERVER_API_URL}/predictions/`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `JWT ${token}` },
         cache: "no-store",
       }),
     ]);
