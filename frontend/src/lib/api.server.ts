@@ -6,7 +6,6 @@
  */
 
 import { LeaderboardEntry, OpponentProfile, Prediction, User } from "@/types";
-import { cookies } from "next/headers";
 
 const SERVER_API_URL = process.env.BACKEND_URL // Docker prod → http://backend:8000
   ? `${process.env.BACKEND_URL}/api/v1`
@@ -57,13 +56,14 @@ export async function getLeaderboard({
 
   return { results: data.results, nextOffset };
 }
+
 export async function getMyPredictions(): Promise<{
   user: User;
   predictions: Prediction[];
 } | null> {
   const isDev = process.env.NODE_ENV === "development";
 
-  // ── Dev: misma estrategia que api.ts (header x-dev-user) ─────────
+  // ── Dev: x-dev-user header ─────────
   if (isDev) {
     try {
       const [userRes, predsRes] = await Promise.all([
@@ -94,26 +94,19 @@ export async function getMyPredictions(): Promise<{
     }
   }
 
-  // ── Prod: cookie de sesión JWT ────────────────────────────────────
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
-  console.log("COOKIES:", cookieStore.getAll());
-  console.log("TOKEN:", token);
-  if (!token) return null;
-
+  // ── Prod: usar cookies HttpOnly ─────────
   try {
     const [userRes, predsRes] = await Promise.all([
       fetch(`${SERVER_API_URL}/users/me/`, {
-        headers: { Authorization: `JWT ${token}` },
         cache: "no-store",
+        credentials: "include", // <<<< importante
       }),
       fetch(`${SERVER_API_URL}/predictions/`, {
-        headers: { Authorization: `JWT ${token}` },
         cache: "no-store",
+        credentials: "include", // <<<< importante
       }),
     ]);
-    console.log("USER STATUS:", userRes.status);
-    console.log("PREDS STATUS:", predsRes.status);
+
     if (!userRes.ok || !predsRes.ok) return null;
 
     return {
@@ -131,14 +124,36 @@ export async function getMyPredictions(): Promise<{
 export async function getUserProfile(
   username: string,
 ): Promise<OpponentProfile | null> {
+  const isDev = process.env.NODE_ENV === "development";
+
+  // ── Dev: x-dev-user header ─────────
+  if (isDev) {
+    try {
+      const res = await fetch(`${SERVER_API_URL}/users/profile/${username}/`, {
+        headers: {
+          "Content-Type": "application/json",
+          "x-dev-user": "devuser",
+        },
+        cache: "no-store",
+      });
+      if (!res.ok) return null;
+      return res.json();
+    } catch (error) {
+      console.error("Error en getUserProfile (dev):", error);
+      return null;
+    }
+  }
+
+  // ── Prod: usar cookies HttpOnly ─────────
   try {
     const res = await fetch(`${SERVER_API_URL}/users/profile/${username}/`, {
       cache: "no-store",
+      credentials: "include", // <<<< importante para enviar cookies JWT
     });
     if (!res.ok) return null;
     return res.json();
   } catch (error) {
-    console.error("Error en getUserProfile:", error);
+    console.error("Error en getUserProfile (prod):", error);
     return null;
   }
 }
