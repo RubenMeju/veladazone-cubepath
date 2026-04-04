@@ -113,7 +113,8 @@ export async function getMyPredictions(): Promise<{
     ]);
 
     if (!userRes.ok || !predsRes.ok) return null;
-
+    console.log("USER STATUS:", userRes.status);
+    console.log("PREDS STATUS:", predsRes.status);
     return {
       user: await userRes.json(),
       predictions: await predsRes.json(),
