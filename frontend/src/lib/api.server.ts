@@ -4,7 +4,7 @@
  * Usa BACKEND_URL (red interna Docker) en vez de NEXT_PUBLIC_API_URL (browser).
  * Nunca importar desde Client Components.
  */
-
+import { cookies } from "next/headers";
 import { LeaderboardEntry, OpponentProfile, Prediction, User } from "@/types";
 
 const SERVER_API_URL = process.env.BACKEND_URL // Docker prod → http://backend:8000
@@ -57,57 +57,56 @@ export async function getLeaderboard({
   return { results: data.results, nextOffset };
 }
 
+/**
+ * Helper para obtener las cookies y headers de auth
+ */
+async function getAuthHeaders(): Promise<HeadersInit> {
+  const isDev = process.env.NODE_ENV === "development";
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  if (isDev) {
+    headers["x-dev-user"] = "devuser";
+  } else {
+    // En PROD, extraemos las cookies que el navegador envió a Next.js
+    const cookieStore = await cookies();
+    const cookieString = cookieStore.toString();
+    if (cookieString) {
+      headers["Cookie"] = cookieString;
+    }
+  }
+
+  return headers;
+}
+
 export async function getMyPredictions(): Promise<{
   user: User;
   predictions: Prediction[];
 } | null> {
-  const isDev = process.env.NODE_ENV === "development";
-
-  // ── Dev: x-dev-user header ─────────
-  if (isDev) {
-    try {
-      const [userRes, predsRes] = await Promise.all([
-        fetch(`${SERVER_API_URL}/users/me/`, {
-          headers: {
-            "Content-Type": "application/json",
-            "x-dev-user": "devuser",
-          },
-          cache: "no-store",
-        }),
-        fetch(`${SERVER_API_URL}/predictions/`, {
-          headers: {
-            "Content-Type": "application/json",
-            "x-dev-user": "devuser",
-          },
-          cache: "no-store",
-        }),
-      ]);
-
-      if (!userRes.ok || !predsRes.ok) return null;
-
-      return {
-        user: await userRes.json(),
-        predictions: await predsRes.json(),
-      };
-    } catch {
-      return null;
-    }
-  }
-
-  // ── Prod: usar cookies HttpOnly ─────────
   try {
+    const authHeaders = await getAuthHeaders();
+
     const [userRes, predsRes] = await Promise.all([
       fetch(`${SERVER_API_URL}/users/me/`, {
+        headers: authHeaders,
         cache: "no-store",
-        credentials: "include", // <<<< importante
       }),
       fetch(`${SERVER_API_URL}/predictions/`, {
+        headers: authHeaders,
         cache: "no-store",
-        credentials: "include", // <<<< importante
       }),
     ]);
 
-    if (!userRes.ok || !predsRes.ok) return null;
+    if (!userRes.ok || !predsRes.ok) {
+      console.error(
+        "Auth failed en getMyPredictions:",
+        userRes.status,
+        predsRes.status,
+      );
+      return null;
+    }
 
     return {
       user: await userRes.json(),
@@ -119,41 +118,21 @@ export async function getMyPredictions(): Promise<{
   }
 }
 
-// Nota: Para comparar, tu backend de Django debería incluir la lista de 'predictions'
-// en el serializer de este endpoint público.
 export async function getUserProfile(
   username: string,
 ): Promise<OpponentProfile | null> {
-  const isDev = process.env.NODE_ENV === "development";
-
-  // ── Dev: x-dev-user header ─────────
-  if (isDev) {
-    try {
-      const res = await fetch(`${SERVER_API_URL}/users/profile/${username}/`, {
-        headers: {
-          "Content-Type": "application/json",
-          "x-dev-user": "devuser",
-        },
-        cache: "no-store",
-      });
-      if (!res.ok) return null;
-      return res.json();
-    } catch (error) {
-      console.error("Error en getUserProfile (dev):", error);
-      return null;
-    }
-  }
-
-  // ── Prod: usar cookies HttpOnly ─────────
   try {
+    const authHeaders = await getAuthHeaders();
+
     const res = await fetch(`${SERVER_API_URL}/users/profile/${username}/`, {
+      headers: authHeaders,
       cache: "no-store",
-      credentials: "include", // <<<< importante para enviar cookies JWT
     });
+
     if (!res.ok) return null;
     return res.json();
   } catch (error) {
-    console.error("Error en getUserProfile (prod):", error);
+    console.error("Error en getUserProfile:", error);
     return null;
   }
 }
