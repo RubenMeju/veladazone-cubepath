@@ -114,12 +114,12 @@ export default async function CompararPage({ params }: PageProps) {
         </p>
 
         {/* Fighters row */}
-        <div className="relative z-10 w-full max-w-3xl flex items-center justify-between gap-4">
+        <div className="relative z-10 w-full flex flex-col md:flex-row items-center justify-center gap-6 px-4 md:px-0">
           {/* ME */}
-          <div className="flex-1 flex flex-col items-center gap-4 text-center">
+          <div className="flex-1 flex flex-col items-center gap-3 text-center">
             <div className="relative">
               <div className="absolute -inset-2 rounded-full bg-gradient-to-tr from-[#f4a261] to-[#e63946] opacity-40 blur-md" />
-              <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full border-2 border-[#f4a261]/60 overflow-hidden bg-[#111]">
+              <div className="relative w-20 h-20 md:w-32 md:h-32 rounded-full border-2 border-[#f4a261]/60 overflow-hidden bg-[#111]">
                 {me.avatar_url ? (
                   <img
                     src={me.avatar_url}
@@ -137,47 +137,51 @@ export default async function CompararPage({ params }: PageProps) {
               </div>
             </div>
             <div>
-              <h2 className="font-bebas text-2xl md:text-3xl text-white tracking-wide leading-none">
+              <h2 className="font-bebas text-xl md:text-3xl text-white tracking-wide leading-none">
                 {me.username}
               </h2>
-              <p className="text-[#f4a261]/60 text-xs font-bebas tracking-widest mt-1">
+              <p className="text-[#f4a261]/60 text-[10px] md:text-xs font-bebas tracking-widest mt-1">
                 ESQUINA ROJA
               </p>
             </div>
           </div>
 
           {/* VS + scoreboard */}
-          <div className="flex flex-col items-center gap-3 shrink-0">
+          <div className="flex flex-col items-center gap-2 md:gap-3 shrink-0">
             <div className="relative">
-              <div className="absolute inset-0 bg-[#e63946] blur-xl opacity-50 rounded-full scale-150" />
-              <div className="relative bg-[#e63946] text-white font-bebas text-3xl md:text-4xl px-4 py-2 rounded-xl border-2 border-white/10 shadow-[0_0_40px_rgba(230,57,70,0.5)]">
+              <div className="absolute inset-0 bg-[#e63946] blur-xl opacity-50 rounded-full scale-125" />
+              <div className="relative bg-[#e63946] text-white font-bebas text-2xl md:text-4xl px-3 md:px-4 py-1.5 md:py-2 rounded-xl border-2 border-white/10 shadow-[0_0_40px_rgba(230,57,70,0.5)]">
                 VS
               </div>
             </div>
-            <div className="flex items-center gap-2 text-center">
+            <div className="flex flex-wrap justify-center items-center gap-2 text-center mt-1">
               <div className="flex flex-col items-center">
-                <span className="font-bebas text-2xl text-[#f4a261] leading-none">
+                <span className="font-bebas text-xl md:text-2xl text-[#f4a261] leading-none">
                   {equalVotes}
                 </span>
-                <span className="text-[9px] text-white/20 uppercase tracking-widest font-bebas">
+                <span className="text-[8px] md:text-[9px] text-white/20 uppercase tracking-widest font-bebas">
                   iguales
                 </span>
               </div>
-              <span className="text-white/10 font-bebas text-lg">·</span>
+              <span className="text-white/10 font-bebas text-lg hidden md:inline">
+                ·
+              </span>
               <div className="flex flex-col items-center">
-                <span className="font-bebas text-2xl text-white/40 leading-none">
+                <span className="font-bebas text-xl md:text-2xl text-white/40 leading-none">
                   {noData}
                 </span>
-                <span className="text-[9px] text-white/20 uppercase tracking-widest font-bebas">
+                <span className="text-[8px] md:text-[9px] text-white/20 uppercase tracking-widest font-bebas">
                   sin rival
                 </span>
               </div>
-              <span className="text-white/10 font-bebas text-lg">·</span>
+              <span className="text-white/10 font-bebas text-lg hidden md:inline">
+                ·
+              </span>
               <div className="flex flex-col items-center">
-                <span className="font-bebas text-2xl text-[#e63946] leading-none">
+                <span className="font-bebas text-xl md:text-2xl text-[#e63946] leading-none">
                   {diffVotes}
                 </span>
-                <span className="text-[9px] text-white/20 uppercase tracking-widest font-bebas">
+                <span className="text-[8px] md:text-[9px] text-white/20 uppercase tracking-widest font-bebas">
                   difieren
                 </span>
               </div>
@@ -185,10 +189,10 @@ export default async function CompararPage({ params }: PageProps) {
           </div>
 
           {/* RIVAL */}
-          <div className="flex-1 flex flex-col items-center gap-4 text-center">
+          <div className="flex-1 flex flex-col items-center gap-3 text-center">
             <div className="relative">
               <div className="absolute -inset-2 rounded-full bg-gradient-to-tr from-gray-600 to-gray-800 opacity-40 blur-md" />
-              <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full border-2 border-white/20 overflow-hidden bg-[#111]">
+              <div className="relative w-20 h-20 md:w-32 md:h-32 rounded-full border-2 border-white/20 overflow-hidden bg-[#111]">
                 {opponent.avatar ? (
                   <img
                     src={opponent.avatar}
@@ -206,10 +210,10 @@ export default async function CompararPage({ params }: PageProps) {
               </div>
             </div>
             <div>
-              <h2 className="font-bebas text-2xl md:text-3xl text-white tracking-wide leading-none">
+              <h2 className="font-bebas text-xl md:text-3xl text-white tracking-wide leading-none">
                 {opponent.display_name ?? opponent.username}
               </h2>
-              <p className="text-white/30 text-xs font-bebas tracking-widest mt-1">
+              <p className="text-white/30 text-[10px] md:text-xs font-bebas tracking-widest mt-1">
                 {opponent.stats?.accuracy != null
                   ? `${opponent.stats.accuracy}% ACIERTO · ${opponent.stats.badge?.emoji} ${opponent.stats.badge?.label}`
                   : "ESQUINA AZUL"}
