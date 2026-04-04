@@ -98,6 +98,7 @@ export async function getMyPredictions(): Promise<{
   const cookieStore = await cookies();
   const token = cookieStore.get("access_token")?.value;
   console.log("COOKIES:", cookieStore.getAll());
+  console.log("TOKEN:", token);
   if (!token) return null;
 
   try {
