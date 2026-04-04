@@ -96,7 +96,7 @@ export async function getMyPredictions(): Promise<{
 
   // ── Prod: cookie de sesión JWT ────────────────────────────────────
   const cookieStore = await cookies();
-  const token = cookieStore.get("session")?.value;
+  const token = cookieStore.get("access_token")?.value;
   console.log("COOKIES:", cookieStore.getAll());
   if (!token) return null;
 
