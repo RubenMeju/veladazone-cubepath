@@ -39,7 +39,7 @@ export function MainEventTeaser() {
   const winner = pct1 > pct2 ? "fighter1" : pct2 > pct1 ? "fighter2" : null;
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-8">
+    <section className="w-full py-8">
       <div className="relative overflow-hidden rounded-2xl bg-[#0a0a0a]">
         {/* Línea superior roja */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#e63946] to-transparent" />

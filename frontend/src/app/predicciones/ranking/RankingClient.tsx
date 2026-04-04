@@ -185,27 +185,27 @@ export function RankingClient({ initialEntries, initialNextOffset }: Props) {
                   )}
                 </div>
 
-                <div className="flex flex-col min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-white font-bold text-sm sm:text-base truncate">
-                      {entry.username}
-                    </span>
+                <div className=" gap-1.5">
+                  <span className="text-white font-bold text-sm sm:text-base truncate">
+                    {entry.username}
+                  </span>
+                  <div className="flex gap-4">
                     {entry.badge && (
                       <span className="shrink-0 text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-white/10 text-gray-300 border border-white/5">
                         {entry.badge.label}
                       </span>
                     )}
-                  </div>
-                  <p className="text-[10px] sm:text-xs text-gray-400 font-medium">
-                    <span className="text-green-500/80">{entry.correct}</span>
-                    <span className="mx-1 text-gray-700">/</span>
-                    <span>
-                      {entry.total}{" "}
-                      <span className="hidden xs:inline text-gray-600 ml-0.5 text-[9px]">
-                        TOTALES
+                    <p className="text-[10px] sm:text-xs text-gray-400 font-medium">
+                      <span className="text-green-500/80">{entry.correct}</span>
+                      <span className="mx-1 text-gray-700">/</span>
+                      <span>
+                        {entry.total}{" "}
+                        <span className="hidden xs:inline text-gray-600 ml-0.5 text-[9px]">
+                          TOTALES
+                        </span>
                       </span>
-                    </span>
-                  </p>
+                    </p>
+                  </div>
                 </div>
               </Link>
 
