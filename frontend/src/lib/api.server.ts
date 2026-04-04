@@ -111,10 +111,10 @@ export async function getMyPredictions(): Promise<{
         cache: "no-store",
       }),
     ]);
-
-    if (!userRes.ok || !predsRes.ok) return null;
     console.log("USER STATUS:", userRes.status);
     console.log("PREDS STATUS:", predsRes.status);
+    if (!userRes.ok || !predsRes.ok) return null;
+
     return {
       user: await userRes.json(),
       predictions: await predsRes.json(),
