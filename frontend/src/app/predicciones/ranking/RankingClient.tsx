@@ -74,7 +74,7 @@ export function RankingClient({ initialEntries, initialNextOffset }: Props) {
   return (
     <div className="max-w-5xl mx-auto space-y-12 pb-32">
       {/* Buscador */}
-      <div className="relative max-w-md mx-auto group">
+      {/* <div className="relative max-w-md mx-auto group">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5 group-focus-within:text-[#f4a261] transition-colors" />
         <input
           type="text"
@@ -83,7 +83,7 @@ export function RankingClient({ initialEntries, initialNextOffset }: Props) {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-      </div>
+      </div> */}
 
       {/* Podio Visual */}
       {!searchQuery && top3.length > 0 && (
@@ -150,66 +150,95 @@ export function RankingClient({ initialEntries, initialNextOffset }: Props) {
           return (
             <div
               key={entry.username}
-              className={`group flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 transform hover:-translate-y-1
-                ${isMe ? "bg-[#f4a261]/10 border-[#f4a261]/40" : "bg-[#0a0a0a] border-white/5 hover:bg-[#111] hover:border-white/20"}`}
+              className={`group flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-2xl border transition-all duration-300 
+    ${
+      isMe
+        ? "bg-[#f4a261]/10 border-[#f4a261]/40 ring-1 ring-[#f4a261]/20"
+        : "bg-[#0a0a0a] border-white/5 hover:border-white/20 hover:bg-[#111] shadow-lg hover:shadow-white/5"
+    } hover:-translate-y-0.5 active:scale-[0.99]`}
             >
-              <div className="w-8 font-bebas text-xl text-gray-600 italic">
+              {/* Rank - Más compacto en móvil */}
+              <div className="w-6 sm:w-8 font-bebas text-lg sm:text-xl text-gray-500 italic shrink-0">
                 #{idx + (searchQuery ? 1 : 4)}
               </div>
 
               <Link
                 href={`/perfil/${entry.username}`}
-                className="flex items-center gap-3 flex-1 overflow-hidden"
+                className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0"
               >
-                {entry.avatar ? (
-                  <img
-                    src={entry.avatar}
-                    className="w-12 h-12 rounded-full border border-white/5 object-cover"
-                    alt=""
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full border border-white/5 bg-[#222] flex items-center justify-center">
-                    <UserIcon className="w-6 h-6 text-gray-600" />
-                  </div>
-                )}
-                <div className="truncate">
-                  <p className="text-white font-semibold flex items-center gap-2 truncate">
-                    {entry.username}
+                {/* Avatar con fallback mejorado */}
+                <div className="relative shrink-0">
+                  {entry.avatar ? (
+                    <img
+                      src={entry.avatar}
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-white/10 object-cover"
+                      alt={entry.username}
+                    />
+                  ) : (
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-white/10 bg-gradient-to-br from-[#222] to-[#111] flex items-center justify-center">
+                      <UserIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
+                    </div>
+                  )}
+                  {/* Indicador visual si es "Me" opcional */}
+                  {isMe && (
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#f4a261] rounded-full border-2 border-[#0a0a0a]" />
+                  )}
+                </div>
+
+                <div className="flex flex-col min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-white font-bold text-sm sm:text-base truncate">
+                      {entry.username}
+                    </span>
                     {entry.badge && (
-                      <span className="hidden sm:inline-block text-[10px] uppercase px-2 py-0.5 rounded bg-white/5 text-gray-400 border border-white/10">
+                      <span className="shrink-0 text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-white/10 text-gray-300 border border-white/5">
                         {entry.badge.label}
                       </span>
                     )}
-                  </p>
-                  <p className="text-[10px] md:text-xs text-gray-500">
-                    {entry.correct} aciertos · {entry.total} totales
+                  </div>
+                  <p className="text-[10px] sm:text-xs text-gray-400 font-medium">
+                    <span className="text-green-500/80">{entry.correct}</span>
+                    <span className="mx-1 text-gray-700">/</span>
+                    <span>
+                      {entry.total}{" "}
+                      <span className="hidden xs:inline text-gray-600 ml-0.5 text-[9px]">
+                        TOTALES
+                      </span>
+                    </span>
                   </p>
                 </div>
               </Link>
 
-              <div className="flex items-center gap-3 md:gap-6">
-                <div className="text-right">
-                  <p className="text-[#f4a261] font-bebas text-2xl md:text-3xl leading-none">
-                    {entry.accuracy}%
+              {/* Stats y Acciones */}
+              <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+                <div className="text-right flex flex-col items-end justify-center">
+                  <p className="text-[#f4a261] font-bebas text-2xl sm:text-3xl leading-none tracking-tight">
+                    {entry.accuracy}
+                    <span className="text-sm ml-0.5">%</span>
                   </p>
+                  <span className="text-[8px] text-[#f4a261]/50 font-bold tracking-widest hidden sm:block uppercase">
+                    PRECISIÓN
+                  </span>
                 </div>
 
-                {myName && !isMe && (
-                  <Link
-                    href={`/predicciones/ranking/comparar/${entry.username}`}
-                    className="p-3 rounded-xl bg-white/5 hover:bg-[#e63946] text-gray-400 hover:text-white transition-all active:scale-90"
-                    title="Duelo Directo"
-                  >
-                    <Swords className="w-5 h-5" />
-                  </Link>
-                )}
+                <div className="flex items-center gap-1 sm:gap-2">
+                  {myName && !isMe && (
+                    <Link
+                      href={`/predicciones/ranking/comparar/${entry.username}`}
+                      className="p-2 sm:p-2.5 rounded-xl bg-white/5 hover:bg-[#e63946] text-gray-500 hover:text-white transition-all active:scale-90 border border-white/5"
+                      title="Duelo Directo"
+                    >
+                      <Swords className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </Link>
+                  )}
 
-                <Link
-                  href={`/perfil/${entry.username}`}
-                  className="p-2 text-gray-700 hover:text-white transition-colors"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </Link>
+                  <Link
+                    href={`/perfil/${entry.username}`}
+                    className="p-1 sm:p-2 text-gray-600 hover:text-white transition-colors"
+                  >
+                    <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </Link>
+                </div>
               </div>
             </div>
           );
