@@ -18,6 +18,9 @@ interface OpponentPrediction {
   pick: string; // "Edu Aguirre"
   pick_flag: string; // "🇪🇸"
   is_correct: boolean | null;
+  user?: {
+    username: string;
+  };
 }
 
 // ── Helper de matching ────────────────────────────────────────────
