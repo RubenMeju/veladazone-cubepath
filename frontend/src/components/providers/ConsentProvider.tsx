@@ -5,6 +5,7 @@ import {
   useContext,
   useState,
   useCallback,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 
@@ -16,6 +17,29 @@ import {
   type ConsentState,
   type ConsentCategory,
 } from "@/lib/consent/consent-store";
+
+// ── Fuera del componente → referencias estables ───────────────────
+
+const DEFAULT_CONSENT: ConsentState = {
+  decided: false,
+  analytics: false,
+  marketing: false,
+};
+
+// React compara subscribe por referencia en cada render.
+// Si es inline (() => () => {}) crea una función nueva → bucle infinito.
+const noopSubscribe = () => () => {};
+
+let _snapshot: ConsentState | null = null;
+
+const getClientSnapshot = (): ConsentState => {
+  if (_snapshot === null) _snapshot = readConsent();
+  return _snapshot;
+};
+
+const getServerSnapshot = (): ConsentState => DEFAULT_CONSENT;
+
+// ── Context ───────────────────────────────────────────────────────
 
 interface ConsentContextValue {
   consent: ConsentState;
@@ -33,19 +57,33 @@ export function useConsent(): ConsentContextValue {
   return ctx;
 }
 
-export function ConsentProvider({ children }: { children: ReactNode }) {
-  const [consent, setConsent] = useState<ConsentState>(() => {
-    if (typeof window === "undefined") {
-      return { decided: false, analytics: false, marketing: false };
-    }
-    return readConsent();
-  });
+// ── Provider ──────────────────────────────────────────────────────
 
-  const acceptAll = useCallback(() => setConsent(storeAcceptAll()), []);
-  const rejectAll = useCallback(() => setConsent(storeRejectAll()), []);
+export function ConsentProvider({ children }: { children: ReactNode }) {
+  const storedConsent = useSyncExternalStore(
+    noopSubscribe, // ← referencia fija, sin recrearse
+    getClientSnapshot, // ← cachea en _snapshot, referencia estable
+    getServerSnapshot, // ← constante en SSR/hidratación
+  );
+
+  const [actionConsent, setActionConsent] = useState<ConsentState | null>(null);
+  const consent = actionConsent ?? storedConsent;
+
+  const acceptAll = useCallback(() => {
+    _snapshot = storeAcceptAll();
+    setActionConsent(_snapshot);
+  }, []);
+
+  const rejectAll = useCallback(() => {
+    _snapshot = storeRejectAll();
+    setActionConsent(_snapshot);
+  }, []);
+
   const acceptCustom = useCallback(
-    (categories: Partial<Record<ConsentCategory, boolean>>) =>
-      setConsent(storeAcceptCustom(categories)),
+    (categories: Partial<Record<ConsentCategory, boolean>>) => {
+      _snapshot = storeAcceptCustom(categories);
+      setActionConsent(_snapshot);
+    },
     [],
   );
 

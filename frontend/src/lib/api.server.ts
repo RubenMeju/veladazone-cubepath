@@ -5,7 +5,8 @@
  * Nunca importar desde Client Components.
  */
 
-import { LeaderboardEntry } from "@/types";
+import { LeaderboardEntry, OpponentProfile, Prediction, User } from "@/types";
+import { cookies } from "next/headers";
 
 const SERVER_API_URL = process.env.BACKEND_URL // Docker prod → http://backend:8000
   ? `${process.env.BACKEND_URL}/api/v1`
@@ -55,4 +56,87 @@ export async function getLeaderboard({
   const nextOffset = data.results.length === limit ? offset + limit : undefined;
 
   return { results: data.results, nextOffset };
+}
+export async function getMyPredictions(): Promise<{
+  user: User;
+  predictions: Prediction[];
+} | null> {
+  const isDev = process.env.NODE_ENV === "development";
+
+  // ── Dev: misma estrategia que api.ts (header x-dev-user) ─────────
+  if (isDev) {
+    try {
+      const [userRes, predsRes] = await Promise.all([
+        fetch(`${SERVER_API_URL}/users/me/`, {
+          headers: {
+            "Content-Type": "application/json",
+            "x-dev-user": "devuser",
+          },
+          cache: "no-store",
+        }),
+        fetch(`${SERVER_API_URL}/predictions/`, {
+          headers: {
+            "Content-Type": "application/json",
+            "x-dev-user": "devuser",
+          },
+          cache: "no-store",
+        }),
+      ]);
+
+      if (!userRes.ok || !predsRes.ok) return null;
+
+      return {
+        user: await userRes.json(),
+        predictions: await predsRes.json(),
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  // ── Prod: cookie de sesión JWT ────────────────────────────────────
+  const cookieStore = await cookies();
+  const token = cookieStore.get("session")?.value;
+
+  if (!token) return null;
+
+  try {
+    const [userRes, predsRes] = await Promise.all([
+      fetch(`${SERVER_API_URL}/users/me/`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      }),
+      fetch(`${SERVER_API_URL}/predictions/`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      }),
+    ]);
+
+    if (!userRes.ok || !predsRes.ok) return null;
+
+    return {
+      user: await userRes.json(),
+      predictions: await predsRes.json(),
+    };
+  } catch (error) {
+    console.error("Error en getMyPredictions:", error);
+    return null;
+  }
+}
+
+// Nota: Para comparar, tu backend de Django debería incluir la lista de 'predictions'
+// en el serializer de este endpoint público.
+export async function getUserProfile(
+  username: string,
+): Promise<OpponentProfile | null> {
+  try {
+    const res = await fetch(`${SERVER_API_URL}/users/profile/${username}/`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch (error) {
+    console.error("Error en getUserProfile:", error);
+    return null;
+  }
 }

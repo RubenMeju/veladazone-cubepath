@@ -1,242 +1,252 @@
 "use client";
 
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import Link from "next/link";
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/stores/authStore";
 import { LeaderboardEntry, User } from "@/types";
-import Link from "next/link";
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-
-interface LeaderboardPage {
-  results: LeaderboardEntry[];
-  nextOffset?: number | null;
-}
+import { Search, Swords, ChevronRight, User as UserIcon } from "lucide-react";
 
 interface Props {
   initialEntries: LeaderboardEntry[];
   initialNextOffset?: number | null;
 }
 
-const medals = ["🥇", "🥈", "🥉"];
-
 export function RankingClient({ initialEntries, initialNextOffset }: Props) {
-  console.log(
-    "initialEntries:",
-    initialEntries.length,
-    "initialNextOffset:",
-    initialNextOffset,
-  );
-
   const me = useAuthStore((s) => s.user) as User | null;
-  const myTwitchName = me ? me.twitch_username || me.username : null;
+  const myName = me?.twitch_username || me?.username;
 
-  const [entries, setEntries] = useState<LeaderboardEntry[]>(initialEntries);
+  const [entries, setEntries] = useState(initialEntries);
   const [hasMore, setHasMore] = useState(!!initialNextOffset);
   const [isFetching, setIsFetching] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const observerElem = useRef<HTMLDivElement>(null);
   const offsetRef = useRef(initialNextOffset ?? 0);
-  const isFetchingRef = useRef(false);
-  const hasMoreRef = useRef(!!initialNextOffset);
 
   const fetchPage = useCallback(async () => {
-    if (isFetchingRef.current || !hasMoreRef.current) return;
-
-    isFetchingRef.current = true;
+    if (isFetching || !hasMore || searchQuery) return;
     setIsFetching(true);
-
     try {
-      const res = await api.get<LeaderboardPage>(
-        `/predictions/leaderboard/?limit=50&offset=${offsetRef.current}`,
-      );
-
-      setEntries((prev) => [...prev, ...(res.results ?? [])]);
-
-      if (res.nextOffset == null) {
-        hasMoreRef.current = false;
-        setHasMore(false);
-      } else {
-        offsetRef.current = res.nextOffset;
+      const res = await api.get<{
+        results: LeaderboardEntry[];
+        nextOffset: number;
+      }>(`/predictions/leaderboard/?limit=50&offset=${offsetRef.current}`);
+      if (res.results) {
+        setEntries((prev) => [...prev, ...res.results]);
+        setHasMore(!!res.nextOffset);
+        offsetRef.current = res.nextOffset ?? 0;
       }
     } catch {
-      hasMoreRef.current = false;
       setHasMore(false);
     } finally {
-      isFetchingRef.current = false;
       setIsFetching(false);
     }
-  }, []);
+  }, [isFetching, hasMore, searchQuery]);
 
   useEffect(() => {
-    if (!observerElem.current || !hasMore) return;
-
-    const observer = new IntersectionObserver((obs) => {
-      if (obs[0].isIntersecting) fetchPage();
-    });
-
-    observer.observe(observerElem.current);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) fetchPage();
+      },
+      { threshold: 0.1 },
+    );
+    if (observerElem.current) observer.observe(observerElem.current);
     return () => observer.disconnect();
-  }, [fetchPage, hasMore]);
+  }, [fetchPage]);
 
-  const top3 = entries.slice(0, 3);
-  const rest = entries.slice(3);
+  const filteredEntries = useMemo(() => {
+    return entries.filter((e) =>
+      e.username.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+  }, [entries, searchQuery]);
 
+  const top3 = useMemo(() => entries.slice(0, 3), [entries]);
+  const rest = useMemo(() => filteredEntries.slice(3), [filteredEntries]);
   const myEntry = useMemo(
-    () => entries.find((e) => e.username === myTwitchName),
-    [entries, myTwitchName],
+    () => entries.find((e) => e.username === myName),
+    [entries, myName],
   );
+  const myPosition = entries.findIndex((e) => e.username === myName) + 1;
 
-  const myPosition = useMemo(() => {
-    if (!myTwitchName) return null;
-    const index = entries.findIndex((e) => e.username === myTwitchName);
-    return index >= 0 ? index + 1 : null;
-  }, [entries, myTwitchName]);
+  const podiumOrder = [top3[1], top3[0], top3[2]];
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* 🥇 TOP 3 */}
-      {top3.length > 0 && (
-        <div className="grid md:grid-cols-3 gap-4">
-          {top3.map((entry, idx) => (
-            <Link
-              key={entry.username}
-              href={`/perfil/${entry.username}`}
-              className={`relative rounded-2xl border p-5 flex flex-col items-center text-center
-                transition-all duration-500 ease-out
-                hover:-translate-y-1 hover:scale-[1.02]
-                ${
-                  idx === 0
-                    ? "bg-[#1a1a1a] border-[#f4a261]/40 shadow-[0_0_40px_rgba(244,162,97,0.15)]"
-                    : "bg-[#111] border-white/5 hover:border-[#e63946]/30"
-                }
-              `}
-            >
-              <div className="absolute -top-4 text-2xl">{medals[idx]}</div>
+    <div className="max-w-5xl mx-auto space-y-12 pb-32">
+      {/* Buscador */}
+      <div className="relative max-w-md mx-auto group">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5 group-focus-within:text-[#f4a261] transition-colors" />
+        <input
+          type="text"
+          placeholder="Busca un oponente..."
+          className="w-full bg-[#111] border border-white/10 rounded-full py-3 pl-12 pr-4 text-white focus:outline-none focus:border-[#f4a261] focus:ring-1 focus:ring-[#f4a261] transition-all"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
 
-              {entry.avatar ? (
-                <img
-                  src={entry.avatar}
-                  alt={entry.username}
-                  className="w-20 h-20 rounded-full mb-3 border border-white/10"
-                />
-              ) : (
-                <div className="w-20 h-20 rounded-full bg-[#2a2a2a] mb-3" />
-              )}
+      {/* Podio Visual */}
+      {!searchQuery && top3.length > 0 && (
+        <div className="grid grid-cols-3 items-end gap-2 md:gap-6 pt-10 px-2">
+          {podiumOrder.map((entry, idx) => {
+            if (!entry) return <div key={idx} />;
+            const isFirst = entry.username === top3[0].username;
+            const avatarSize = isFirst
+              ? "w-24 h-24 md:w-32 md:h-32"
+              : "w-16 h-16 md:w-24 md:h-24";
 
-              <div className="text-white font-medium">{entry.username}</div>
-
-              {entry.badge && (
-                <div
-                  className="text-[10px] mt-1 px-2 py-0.5 rounded-full"
-                  style={{
-                    color: entry.badge.color,
-                    backgroundColor: `${entry.badge.color}20`,
-                  }}
-                >
-                  {entry.badge.emoji} {entry.badge.label}
-                </div>
-              )}
-
-              <div className="font-bebas text-4xl text-[#f4a261] mt-3">
-                {entry.accuracy}%
-              </div>
-
-              <div className="text-gray-500 text-xs">
-                {entry.correct}/{entry.total} aciertos
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
-
-      {/* 📌 TU POSICIÓN */}
-      {myEntry && myPosition && (
-        <div className="sticky top-4 z-10">
-          <div className="rounded-xl border border-[#f4a261]/40 bg-[#f4a261]/10 p-3 flex items-center gap-4 backdrop-blur transition">
-            <span className="font-bebas text-lg text-[#f4a261]">
-              TU POSICIÓN
-            </span>
-            <span className="text-white font-medium">#{myPosition}</span>
-            <span className="text-white">{myEntry.username}</span>
-            <span className="ml-auto font-bebas text-xl text-[#f4a261]">
-              {myEntry.accuracy}%
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* 🧾 RESTO DEL RANKING */}
-      <div className="flex flex-col gap-3">
-        {rest.map((entry, idx) => {
-          const position = idx + 4;
-          return (
-            <Link
-              key={`${entry.username}-${idx}`}
-              href={`/perfil/${entry.username}`}
-              className={`group flex items-center gap-4 p-3 rounded-xl border
-                transition-all duration-300 ease-out
-                hover:-translate-y-[2px] hover:scale-[1.01]
-                ${
-                  entry.username === myTwitchName
-                    ? "border-[#f4a261]/40 bg-[#f4a261]/5"
-                    : "border-white/5 bg-[#0f0f0f] hover:bg-[#1a1a1a] hover:border-[#e63946]/30"
-                }
-              `}
-            >
-              <div className="w-10 text-center font-bebas text-xl text-gray-400 group-hover:text-white transition">
-                #{position}
-              </div>
-
-              {entry.avatar ? (
-                <img
-                  src={entry.avatar}
-                  alt={entry.username}
-                  className="w-10 h-10 rounded-full"
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-[#2a2a2a]" />
-              )}
-
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-white font-medium">
-                    {entry.username}
-                  </span>
-                  {entry.badge && (
-                    <span
-                      className="text-[10px] font-medium px-1.5 py-0.5 rounded-full"
-                      style={{
-                        color: entry.badge.color,
-                        backgroundColor: `${entry.badge.color}20`,
-                      }}
+            return (
+              <div
+                key={entry.username}
+                className="flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
+              >
+                <div className="relative mb-4 group">
+                  {entry.avatar ? (
+                    <img
+                      src={entry.avatar}
+                      className={`rounded-full border-4 transition-transform duration-500 group-hover:scale-110 object-cover
+                        ${avatarSize} ${isFirst ? "border-[#f4a261] shadow-[0_0_30px_rgba(244,162,97,0.4)]" : "border-gray-700 shadow-xl"}`}
+                      alt={entry.username}
+                    />
+                  ) : (
+                    <div
+                      className={`rounded-full border-4 bg-[#222] flex items-center justify-center
+                      ${avatarSize} ${isFirst ? "border-[#f4a261]" : "border-gray-700"}`}
                     >
-                      {entry.badge.emoji} {entry.badge.label}
-                    </span>
+                      <UserIcon className="text-gray-500 w-1/2 h-1/2" />
+                    </div>
                   )}
+                  <div
+                    className={`absolute -top-6 left-1/2 -translate-x-1/2 font-bebas text-2xl ${isFirst ? "text-[#f4a261]" : "text-gray-400"}`}
+                  >
+                    {entry.username === top3[0].username
+                      ? "🥇"
+                      : entry.username === top3[1].username
+                        ? "🥈"
+                        : "🥉"}
+                  </div>
                 </div>
-                <div className="text-gray-500 text-xs">
-                  {entry.correct}/{entry.total} correctas
+                <div
+                  className={`w-full rounded-t-2xl bg-linear-to-b from-[#1a1a1a] to-black/0 p-4 text-center border-t border-white/10
+                  ${isFirst ? "h-32 md:h-44 border-x border-[#f4a261]/20" : "h-24 md:h-32"}`}
+                >
+                  <p className="text-white font-bold truncate text-xs md:text-base mb-1">
+                    {entry.username}
+                  </p>
+                  <p className="text-[#f4a261] font-bebas text-2xl md:text-4xl leading-none">
+                    {entry.accuracy}%
+                  </p>
                 </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Lista Principal */}
+      <div className="flex flex-col gap-3 px-2">
+        {rest.map((entry, idx) => {
+          const isMe = entry.username === myName;
+          return (
+            <div
+              key={entry.username}
+              className={`group flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 transform hover:-translate-y-1
+                ${isMe ? "bg-[#f4a261]/10 border-[#f4a261]/40" : "bg-[#0a0a0a] border-white/5 hover:bg-[#111] hover:border-white/20"}`}
+            >
+              <div className="w-8 font-bebas text-xl text-gray-600 italic">
+                #{idx + (searchQuery ? 1 : 4)}
               </div>
 
-              <div className="font-bebas text-2xl text-[#f4a261]">
-                {entry.accuracy}%
+              <Link
+                href={`/perfil/${entry.username}`}
+                className="flex items-center gap-3 flex-1 overflow-hidden"
+              >
+                {entry.avatar ? (
+                  <img
+                    src={entry.avatar}
+                    className="w-12 h-12 rounded-full border border-white/5 object-cover"
+                    alt=""
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full border border-white/5 bg-[#222] flex items-center justify-center">
+                    <UserIcon className="w-6 h-6 text-gray-600" />
+                  </div>
+                )}
+                <div className="truncate">
+                  <p className="text-white font-semibold flex items-center gap-2 truncate">
+                    {entry.username}
+                    {entry.badge && (
+                      <span className="hidden sm:inline-block text-[10px] uppercase px-2 py-0.5 rounded bg-white/5 text-gray-400 border border-white/10">
+                        {entry.badge.label}
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-[10px] md:text-xs text-gray-500">
+                    {entry.correct} aciertos · {entry.total} totales
+                  </p>
+                </div>
+              </Link>
+
+              <div className="flex items-center gap-3 md:gap-6">
+                <div className="text-right">
+                  <p className="text-[#f4a261] font-bebas text-2xl md:text-3xl leading-none">
+                    {entry.accuracy}%
+                  </p>
+                </div>
+
+                {myName && !isMe && (
+                  <Link
+                    href={`/predicciones/ranking/comparar/${entry.username}`}
+                    className="p-3 rounded-xl bg-white/5 hover:bg-[#e63946] text-gray-400 hover:text-white transition-all active:scale-90"
+                    title="Duelo Directo"
+                  >
+                    <Swords className="w-5 h-5" />
+                  </Link>
+                )}
+
+                <Link
+                  href={`/perfil/${entry.username}`}
+                  className="p-2 text-gray-700 hover:text-white transition-colors"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </Link>
               </div>
-            </Link>
+            </div>
           );
         })}
 
-        {/* infinite scroll */}
-        <div
-          ref={observerElem}
-          className="text-center p-4 text-gray-500 text-sm"
-        >
-          {isFetching
-            ? "Cargando más..."
-            : hasMore
-              ? "Desplázate para cargar más"
-              : "Fin del ranking"}
+        <div ref={observerElem} className="py-20 flex justify-center">
+          {isFetching && (
+            <div className="w-6 h-6 border-2 border-[#f4a261] border-t-transparent rounded-full animate-spin" />
+          )}
         </div>
       </div>
+
+      {/* Tu posición Sticky */}
+      {myEntry && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-2xl z-50 animate-in fade-in slide-in-from-bottom-10 duration-1000 fill-mode-both">
+          <div className="bg-[#f4a261] text-black px-6 py-4 rounded-3xl shadow-[0_20px_60px_rgba(244,162,97,0.4)] flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="bg-black text-white font-bebas text-2xl px-4 py-1 rounded-2xl transform -rotate-2">
+                #{myPosition}
+              </div>
+              <div className="hidden xs:block">
+                <p className="text-[10px] uppercase font-black leading-none opacity-80 mb-1">
+                  Tu posición global
+                </p>
+                <p className="font-bold text-lg leading-none">
+                  ¡Sigue así, {myName}!
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="font-bebas text-4xl leading-none">
+                {myEntry.accuracy}%
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

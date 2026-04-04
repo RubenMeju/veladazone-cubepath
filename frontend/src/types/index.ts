@@ -102,3 +102,21 @@ export interface CommunityStats {
   fighter2_pct: number;
   total_votes: number;
 }
+
+export interface OpponentProfile {
+  username: string;
+  display_name: string;
+  avatar: string | null;
+  stats: {
+    accuracy: number;
+    total: number;
+    correct: number;
+    badge: { label: string; color: string; emoji: string };
+  };
+  predictions: {
+    fight: string;
+    pick: string;
+    pick_flag: string;
+    is_correct: boolean | null;
+  }[];
+}
