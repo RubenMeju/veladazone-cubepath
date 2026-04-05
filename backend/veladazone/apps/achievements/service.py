@@ -1,38 +1,14 @@
 """
-achievements/service.py
-────────────────────────────────────────────────────────────────
-Servicio centralizado para evaluar y otorgar logros.
-
-Uso desde cualquier view:
-    from veladazone.apps.achievements.service import check_achievements
-    new = check_achievements(user, trigger="prediction_created")
-    # new → lista de Achievement recién desbloqueados (para mostrar en UI)
-────────────────────────────────────────────────────────────────
+achievements/service.py  — v2 con 50 logros
 """
 
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from django.db.models import Count, Q
-
 from .models import Achievement, UserAchievement
 
 if TYPE_CHECKING:
-    from django.contrib.auth.models import AbstractBaseUser
-
-
-# ── Triggers disponibles ──────────────────────────────────────────────────────
-#
-#  prediction_created   → cuando el usuario hace o actualiza una predicción
-#  predictions_complete → cuando el usuario completa las 10 predicciones
-#  argument_created     → cuando publica un argumento
-#  argument_voted       → cuando alguien vota su argumento
-#  league_created       → cuando crea una Fantasy League
-#  league_joined        → cuando se une a una Fantasy League
-#  profile_visited      → cuando su perfil recibe visitas (pasar profile_views)
-#  login                → primer login / registro
-#
-# ─────────────────────────────────────────────────────────────────────────────
+    pass
 
 
 def _already_has(user, slug: str) -> bool:
@@ -40,7 +16,6 @@ def _already_has(user, slug: str) -> bool:
 
 
 def _award(user, slug: str) -> Achievement | None:
-    """Otorga el logro si existe y el usuario no lo tiene ya. Devuelve el Achievement o None."""
     if _already_has(user, slug):
         return None
     try:
@@ -52,24 +27,16 @@ def _award(user, slug: str) -> Achievement | None:
 
 
 def check_achievements(user, trigger: str, **ctx) -> list[Achievement]:
-    """
-    Evalúa qué logros deben desbloquearse para `user` dado el `trigger`.
-    Devuelve la lista de logros recién desbloqueados (puede estar vacía).
-    """
     new: list[Achievement] = []
 
-    # ── Lazy imports para evitar circulares ──────────────────────────────────
     from veladazone.apps.predictions.models import Prediction, Argument
     from veladazone.apps.fantasy.models import FantasyLeague
 
-    # ════════════════════════════════════════════════════════════════════════
-    #  LOGIN / REGISTRO
-    # ════════════════════════════════════════════════════════════════════════
+    # ── LOGIN ─────────────────────────────────────────────────────────────────
     if trigger == "login":
         if a := _award(user, "primer-login"):
             new.append(a)
 
-        # Early adopter: primeros 200 usuarios registrados
         from django.contrib.auth import get_user_model
 
         User = get_user_model()
@@ -77,72 +44,107 @@ def check_achievements(user, trigger: str, **ctx) -> list[Achievement]:
             if a := _award(user, "early-adopter"):
                 new.append(a)
 
-    # ════════════════════════════════════════════════════════════════════════
-    #  PREDICCIONES
-    # ════════════════════════════════════════════════════════════════════════
+        # Veterano V edición — registrado antes de una fecha concreta
+        from django.utils import timezone
+        import datetime
+
+        velada_vi_start = timezone.make_aware(datetime.datetime(2025, 6, 1))
+        if user.date_joined < velada_vi_start:
+            if a := _award(user, "veterano-v5"):
+                new.append(a)
+
+    # ── PREDICCIONES ──────────────────────────────────────────────────────────
     if trigger in ("prediction_created", "predictions_complete"):
         predictions = Prediction.objects.filter(user=user)
         total = predictions.count()
         correct = predictions.filter(is_correct=True).count()
         betrayals = sum(p.betrayal_count for p in predictions)
         edition_preds = predictions.filter(fight__edition__number=6)
+        edition_count = edition_preds.count()
 
-        # Primera predicción
         if total >= 1:
             if a := _award(user, "primera-prediccion"):
                 new.append(a)
 
-        # Cartel completo (10 predicciones en la edición actual)
-        if edition_preds.count() >= 10:
+        if edition_count >= 5:
+            if a := _award(user, "cinco-predicciones"):
+                new.append(a)
+
+        if edition_count >= 10:
             if a := _award(user, "cartel-completo"):
                 new.append(a)
 
-        # Precisión perfecta: 10/10 correctas
+        if correct >= 1:
+            if a := _award(user, "primera-victoria"):
+                new.append(a)
+
+        if correct >= 5:
+            if a := _award(user, "adivinador-serie"):
+                new.append(a)
+
         if total >= 10 and correct == total:
             if a := _award(user, "precision-perfecta"):
                 new.append(a)
 
-        # Oráculo: 8+ correctas con 80%+ accuracy
         if total > 0 and correct >= 8 and (correct / total) >= 0.8:
             if a := _award(user, "oraculo"):
                 new.append(a)
 
-        # Leal: cartel completo sin traiciones
-        if edition_preds.count() >= 10 and betrayals == 0:
+        if edition_count >= 10 and betrayals == 0:
             if a := _award(user, "leal"):
                 new.append(a)
 
-        # Traidor: 5+ traiciones acumuladas
         if betrayals >= 5:
             if a := _award(user, "traidor"):
                 new.append(a)
 
-        # Gran traidor: 10+ traiciones
         if betrayals >= 10:
             if a := _award(user, "gran-traidor"):
                 new.append(a)
 
-    # ════════════════════════════════════════════════════════════════════════
-    #  DEBATE / ARGUMENTOS
-    # ════════════════════════════════════════════════════════════════════════
+        # Underdog hunter: acertó 3+ predicciones donde votó contra la mayoría
+        if trigger == "predictions_complete":
+            underdog_correct = _count_underdog_correct(user, predictions)
+            if underdog_correct >= 3:
+                if a := _award(user, "underdog-hunter"):
+                    new.append(a)
+
+            # Vox Populi: siempre votó con la mayoría
+            community_picks, _ = _count_community_vs_underdog(user, predictions)
+            if total > 0 and community_picks == total:
+                if a := _award(user, "con-la-comunidad"):
+                    new.append(a)
+
+        # Racha de 3 consecutivas correctas
+        if _has_streak(predictions, 3):
+            if a := _award(user, "racha-3"):
+                new.append(a)
+
+    # ── ARGUMENTO CREADO ──────────────────────────────────────────────────────
     if trigger == "argument_created":
         arg_count = Argument.objects.filter(user=user).count()
 
         if arg_count >= 1:
             if a := _award(user, "primer-argumento"):
                 new.append(a)
-
         if arg_count >= 5:
             if a := _award(user, "debatidor"):
                 new.append(a)
-
+        if arg_count >= 10:
+            if a := _award(user, "diez-argumentos"):
+                new.append(a)
         if arg_count >= 20:
             if a := _award(user, "veterano-del-ring"):
                 new.append(a)
 
+    # ── REPLY CREADO ──────────────────────────────────────────────────────────
+    if trigger == "reply_created":
+        if a := _award(user, "primera-replica"):
+            new.append(a)
+
+    # ── VOTO RECIBIDO ─────────────────────────────────────────────────────────
     if trigger == "argument_voted":
-        # ctx["total_votes"] → votos totales acumulados en todos sus argumentos
-        from django.db.models import Sum
+        from django.db.models import Count
 
         total_votes = (
             Argument.objects.filter(user=user).aggregate(total=Count("argument_votes"))[
@@ -150,25 +152,28 @@ def check_achievements(user, trigger: str, **ctx) -> list[Achievement]:
             ]
             or 0
         )
-        # ctx puede traer el argumento específico para comprobar votos en uno solo
         argument = ctx.get("argument")
+
+        if total_votes >= 1:
+            if a := _award(user, "primer-voto-recibido"):
+                new.append(a)
+        if total_votes >= 20:
+            if a := _award(user, "veinte-votos"):
+                new.append(a)
+        if total_votes >= 50:
+            if a := _award(user, "influencer"):
+                new.append(a)
+        if total_votes >= 100:
+            if a := _award(user, "cien-votos"):
+                new.append(a)
+
         if argument:
             single_votes = argument.argument_votes.count()
             if single_votes >= 10:
                 if a := _award(user, "argumento-viral"):
                     new.append(a)
 
-        if total_votes >= 1:
-            if a := _award(user, "primer-voto-recibido"):
-                new.append(a)
-
-        if total_votes >= 50:
-            if a := _award(user, "influencer"):
-                new.append(a)
-
-    # ════════════════════════════════════════════════════════════════════════
-    #  FANTASY LEAGUES
-    # ════════════════════════════════════════════════════════════════════════
+    # ── LIGAS ─────────────────────────────────────────────────────────────────
     if trigger == "league_created":
         if a := _award(user, "creador-de-liga"):
             new.append(a)
@@ -190,19 +195,133 @@ def check_achievements(user, trigger: str, **ctx) -> list[Achievement]:
             if a := _award(user, "multijugador"):
                 new.append(a)
 
-    # ════════════════════════════════════════════════════════════════════════
-    #  PERFIL
-    # ════════════════════════════════════════════════════════════════════════
+    # ── PERFIL VISITADO ───────────────────────────────────────────────────────
     if trigger == "profile_visited":
         views = ctx.get("profile_views", 0)
         if views >= 10:
             if a := _award(user, "en-el-mapa"):
                 new.append(a)
+        if views >= 50:
+            if a := _award(user, "cincuenta-visitas"):
+                new.append(a)
         if views >= 100:
             if a := _award(user, "celebridad"):
+                new.append(a)
+        if views >= 200:
+            if a := _award(user, "doscientas-visitas"):
                 new.append(a)
         if views >= 500:
             if a := _award(user, "leyenda"):
                 new.append(a)
+
+    # ── DNA GENERADO ──────────────────────────────────────────────────────────
+    if trigger == "dna_generated":
+        if a := _award(user, "dna-generado"):
+            new.append(a)
+
+    # ── CARTEL COMPARTIDO ─────────────────────────────────────────────────────
+    if trigger == "cartel_shared":
+        if a := _award(user, "cartel-compartido"):
+            new.append(a)
+
+    # ── LOGROS META (se evalúan tras cualquier trigger) ───────────────────────
+    new += _check_meta_achievements(user)
+
+    return new
+
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+
+
+def _has_streak(predictions, n: int) -> bool:
+    """¿Hay N predicciones correctas consecutivas ordenadas por fecha?"""
+    ordered = list(
+        predictions.order_by("created_at").values_list("is_correct", flat=True)
+    )
+    streak = 0
+    for is_correct in ordered:
+        streak = streak + 1 if is_correct else 0
+        if streak >= n:
+            return True
+    return False
+
+
+def _count_community_vs_underdog(user, predictions):
+    """Devuelve (community_picks, underdog_picks) para el usuario."""
+    from veladazone.apps.predictions.models import Prediction as P
+
+    community = underdog = 0
+    for pred in predictions:
+        f1 = P.objects.filter(
+            fight=pred.fight, predicted_winner=pred.fight.fighter1
+        ).count()
+        f2 = P.objects.filter(
+            fight=pred.fight, predicted_winner=pred.fight.fighter2
+        ).count()
+        total = f1 + f2
+        if total == 0:
+            continue
+        picked = f1 if pred.predicted_winner == pred.fight.fighter1 else f2
+        if (picked / total) >= 0.5:
+            community += 1
+        else:
+            underdog += 1
+    return community, underdog
+
+
+def _count_underdog_correct(user, predictions):
+    """Cuántas veces acertó apostando contra la mayoría."""
+    from veladazone.apps.predictions.models import Prediction as P
+
+    count = 0
+    for pred in predictions.filter(is_correct=True):
+        f1 = P.objects.filter(
+            fight=pred.fight, predicted_winner=pred.fight.fighter1
+        ).count()
+        f2 = P.objects.filter(
+            fight=pred.fight, predicted_winner=pred.fight.fighter2
+        ).count()
+        total = f1 + f2
+        if total == 0:
+            continue
+        picked = f1 if pred.predicted_winner == pred.fight.fighter1 else f2
+        if (picked / total) < 0.5:
+            count += 1
+    return count
+
+
+def _check_meta_achievements(user) -> list[Achievement]:
+    """Logros que dependen de otros logros (meta-logros)."""
+    from veladazone.apps.achievements.models import UserAchievement
+
+    new = []
+
+    unlocked = UserAchievement.objects.filter(user=user).select_related("achievement")
+    unlocked_slugs = {ua.achievement.slug for ua in unlocked}
+    total_points = sum(ua.achievement.points for ua in unlocked)
+    unlocked_count = len(unlocked_slugs)
+
+    categories_with_achievements = {ua.achievement.category for ua in unlocked}
+    all_categories = {"predicciones", "debate", "social", "ligas", "especial"}
+
+    # Todoterreno: logro en cada categoría
+    if all_categories.issubset(categories_with_achievements):
+        if a := _award(user, "todo-en-uno"):
+            new.append(a)
+
+    # Triple dígito: 100 puntos
+    if total_points >= 100:
+        if a := _award(user, "cien-puntos"):
+            new.append(a)
+
+    # Coleccionista: 20 logros
+    if unlocked_count >= 20:
+        if a := _award(user, "coleccionista"):
+            new.append(a)
+
+    # Leyenda total: 40 logros
+    if unlocked_count >= 40:
+        if a := _award(user, "leyenda-total"):
+            new.append(a)
 
     return new

@@ -284,5 +284,374 @@
       "points": 75,
       "is_secret": false
     }
+  },
+
+  {
+    "model": "achievements.achievement",
+    "pk": 23,
+    "fields": {
+      "slug": "cinco-predicciones",
+      "name": "A medio camino",
+      "description": "Completaste 5 predicciones en la edición actual.",
+      "emoji": "🎲",
+      "category": "predicciones",
+      "points": 10,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 24,
+    "fields": {
+      "slug": "primera-victoria",
+      "name": "¡Acertaste!",
+      "description": "Tu primera predicción acertada.",
+      "emoji": "✅",
+      "category": "predicciones",
+      "points": 10,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 25,
+    "fields": {
+      "slug": "racha-3",
+      "name": "En racha",
+      "description": "3 predicciones correctas consecutivas.",
+      "emoji": "🔥",
+      "category": "predicciones",
+      "points": 20,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 26,
+    "fields": {
+      "slug": "underdog-hunter",
+      "name": "Cazador de underdogs",
+      "description": "Acertaste 3 predicciones donde apostaste contra la mayoría de la comunidad.",
+      "emoji": "🦊",
+      "category": "predicciones",
+      "points": 35,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 27,
+    "fields": {
+      "slug": "con-la-comunidad",
+      "name": "Vox Populi",
+      "description": "En todas tus predicciones votaste igual que la mayoría de la comunidad.",
+      "emoji": "🐑",
+      "category": "predicciones",
+      "points": 10,
+      "is_secret": true
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 28,
+    "fields": {
+      "slug": "adivinador-serie",
+      "name": "Clarividente",
+      "description": "Acertaste 5 o más predicciones en una edición.",
+      "emoji": "🧿",
+      "category": "predicciones",
+      "points": 25,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 29,
+    "fields": {
+      "slug": "sin-miedo-al-exito",
+      "name": "Sin miedo al éxito",
+      "description": "Fuiste el único usuario en predecir correctamente un combate.",
+      "emoji": "🦅",
+      "category": "predicciones",
+      "points": 50,
+      "is_secret": true
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 30,
+    "fields": {
+      "slug": "apostador-precoz",
+      "name": "Apostador precoz",
+      "description": "Completaste todas tus predicciones dentro de las primeras 24h desde que se abrió el cartel.",
+      "emoji": "⏰",
+      "category": "predicciones",
+      "points": 15,
+      "is_secret": false
+    }
+  },
+
+  {
+    "model": "achievements.achievement",
+    "pk": 31,
+    "fields": {
+      "slug": "diez-argumentos",
+      "name": "Orador",
+      "description": "Publicaste 10 argumentos en el debate.",
+      "emoji": "📢",
+      "category": "debate",
+      "points": 30,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 32,
+    "fields": {
+      "slug": "primera-replica",
+      "name": "La réplica",
+      "description": "Respondiste a un argumento de otro usuario por primera vez.",
+      "emoji": "↩️",
+      "category": "debate",
+      "points": 5,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 33,
+    "fields": {
+      "slug": "polemista",
+      "name": "Polémista",
+      "description": "Publicaste argumentos en favor de todos los luchadores de una edición.",
+      "emoji": "⚖️",
+      "category": "debate",
+      "points": 25,
+      "is_secret": true
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 34,
+    "fields": {
+      "slug": "voto-decisivo",
+      "name": "Voto decisivo",
+      "description": "Fuiste el décimo voto en un argumento (el que lo hizo viral).",
+      "emoji": "🗳️",
+      "category": "debate",
+      "points": 15,
+      "is_secret": true
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 35,
+    "fields": {
+      "slug": "veinte-votos",
+      "name": "Resonancia",
+      "description": "Tus argumentos acumularon 20 votos en total.",
+      "emoji": "📣",
+      "category": "debate",
+      "points": 20,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 36,
+    "fields": {
+      "slug": "cien-votos",
+      "name": "El altavoz",
+      "description": "Tus argumentos acumularon 100 votos en total.",
+      "emoji": "📡",
+      "category": "debate",
+      "points": 75,
+      "is_secret": false
+    }
+  },
+
+  {
+    "model": "achievements.achievement",
+    "pk": 37,
+    "fields": {
+      "slug": "lider-de-liga",
+      "name": "Líder de liga",
+      "description": "Quedaste primero en el ranking de una Fantasy League.",
+      "emoji": "🥇",
+      "category": "ligas",
+      "points": 40,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 38,
+    "fields": {
+      "slug": "liga-llena",
+      "name": "Liga llena",
+      "description": "Tu liga privada alcanzó 10 miembros.",
+      "emoji": "🎪",
+      "category": "ligas",
+      "points": 20,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 39,
+    "fields": {
+      "slug": "invitador",
+      "name": "El anfitirón",
+      "description": "Invitaste a 5 personas a tu liga usando el código de invitación.",
+      "emoji": "📨",
+      "category": "ligas",
+      "points": 15,
+      "is_secret": false
+    }
+  },
+
+  {
+    "model": "achievements.achievement",
+    "pk": 40,
+    "fields": {
+      "slug": "cincuenta-visitas",
+      "name": "Reconocido",
+      "description": "Tu perfil público recibió 50 visitas.",
+      "emoji": "👀",
+      "category": "social",
+      "points": 15,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 41,
+    "fields": {
+      "slug": "doscientas-visitas",
+      "name": "Figura pública",
+      "description": "Tu perfil público recibió 200 visitas.",
+      "emoji": "🎭",
+      "category": "social",
+      "points": 35,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 42,
+    "fields": {
+      "slug": "cartel-compartido",
+      "name": "Lo mandé al grupo",
+      "description": "Compartiste tu cartel de predicciones en redes sociales.",
+      "emoji": "📲",
+      "category": "social",
+      "points": 10,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 43,
+    "fields": {
+      "slug": "perfil-completo",
+      "name": "Ya te conozco",
+      "description": "Tienes avatar, predicciones y al menos un argumento en tu perfil.",
+      "emoji": "🪪",
+      "category": "social",
+      "points": 10,
+      "is_secret": false
+    }
+  },
+
+  {
+    "model": "achievements.achievement",
+    "pk": 44,
+    "fields": {
+      "slug": "veterano-v5",
+      "name": "Veterano V edición",
+      "description": "Tenías cuenta antes de que empezara la VI edición.",
+      "emoji": "🎖️",
+      "category": "especial",
+      "points": 20,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 45,
+    "fields": {
+      "slug": "todo-en-uno",
+      "name": "Todoterreno",
+      "description": "Tienes al menos un logro en cada categoría.",
+      "emoji": "🌈",
+      "category": "especial",
+      "points": 30,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 46,
+    "fields": {
+      "slug": "cien-puntos",
+      "name": "Triple dígito",
+      "description": "Acumulaste 100 puntos de logros.",
+      "emoji": "💯",
+      "category": "especial",
+      "points": 20,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 47,
+    "fields": {
+      "slug": "coleccionista",
+      "name": "Coleccionista",
+      "description": "Desbloqueaste 20 logros distintos.",
+      "emoji": "🗂️",
+      "category": "especial",
+      "points": 30,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 48,
+    "fields": {
+      "slug": "leyenda-total",
+      "name": "Leyenda total",
+      "description": "Desbloqueaste 40 logros distintos.",
+      "emoji": "🏛️",
+      "category": "especial",
+      "points": 100,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 49,
+    "fields": {
+      "slug": "dna-generado",
+      "name": "Radiografía",
+      "description": "Generaste tu ADN de predictor por primera vez.",
+      "emoji": "🧬",
+      "category": "especial",
+      "points": 10,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 50,
+    "fields": {
+      "slug": "noche-de-velada",
+      "name": "Noche de La Velada",
+      "description": "Estuviste en VeladaZone el día del evento.",
+      "emoji": "🌙",
+      "category": "especial",
+      "points": 50,
+      "is_secret": false
+    }
   }
 ]

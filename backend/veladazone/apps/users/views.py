@@ -353,6 +353,9 @@ class DNAView(APIView):
         except Exception:
             dna_text = "MISTERIOSO: Tu estilo de predicción desafía todo análisis. Eres un enigma en el ring."
 
+        # Trigger de logros al generar DNA
+        check_achievements(request.user, trigger="dna_generated")
+        # ------------------------------
         return Response(
             {
                 "dna": dna_text,
