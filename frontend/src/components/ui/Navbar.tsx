@@ -14,6 +14,7 @@ const navLinks = [
   { href: "/stats", label: "Stats" },
   { href: "/fantasy", label: "Fantasy" },
   { href: "/mi-cartel", label: "🃏 Cartel" },
+  { href: "/logros", label: "🏅 Logros" },
 ];
 
 export function Navbar() {

@@ -7,6 +7,8 @@ from rest_framework.response import Response
 from django.db.models import Q
 from rest_framework.decorators import permission_classes
 
+from veladazone.apps.achievements.service import check_achievements  # ← NUEVO
+
 from .models import FantasyLeague, LeagueMember
 from .serializers import FantasyLeagueSerializer
 
@@ -16,19 +18,12 @@ class FantasyLeagueViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """
-        Devuelve ligas donde el usuario es miembro o ligas públicas.
-        """
         user = self.request.user
         return FantasyLeague.objects.filter(
             Q(members=user) | Q(is_private=False)
         ).distinct()
 
     def create(self, request, *args, **kwargs):
-        """
-        Crear una liga. `is_private` por defecto es True si no se especifica.
-        """
-        # Convertir is_private a booleano si viene como string
         is_private = request.data.get("is_private", True)
         if isinstance(is_private, str):
             is_private = is_private.lower() in ["true", "1"]
@@ -37,32 +32,28 @@ class FantasyLeagueViewSet(viewsets.ModelViewSet):
             name=request.data.get("name"), creator=request.user, is_private=is_private
         )
 
-        # El creador siempre se une automáticamente
         LeagueMember.objects.create(league=league, user=request.user)
+
+        # ── Logros de liga ───────────────────────────────────────────────────
+        check_achievements(request.user, trigger="league_created")
+        # ── Fin logros ───────────────────────────────────────────────────────
 
         serializer = FantasyLeagueSerializer(league, context={"request": request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["post"])
     def join(self, request):
-        """
-        Unirse a una liga:
-        - Con invite_code → liga privada
-        - Con league_id → liga pública
-        """
         code = request.data.get("invite_code", "").upper()
         league_id = request.data.get("league_id")
 
         league = None
 
         if code:
-            # Liga privada
             try:
                 league = FantasyLeague.objects.get(invite_code=code, is_private=True)
             except FantasyLeague.DoesNotExist:
                 return Response({"error": "Código de invitación no válido"}, status=404)
         elif league_id:
-            # Liga pública
             try:
                 league = FantasyLeague.objects.get(pk=league_id, is_private=False)
             except FantasyLeague.DoesNotExist:
@@ -72,21 +63,21 @@ class FantasyLeagueViewSet(viewsets.ModelViewSet):
                 {"error": "Debes proporcionar invite_code o league_id"}, status=400
             )
 
-        # Crear miembro si no existe
         member, created = LeagueMember.objects.get_or_create(
             league=league, user=request.user
         )
         if not created:
             return Response({"error": "Ya eres miembro de esta liga"}, status=400)
 
+        # ── Logros de liga ───────────────────────────────────────────────────
+        check_achievements(request.user, trigger="league_joined")
+        # ── Fin logros ───────────────────────────────────────────────────────
+
         serializer = FantasyLeagueSerializer(league, context={"request": request})
         return Response(serializer.data)
 
     @action(detail=True, methods=["get"])
     def leaderboard(self, request, pk=None):
-        """
-        Devuelve el ranking de miembros de la liga por puntos.
-        """
         league = self.get_object()
         members = LeagueMember.objects.filter(league=league).select_related("user")
 
@@ -103,7 +94,6 @@ class FantasyLeagueViewSet(viewsets.ModelViewSet):
             reverse=True,
         )
 
-        # Añadir ranking
         for i, d in enumerate(data):
             d["rank"] = i + 1
 
@@ -112,20 +102,16 @@ class FantasyLeagueViewSet(viewsets.ModelViewSet):
 
 class LeaguePreviewView(APIView):
     permission_classes = [AllowAny]
-    authentication_classes = []  # Desactiva autenticación para esta view
+    authentication_classes = []
 
     def get(self, request):
         invite_code = request.query_params.get("invite_code", "")
         if not invite_code:
             return Response({"error": "invite_code es requerido"}, status=400)
 
-        # Normalizar el código a mayúsculas
         invite_code = invite_code.upper()
-
-        # Buscar la liga
         league = get_object_or_404(FantasyLeague, invite_code=invite_code)
 
-        # Respuesta con información de la liga
         return Response(
             {
                 "id": league.id,

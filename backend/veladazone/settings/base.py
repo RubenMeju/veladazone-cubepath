@@ -32,6 +32,7 @@ LOCAL_APPS = [
     "veladazone.apps.fighters",
     "veladazone.apps.predictions",
     "veladazone.apps.fantasy",
+    "veladazone.apps.achievements",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

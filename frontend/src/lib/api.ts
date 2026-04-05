@@ -1,3 +1,4 @@
+// api.ts
 import { useAuthStore } from "@/stores/authStore";
 
 const API_URL =

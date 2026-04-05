@@ -1,0 +1,288 @@
+[
+  {
+    "model": "achievements.achievement",
+    "pk": 1,
+    "fields": {
+      "slug": "primer-login",
+      "name": "Bienvenido al ring",
+      "description": "Iniciaste sesión por primera vez en VeladaZone.",
+      "emoji": "🥊",
+      "category": "especial",
+      "points": 5,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 2,
+    "fields": {
+      "slug": "early-adopter",
+      "name": "Early Adopter",
+      "description": "Estuviste entre los primeros 200 usuarios de VeladaZone.",
+      "emoji": "⚡",
+      "category": "especial",
+      "points": 25,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 3,
+    "fields": {
+      "slug": "primera-prediccion",
+      "name": "Primera sangre",
+      "description": "Realizaste tu primera predicción.",
+      "emoji": "🎯",
+      "category": "predicciones",
+      "points": 10,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 4,
+    "fields": {
+      "slug": "cartel-completo",
+      "name": "Cartel completo",
+      "description": "Completaste las 10 predicciones de la edición.",
+      "emoji": "🃏",
+      "category": "predicciones",
+      "points": 20,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 5,
+    "fields": {
+      "slug": "precision-perfecta",
+      "name": "Precisión perfecta",
+      "description": "Acertaste las 10 predicciones de una edición. Eres un dios.",
+      "emoji": "💎",
+      "category": "predicciones",
+      "points": 100,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 6,
+    "fields": {
+      "slug": "oraculo",
+      "name": "El Oráculo",
+      "description": "8 o más aciertos con un 80%+ de precisión.",
+      "emoji": "🔮",
+      "category": "predicciones",
+      "points": 50,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 7,
+    "fields": {
+      "slug": "leal",
+      "name": "Inquebrantable",
+      "description": "Completaste el cartel sin traicionar a ningún luchador.",
+      "emoji": "🛡️",
+      "category": "predicciones",
+      "points": 30,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 8,
+    "fields": {
+      "slug": "traidor",
+      "name": "Traidor",
+      "description": "Acumulaste 5 o más traiciones. La lealtad no es lo tuyo.",
+      "emoji": "🗡️",
+      "category": "predicciones",
+      "points": 10,
+      "is_secret": true
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 9,
+    "fields": {
+      "slug": "gran-traidor",
+      "name": "Gran Traidor",
+      "description": "10 traiciones. Ni tú mismo sabes a quién apoyas.",
+      "emoji": "😈",
+      "category": "predicciones",
+      "points": 15,
+      "is_secret": true
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 10,
+    "fields": {
+      "slug": "primer-argumento",
+      "name": "Toma el micrófono",
+      "description": "Publicaste tu primer argumento en el debate.",
+      "emoji": "💬",
+      "category": "debate",
+      "points": 10,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 11,
+    "fields": {
+      "slug": "debatidor",
+      "name": "Debatidor",
+      "description": "Publicaste 5 argumentos en el modo debate.",
+      "emoji": "🎙️",
+      "category": "debate",
+      "points": 20,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 12,
+    "fields": {
+      "slug": "veterano-del-ring",
+      "name": "Veterano del ring",
+      "description": "20 argumentos publicados. Eres la voz de la comunidad.",
+      "emoji": "🏅",
+      "category": "debate",
+      "points": 40,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 13,
+    "fields": {
+      "slug": "primer-voto-recibido",
+      "name": "La comunidad habla",
+      "description": "Alguien votó tu argumento por primera vez.",
+      "emoji": "👍",
+      "category": "debate",
+      "points": 10,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 14,
+    "fields": {
+      "slug": "argumento-viral",
+      "name": "Argumento viral",
+      "description": "Un solo argumento tuyo recibió 10 o más votos.",
+      "emoji": "🔥",
+      "category": "debate",
+      "points": 30,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 15,
+    "fields": {
+      "slug": "influencer",
+      "name": "Influencer",
+      "description": "Tus argumentos acumularon 50 votos en total.",
+      "emoji": "⭐",
+      "category": "debate",
+      "points": 50,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 16,
+    "fields": {
+      "slug": "creador-de-liga",
+      "name": "El Comisionado",
+      "description": "Creaste tu primera Fantasy League.",
+      "emoji": "🏆",
+      "category": "ligas",
+      "points": 15,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 17,
+    "fields": {
+      "slug": "comisionado",
+      "name": "Magnate de las ligas",
+      "description": "Creaste 3 o más Fantasy Leagues.",
+      "emoji": "👑",
+      "category": "ligas",
+      "points": 30,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 18,
+    "fields": {
+      "slug": "espiritu-de-equipo",
+      "name": "Espíritu de equipo",
+      "description": "Te uniste a tu primera Fantasy League.",
+      "emoji": "🤝",
+      "category": "ligas",
+      "points": 10,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 19,
+    "fields": {
+      "slug": "multijugador",
+      "name": "Multijugador",
+      "description": "Participas en 3 o más ligas a la vez.",
+      "emoji": "🎮",
+      "category": "ligas",
+      "points": 20,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 20,
+    "fields": {
+      "slug": "en-el-mapa",
+      "name": "En el mapa",
+      "description": "Tu perfil público recibió 10 visitas.",
+      "emoji": "📍",
+      "category": "social",
+      "points": 10,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 21,
+    "fields": {
+      "slug": "celebridad",
+      "name": "Celebridad",
+      "description": "Tu perfil público recibió 100 visitas.",
+      "emoji": "🌟",
+      "category": "social",
+      "points": 25,
+      "is_secret": false
+    }
+  },
+  {
+    "model": "achievements.achievement",
+    "pk": 22,
+    "fields": {
+      "slug": "leyenda",
+      "name": "Leyenda de La Velada",
+      "description": "Tu perfil público recibió 500 visitas.",
+      "emoji": "🦁",
+      "category": "social",
+      "points": 75,
+      "is_secret": false
+    }
+  }
+]

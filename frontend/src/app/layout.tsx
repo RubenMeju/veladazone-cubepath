@@ -21,6 +21,7 @@ import { ConsentProvider } from "@/components/providers/ConsentProvider";
 // ── RGPD ─────────────────────────────────────────────────────────
 import { CookieBanner } from "./(legal)/components/CookieBanner";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { AchievementsProvider } from "@/components/providers/AchievementsProvider";
 
 // ── Fonts ─────────────────────────────────────────────────────────
 const bebas = Bebas_Neue({
@@ -66,7 +67,7 @@ export default function RootLayout({
               desactiva via ga-disable-{GA_ID}.
             */}
             <GoogleAnalytics />
-
+            <AchievementsProvider />
             <Navbar />
             <main>{children}</main>
             <Footer />

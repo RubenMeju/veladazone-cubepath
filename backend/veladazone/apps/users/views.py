@@ -10,6 +10,7 @@ from django.views import View
 from django.contrib.auth import get_user_model
 
 from veladazone.apps.fantasy.models import FantasyLeague
+from veladazone.apps.achievements.service import check_achievements  # ← NUEVO
 from .serializers import UserSerializer
 
 
@@ -31,12 +32,15 @@ class TwitchCallbackView(View):
             refresh = RefreshToken.for_user(request.user)
             frontend_url = settings.FRONTEND_URL
 
-            # from_pwa viene en el state que Twitch devuelve en el callback
             state = request.GET.get("state", "")
             from_pwa = ":from_pwa" in state
 
             access_token = str(refresh.access_token)  # type: ignore
             refresh_token_str = str(refresh)
+
+            # ── Logro de primer login ────────────────────────────────────────
+            check_achievements(request.user, trigger="login")
+            # ── Fin logros ───────────────────────────────────────────────────
 
             if from_pwa:
                 response = redirect(
@@ -88,7 +92,7 @@ class TokenRefreshView(APIView):
             response.set_cookie(
                 "access_token",
                 new_access,
-                max_age=86400 * 7,  # 7 días
+                max_age=86400 * 7,
                 httponly=True,
                 secure=True,
                 samesite="Lax",
@@ -162,6 +166,14 @@ class PublicProfileView(APIView):
         user.profile_views = (user.profile_views or 0) + 1  # type: ignore
         user.save(update_fields=["profile_views"])
 
+        # ── Logros de visitas de perfil ──────────────────────────────────────
+        check_achievements(
+            user,
+            trigger="profile_visited",
+            profile_views=user.profile_views,  # type: ignore
+        )
+        # ── Fin logros ───────────────────────────────────────────────────────
+
         # Stats
         stats = Prediction.objects.filter(user=user).aggregate(
             total=Count("id"),
@@ -185,11 +197,6 @@ class PublicProfileView(APIView):
             .annotate(vote_count=Count("argument_votes"))
             .order_by("-created_at")[:5]
         )
-
-        # Traiciones
-        betrayals = Prediction.objects.filter(
-            user=user, betrayal_count__gt=0
-        ).aggregate(total=Count("betrayal_count"))
 
         # Ligas creadas
         leagues_created = FantasyLeague.objects.filter(creator=user).values(
@@ -255,7 +262,6 @@ class PublicProfileView(APIView):
         )
 
 
-## ADN Prediction
 class DNAView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -273,7 +279,6 @@ class DNAView(APIView):
         total = predictions.count()
         betrayals = sum(p.betrayal_count for p in predictions)
 
-        # Análisis de patrones
         community_picks = 0
         underdog_picks = 0
         spanish_picks = 0
@@ -283,7 +288,6 @@ class DNAView(APIView):
         from django.db.models import Count
 
         for pred in predictions:
-            # Cuenta votos comunidad
             f1_votes = P.objects.filter(
                 fight=pred.fight, predicted_winner=pred.fight.fighter1
             ).count()
@@ -304,7 +308,6 @@ class DNAView(APIView):
                 else:
                     underdog_picks += 1
 
-            # Picks por país
             if pred.predicted_winner.country in ["España", "Spain"]:
                 spanish_picks += 1
             else:

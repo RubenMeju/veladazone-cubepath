@@ -1,6 +1,7 @@
 // Sin "use client" — este componente es un Server Component.
 // El único Client Component es ShareProfileButton (necesita window).
 
+import { Suspense } from "react";
 import { ProfileArguments } from "./components/ProfileArguments";
 import { ProfileHeader } from "./components/ProfileHeader";
 import { ProfileLeagues } from "./components/ProfileLeagues";
@@ -8,6 +9,7 @@ import { ProfilePredictions } from "./components/ProfilePredictions";
 import { ProfileStats } from "./components/ProfileStats";
 import { ShareProfileButton } from "./components/ShareProfileButton";
 import { ProfileData } from "./types";
+import { ProfileAchievements } from "@/components/achievements/ProfileAchievements";
 
 interface Props {
   data: ProfileData;
@@ -20,8 +22,10 @@ export function ProfileClient({ data, username }: Props) {
       <ProfileHeader data={data} />
 
       <ProfileStats stats={data.stats} betrayal_count={data.betrayal_count} />
-
-      <div className="grid md:grid-cols-2 gap-6">
+      <Suspense fallback={null}>
+        <ProfileAchievements username={username} />
+      </Suspense>
+      <div className="grid md:grid-cols-2 gap-6 mt-8">
         <ProfilePredictions predictions={data.predictions} />
         <ProfileArguments args={data.arguments} />
         <ProfileLeagues

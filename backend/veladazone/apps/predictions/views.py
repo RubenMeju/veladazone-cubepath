@@ -16,6 +16,7 @@ from rest_framework.request import Request as DRFRequest
 
 from veladazone.apps.users.models import User as CustomUser
 from veladazone.apps.predictions.pagination import ArgumentPagination
+from veladazone.apps.achievements.service import check_achievements  # ← NUEVO
 
 from .models import Argument, ArgumentReply, ArgumentVote, Prediction
 from .serializers import (
@@ -127,6 +128,20 @@ class PredictionViewSet(viewsets.ModelViewSet):
         cache.delete("leaderboard")
         cache.delete("community_stats")
 
+        # ── Logros de predicción ─────────────────────────────────────────────
+        check_achievements(request.user, trigger="prediction_created")
+
+        # Comprueba si acaba de completar el cartel de la edición actual
+        edition_fights_total = Fight.objects.filter(
+            edition__number=fight.edition.number
+        ).count()
+        user_edition_preds = Prediction.objects.filter(
+            user=request.user, fight__edition__number=fight.edition.number
+        ).count()
+        if user_edition_preds >= edition_fights_total:
+            check_achievements(request.user, trigger="predictions_complete")
+        # ── Fin logros ───────────────────────────────────────────────────────
+
         return Response(
             PredictionSerializer(prediction).data,
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
@@ -148,7 +163,7 @@ class PredictionViewSet(viewsets.ModelViewSet):
                 correct=Count("predictions", filter=Q(predictions__is_correct=True)),
             )
             .filter(total__gt=0)
-            .order_by("-correct", "-total")[:10]  # Solo top 10
+            .order_by("-correct", "-total")[:10]
         )
 
         data = [
@@ -173,8 +188,6 @@ class PredictionViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], permission_classes=[AllowAny])
     def leaderboard(self, request):
         """Paginated leaderboard with limit and offset."""
-        from django.db.models import Count, Q
-
         UserModel = get_user_model()
         limit = int(request.query_params.get("limit", 50))
         offset = int(request.query_params.get("offset", 0))
@@ -212,7 +225,6 @@ class PredictionViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], permission_classes=[AllowAny])
     def community_stats(self, request):
         """Returns community vote % per fight."""
-
         cached = cache.get("community_stats")
         if cached:
             return Response(cached)
@@ -237,8 +249,7 @@ class PredictionViewSet(viewsets.ModelViewSet):
                     "total_votes": total,
                 }
             )
-        cache.set("community_stats", result, 60)  # 1 minuto
-
+        cache.set("community_stats", result, 60)
         return Response(result)
 
     @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
@@ -262,12 +273,7 @@ class PredictionViewSet(viewsets.ModelViewSet):
             for p in predictions
         ]
 
-        return Response(
-            {
-                "total_betrayals": total,
-                "details": details,
-            }
-        )
+        return Response({"total_betrayals": total, "details": details})
 
 
 class ArgumentViewSet(viewsets.ModelViewSet):
@@ -324,6 +330,11 @@ class ArgumentViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
+
+        # ── Logros de debate ─────────────────────────────────────────────────
+        check_achievements(request.user, trigger="argument_created")
+        # ── Fin logros ───────────────────────────────────────────────────────
+
         return Response(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )
@@ -338,7 +349,7 @@ class ArgumentViewSet(viewsets.ModelViewSet):
             return Response({"error": "El texto es requerido"}, status=400)
 
         parent = None
-        if parent_reply_id is not None:  # ✅ cambio clave
+        if parent_reply_id is not None:
             try:
                 parent = ArgumentReply.objects.get(
                     id=parent_reply_id, argument=argument
@@ -366,24 +377,31 @@ class ArgumentViewSet(viewsets.ModelViewSet):
         ).first()
 
         if existing_vote:
-            # quitar voto (toggle)
             existing_vote.delete()
             return Response({"voted": False})
         else:
-            # crear voto
             ArgumentVote.objects.create(user=user, argument=argument)
+
+            # ── Logros para el AUTOR del argumento (no el que vota) ──────────
+            check_achievements(
+                argument.user,
+                trigger="argument_voted",
+                argument=argument,
+            )
+            # ── Fin logros ───────────────────────────────────────────────────
+
             return Response({"voted": True})
 
 
 class CartelPublicoView(generics.ListAPIView):
     serializer_class = PredictionSerializer
-    permission_classes = []  # público, sin auth
+    permission_classes = []
 
     def get_queryset(self):
         username = self.kwargs["username"]
         return (
             Prediction.objects.filter(
-                user__twitch_username__iexact=username,  # case-insensitive
+                user__twitch_username__iexact=username,
                 fight__edition=6,
             )
             .select_related(
