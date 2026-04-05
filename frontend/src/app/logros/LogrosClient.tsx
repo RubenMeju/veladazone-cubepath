@@ -68,7 +68,7 @@ export function LogrosClient({ data }: Props) {
       : (lockedByCategory[activeCategory] ?? []);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
+    <div>
       {/* Header */}
       <div className="mb-8">
         <h1 className="font-bebas text-5xl text-white tracking-wide mb-1">
