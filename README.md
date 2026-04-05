@@ -39,6 +39,11 @@ El día del evento, cada predicción acertada sube en el ranking. Cada traición
 | 📱  | **PWA instalable**         | Funciona como app nativa en móvil, sin pasar por ninguna tienda        |
 | 🥊  | **Celebración**            | Al completar las 10 predicciones, dos guantes chocan en pantalla       |
 
+| 🏅  | **Ranking global en tiempo real** | Consulta el ranking global de predicciones, actualizado en tiempo real con scroll infinito y búsqueda de usuarios. |
+| ⚔️  | **Comparador de predicciones**    | Compara tus predicciones con las de cualquier usuario y visualiza coincidencias, diferencias y estadísticas. |
+| 🧙  | **Duelo de Oráculos**             | Vista especial para comparar tu perfil con el de otro usuario, mostrando porcentaje de coincidencia y diferencias. |
+| 🕸️  | **SEO avanzado**                  | Metadatos y JSON-LD dinámicos para ranking y comparativas, optimizando el SEO y la compartición en redes. |
+
 ---
 
 ## 🛠️ Stack
