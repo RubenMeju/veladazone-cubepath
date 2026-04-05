@@ -48,7 +48,7 @@ export function Navbar() {
             🥊 VeladaZone
           </Link>
 
-          <div className="hidden md:flex items-center gap-1 flex-1 justify-center">
+          <div className="hidden lg:flex items-center gap-1 flex-1 justify-center">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -82,7 +82,7 @@ export function Navbar() {
                       👤
                     </div>
                   )}
-                  <div className="hidden md:block">
+                  <div className="hidden lg:block">
                     <div className="text-xs sm:text-sm text-gray-300 leading-tight">
                       {user.twitch_username}
                     </div>
@@ -111,7 +111,7 @@ export function Navbar() {
 
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden flex flex-col gap-1.5 p-1.5 rounded hover:bg-white/5 transition-colors"
+              className="lg:hidden flex flex-col gap-1.5 p-1.5 rounded hover:bg-white/5 transition-colors"
               aria-label="Menú"
             >
               <span
@@ -129,7 +129,7 @@ export function Navbar() {
       </nav>
 
       {menuOpen && (
-        <div className="md:hidden fixed inset-0 top-14 z-40 bg-[#050505]/98 backdrop-blur-sm flex flex-col">
+        <div className="lg:hidden fixed inset-0 top-14 z-40 bg-[#050505]/98 backdrop-blur-sm flex flex-col">
           <div className="flex flex-col p-4 gap-1">
             {navLinks.map((link) => (
               <Link

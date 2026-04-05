@@ -65,7 +65,7 @@ export function LogrosClient({ catalog, userData }: Props) {
   const categories = ["todos", ...CATEGORY_ORDER];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
+    <div className="max-w-4xl mx-auto ">
       {/* Banner CTA — solo si no está autenticado */}
       {!isAuthenticated && (
         <div className="mb-8 p-4 rounded-2xl bg-[#e63946]/10 border border-[#e63946]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -138,7 +138,7 @@ export function LogrosClient({ catalog, userData }: Props) {
           <h2 className="text-xs font-bold text-[#e63946] uppercase tracking-widest mb-3">
             Desbloqueados ({filteredUnlocked.length})
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-6">
             {filteredUnlocked.map((ua) => (
               <UnlockedCard key={ua.achievement.slug} ua={ua} />
             ))}
@@ -154,7 +154,7 @@ export function LogrosClient({ catalog, userData }: Props) {
               Por desbloquear ({filteredLocked.length})
             </h2>
           )}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-6">
             {filteredLocked.map((a) => (
               <LockedCard key={a.slug} achievement={a} />
             ))}
