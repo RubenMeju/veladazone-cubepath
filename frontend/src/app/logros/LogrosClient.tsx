@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { twitchLoginUrl } from "@/lib/api";
 import type {
   MyAchievementsResponse,
   Achievement,
@@ -8,7 +9,6 @@ import type {
 } from "@/components/achievements/types";
 import { UnlockedCard } from "./components/UnlockedCard";
 import { LockedCard } from "./components/LockedCard";
-import { NotAuthenticated } from "./components/NotAuthenticated";
 
 const CATEGORY_LABELS: Record<string, string> = {
   predicciones: "Predicciones",
@@ -27,66 +27,89 @@ const CATEGORY_ORDER = [
 ];
 
 interface Props {
-  data: MyAchievementsResponse | null;
+  catalog: Achievement[];
+  userData: MyAchievementsResponse | null;
 }
 
-export function LogrosClient({ data }: Props) {
+export function LogrosClient({ catalog, userData }: Props) {
   const [activeCategory, setActiveCategory] = useState<string>("todos");
 
-  if (!data) return <NotAuthenticated />;
-
-  const { unlocked, locked, total_points, unlocked_count } = data;
-  const total = unlocked_count + locked.length;
-  const pct = total > 0 ? Math.round((unlocked_count / total) * 100) : 0;
-
-  // Agrupa desbloqueados por categoría
-  const unlockedByCategory = CATEGORY_ORDER.reduce<
-    Record<string, UserAchievement[]>
-  >((acc, cat) => {
-    acc[cat] = unlocked.filter((ua) => ua.achievement.category === cat);
-    return acc;
-  }, {});
-
-  const lockedByCategory = CATEGORY_ORDER.reduce<Record<string, Achievement[]>>(
-    (acc, cat) => {
-      acc[cat] = locked.filter((a) => a.category === cat);
-      return acc;
-    },
-    {},
+  const isAuthenticated = userData !== null;
+  const unlockedSlugs = new Set(
+    userData?.unlocked.map((ua) => ua.achievement.slug) ?? [],
   );
 
-  const categories = ["todos", ...CATEGORY_ORDER];
+  const visibleUnlocked: UserAchievement[] = userData?.unlocked ?? [];
+  const visibleLocked: Achievement[] = isAuthenticated
+    ? catalog.filter((a) => !unlockedSlugs.has(a.slug))
+    : catalog;
 
+  const total_points = userData?.total_points ?? 0;
+  const unlocked_count = userData?.unlocked_count ?? 0;
+  const total = unlocked_count + visibleLocked.length;
+  const pct = total > 0 ? Math.round((unlocked_count / total) * 100) : 0;
+
+  // ── Filtrado por categoría ────────────────────────────────────────────────
   const filteredUnlocked =
     activeCategory === "todos"
-      ? unlocked
-      : (unlockedByCategory[activeCategory] ?? []);
+      ? visibleUnlocked
+      : visibleUnlocked.filter(
+          (ua) => ua.achievement.category === activeCategory,
+        );
 
   const filteredLocked =
     activeCategory === "todos"
-      ? locked
-      : (lockedByCategory[activeCategory] ?? []);
+      ? visibleLocked
+      : visibleLocked.filter((a) => a.category === activeCategory);
+
+  const categories = ["todos", ...CATEGORY_ORDER];
 
   return (
-    <div>
+    <div className="max-w-4xl mx-auto px-4 py-12">
+      {/* Banner CTA — solo si no está autenticado */}
+      {!isAuthenticated && (
+        <div className="mb-8 p-4 rounded-2xl bg-[#e63946]/10 border border-[#e63946]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <p className="text-white font-bold text-sm">
+              Inicia sesión para desbloquear logros
+            </p>
+            <p className="text-white/40 text-xs mt-0.5">
+              Conecta con Twitch y empieza a competir por los {catalog.length}{" "}
+              logros disponibles
+            </p>
+          </div>
+          <a
+            href={twitchLoginUrl}
+            className="shrink-0 px-5 py-2 bg-[#e63946] hover:bg-[#c1121f] text-white text-sm font-semibold rounded-xl transition-colors text-center"
+          >
+            Conectar con Twitch
+          </a>
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-8">
         <h1 className="font-bebas text-5xl text-white tracking-wide mb-1">
-          Mis Logros
+          {isAuthenticated ? "Mis Logros" : "Logros disponibles"}
         </h1>
         <p className="text-white/40 text-sm">
-          {unlocked_count} de {total} desbloqueados · {total_points} puntos
-          totales
+          {isAuthenticated
+            ? `${unlocked_count} de ${total} desbloqueados · ${total_points} puntos totales`
+            : `${catalog.length} logros por desbloquear`}
         </p>
 
-        {/* Barra de progreso */}
-        <div className="mt-4 h-2 bg-white/10 rounded-full overflow-hidden max-w-sm">
-          <div
-            className="h-full bg-gradient-to-r from-[#e63946] to-[#f4a261] rounded-full transition-all duration-700"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-        <p className="text-[11px] text-white/30 mt-1">{pct}% completado</p>
+        {/* Barra de progreso — solo si autenticado */}
+        {isAuthenticated && (
+          <>
+            <div className="mt-4 h-2 bg-white/10 rounded-full overflow-hidden max-w-sm">
+              <div
+                className="h-full bg-gradient-to-r from-[#e63946] to-[#f4a261] rounded-full transition-all duration-700"
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            <p className="text-[11px] text-white/30 mt-1">{pct}% completado</p>
+          </>
+        )}
       </div>
 
       {/* Filtros de categoría */}
@@ -109,8 +132,8 @@ export function LogrosClient({ data }: Props) {
         ))}
       </div>
 
-      {/* Logros desbloqueados */}
-      {filteredUnlocked.length > 0 && (
+      {/* Logros desbloqueados — solo si autenticado y tiene alguno */}
+      {isAuthenticated && filteredUnlocked.length > 0 && (
         <section className="mb-10">
           <h2 className="text-xs font-bold text-[#e63946] uppercase tracking-widest mb-3">
             Desbloqueados ({filteredUnlocked.length})
@@ -123,12 +146,14 @@ export function LogrosClient({ data }: Props) {
         </section>
       )}
 
-      {/* Logros bloqueados */}
+      {/* Logros bloqueados / catálogo */}
       {filteredLocked.length > 0 && (
         <section>
-          <h2 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-3">
-            Por desbloquear ({filteredLocked.length})
-          </h2>
+          {isAuthenticated && (
+            <h2 className="text-xs font-bold text-white/20 uppercase tracking-widest mb-3">
+              Por desbloquear ({filteredLocked.length})
+            </h2>
+          )}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {filteredLocked.map((a) => (
               <LockedCard key={a.slug} achievement={a} />

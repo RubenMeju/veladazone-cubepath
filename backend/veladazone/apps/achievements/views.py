@@ -126,3 +126,14 @@ class AchievementLeaderboardView(APIView):
         ]
 
         return Response(data)
+
+class AchievementCatalogView(APIView):
+    """Catálogo público de todos los logros no secretos."""
+    permission_classes = [AllowAny]
+ 
+    def get(self, request):
+        achievements = Achievement.objects.filter(is_secret=False).order_by(
+            "category", "points"
+        )
+        return Response(AchievementSerializer(achievements, many=True).data)
+ 

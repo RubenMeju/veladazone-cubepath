@@ -4,7 +4,6 @@
 
 ![home](https://github.com/user-attachments/assets/ba33b2bb-6b3a-41e0-85f7-037bb7e62e8e)
 
-
 Predice, debate, compite y comparte — todo con tu cuenta de Twitch, todo con IA.
 
 🌐 **[laveladazone.com](https://laveladazone.com)** · 📺 La Velada del Año 6 — 25 Julio 2026
@@ -39,10 +38,12 @@ El día del evento, cada predicción acertada sube en el ranking. Cada traición
 | 📱  | **PWA instalable**         | Funciona como app nativa en móvil, sin pasar por ninguna tienda        |
 | 🥊  | **Celebración**            | Al completar las 10 predicciones, dos guantes chocan en pantalla       |
 
-| 🏅  | **Ranking global en tiempo real** | Consulta el ranking global de predicciones, actualizado en tiempo real con scroll infinito y búsqueda de usuarios. |
-| ⚔️  | **Comparador de predicciones**    | Compara tus predicciones con las de cualquier usuario y visualiza coincidencias, diferencias y estadísticas. |
-| 🧙  | **Duelo de Oráculos**             | Vista especial para comparar tu perfil con el de otro usuario, mostrando porcentaje de coincidencia y diferencias. |
-| 🕸️  | **SEO avanzado**                  | Metadatos y JSON-LD dinámicos para ranking y comparativas, optimizando el SEO y la compartición en redes. |
+| 🏅 | **Ranking global en tiempo real** | Consulta el ranking global de predicciones, actualizado en tiempo real con scroll infinito y búsqueda de usuarios. |
+| ⚔️ | **Comparador de predicciones** | Compara tus predicciones con las de cualquier usuario y visualiza coincidencias, diferencias y estadísticas. |
+| 🧙 | **Duelo de Oráculos** | Vista especial para comparar tu perfil con el de otro usuario, mostrando porcentaje de coincidencia y diferencias. |
+| 🕸️ | **SEO avanzado** | Metadatos y JSON-LD dinámicos para ranking y comparativas, optimizando el SEO y la compartición en redes. |
+
+| 🏆 | **Logros y medallas** | Desbloquea logros por hitos en predicciones, debate, ligas y perfil. Consulta todos tus logros y compite en el ranking de puntos. |
 
 ---
 
@@ -315,7 +316,6 @@ veladazone-cubepath/
 ![fantasy](https://github.com/user-attachments/assets/8b1d907a-6f30-428b-89de-fb52dc12e6f5)
 ![predicciones](https://github.com/user-attachments/assets/4037f759-0e31-4191-a21e-28d6a2e2d645)
 ![stats](https://github.com/user-attachments/assets/5cccb3ba-9f59-42bf-a4e2-6e6628308cff)
-
 
 ---
 

@@ -1,18 +1,34 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
 import { cookies } from "next/headers";
-import type { MyAchievementsResponse } from "@/components/achievements/types";
+import type {
+  MyAchievementsResponse,
+  Achievement,
+} from "@/components/achievements/types";
 import { LogrosClient } from "./LogrosClient";
 import { LogrosSkeleton } from "./components/LogrosSkeleton";
 
 export const metadata: Metadata = {
-  title: "Mis Logros",
-  description: "Tus logros y medallas en VeladaZone.",
+  title: "Logros",
+  description:
+    "Desbloquea logros completando predicciones, debatiendo y compitiendo en VeladaZone.",
 };
 
 const SERVER_API_URL = process.env.BACKEND_URL
   ? `${process.env.BACKEND_URL}/api/v1`
   : (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1");
+
+async function getCatalog(): Promise<Achievement[]> {
+  try {
+    const res = await fetch(`${SERVER_API_URL}/achievements/catalog/`, {
+      next: { revalidate: 3600 }, // el catálogo no cambia frecuentemente
+    });
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+}
 
 async function getMyAchievements(): Promise<MyAchievementsResponse | null> {
   try {
@@ -20,7 +36,6 @@ async function getMyAchievements(): Promise<MyAchievementsResponse | null> {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
-
     if (isDev) {
       headers["x-dev-user"] = "devuser";
     } else {
@@ -28,12 +43,10 @@ async function getMyAchievements(): Promise<MyAchievementsResponse | null> {
       const cookieString = cookieStore.toString();
       if (cookieString) headers["Cookie"] = cookieString;
     }
-
     const res = await fetch(`${SERVER_API_URL}/achievements/`, {
       headers,
       cache: "no-store",
     });
-
     if (!res.ok) return null;
     return res.json();
   } catch {
@@ -42,8 +55,12 @@ async function getMyAchievements(): Promise<MyAchievementsResponse | null> {
 }
 
 async function LogrosData() {
-  const data = await getMyAchievements();
-  return <LogrosClient data={data} />;
+  // En paralelo: catálogo siempre, datos de usuario solo si hay sesión
+  const [catalog, userData] = await Promise.all([
+    getCatalog(),
+    getMyAchievements(),
+  ]);
+  return <LogrosClient catalog={catalog} userData={userData} />;
 }
 
 export default function LogrosPage() {
