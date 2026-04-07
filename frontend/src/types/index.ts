@@ -51,6 +51,7 @@ export interface Fight {
   order: number;
   result_method: string;
   is_completed: boolean;
+  youtube_url: string;
 }
 
 export interface Prediction {

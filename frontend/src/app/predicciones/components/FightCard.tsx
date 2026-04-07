@@ -142,13 +142,13 @@ export function FightCard({
           <Thermometer fight={fight} stats={stats} />
         </div>
 
-        {/* ── Video Cara a Cara de prueba ───────────────────── */}
+        {/* ── Video Cara a Cara ───────────────────── */}
         <div className="mt-5 relative overflow-hidden rounded-xl">
           <iframe
             width="100%"
             height="220"
-            src="https://www.youtube.com/embed/kruLhBzu7Ng"
-            title="Cara a Cara de prueba"
+            src={fight.youtube_url} 
+            title={`Cara a Cara: ${fight.fighter1} vs ${fight.fighter2}`}
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
