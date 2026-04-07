@@ -22,6 +22,7 @@ import { ConsentProvider } from "@/components/providers/ConsentProvider";
 import { CookieBanner } from "./(legal)/components/CookieBanner";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { AchievementsProvider } from "@/components/providers/AchievementsProvider";
+import Script from "next/script";
 
 // ── Fonts ─────────────────────────────────────────────────────────
 const bebas = Bebas_Neue({
@@ -77,6 +78,21 @@ export default function RootLayout({
             <PwaInstallBanner />
           </QueryProvider>
         </ConsentProvider>
+
+        <Script
+          async
+          src="https://plausible.io/js/pa-8OtikCTnrCzO9pGGiPsIZ.js"
+          strategy="afterInteractive"
+        />
+
+        <Script id="plausible-init" strategy="afterInteractive">
+          {`
+    window.plausible = window.plausible || function(){
+      (window.plausible.q = window.plausible.q || []).push(arguments)
+    };
+    plausible.init();
+  `}
+        </Script>
       </body>
     </html>
   );
