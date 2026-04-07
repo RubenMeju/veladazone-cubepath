@@ -79,8 +79,9 @@ export default function RootLayout({
           </QueryProvider>
         </ConsentProvider>
         <Script
-          async
-          src="https://plausible.io/js/pa-8OtikCTnrCzO9pGGiPsIZ.js"
+          defer
+          data-domain="laveladazone.com"
+          src="https://plausible.io/js/script.js"
           strategy="afterInteractive"
         />
       </body>
