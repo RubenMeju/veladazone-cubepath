@@ -7,7 +7,18 @@ class FighterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Fighter
-        fields = ['id', 'name', 'slug', 'country', 'country_flag', 'avatar_url', 'twitter', 'twitch', 'bio', 'record']
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "country",
+            "country_flag",
+            "avatar_url",
+            "twitter",
+            "twitch",
+            "bio",
+            "record",
+        ]
 
     def get_record(self, obj):
         return obj.record
@@ -20,7 +31,17 @@ class FightSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Fight
-        fields = ['id', 'fighter1', 'fighter2', 'winner', 'is_main_event', 'order', 'result_method', 'is_completed']
+        fields = [
+            "id",
+            "fighter1",
+            "fighter2",
+            "winner",
+            "is_main_event",
+            "order",
+            "result_method",
+            "is_completed",
+            "youtube_url",
+        ]
 
 
 class EditionSerializer(serializers.ModelSerializer):
@@ -28,4 +49,4 @@ class EditionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Edition
-        fields = ['id', 'number', 'year', 'date', 'venue', 'city', 'fights']
+        fields = ["id", "number", "year", "date", "venue", "city", "fights"]
