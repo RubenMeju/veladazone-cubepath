@@ -142,6 +142,20 @@ export function FightCard({
           <Thermometer fight={fight} stats={stats} />
         </div>
 
+        {/* ── Video Cara a Cara de prueba ───────────────────── */}
+        <div className="mt-5 relative overflow-hidden rounded-xl">
+          <iframe
+            width="100%"
+            height="220"
+            src="https://www.youtube.com/embed/kruLhBzu7Ng"
+            title="Cara a Cara de prueba"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="rounded-xl"
+          />
+        </div>
+
         {/* ── Comentario IA ─────────────────────────────────── */}
         {prediction?.ai_comment && (
           <div className="mt-4 relative overflow-hidden rounded-xl">

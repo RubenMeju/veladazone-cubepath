@@ -51,6 +51,7 @@ class Fight(models.Model):
         default='pending'
     )
     is_completed = models.BooleanField(default=False)
+    youtube_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.fighter1} vs {self.fighter2} — Velada {self.edition.number}'
