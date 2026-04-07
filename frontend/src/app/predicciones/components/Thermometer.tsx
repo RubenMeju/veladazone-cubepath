@@ -13,14 +13,14 @@ export function Thermometer({
 
   return (
     <div className="mt-4">
-      <div className="flex justify-between text-xs text-gray-500 mb-1">
+      <div className="flex justify-between  text-gray-500 mb-1">
         <span>
           {fight.fighter1.name}{" "}
           <span className="text-[#e63946] font-medium">
             {stats.fighter1_pct}%
           </span>
         </span>
-        <span className="text-gray-600">{stats.total_votes} votos</span>
+        {/* <span className="text-gray-600">{stats.total_votes} votos</span> */}
         <span>
           <span className="text-[#9146FF] font-medium">
             {stats.fighter2_pct}%
