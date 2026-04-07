@@ -78,21 +78,11 @@ export default function RootLayout({
             <PwaInstallBanner />
           </QueryProvider>
         </ConsentProvider>
-
         <Script
           async
           src="https://plausible.io/js/pa-8OtikCTnrCzO9pGGiPsIZ.js"
           strategy="afterInteractive"
         />
-
-        <Script id="plausible-init" strategy="afterInteractive">
-          {`
-    window.plausible = window.plausible || function(){
-      (window.plausible.q = window.plausible.q || []).push(arguments)
-    };
-    plausible.init();
-  `}
-        </Script>
       </body>
     </html>
   );
