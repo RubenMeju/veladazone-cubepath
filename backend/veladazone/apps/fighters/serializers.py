@@ -17,6 +17,7 @@ class FighterSerializer(serializers.ModelSerializer):
             "twitter",
             "twitch",
             "bio",
+            "channel_id",
             "record",
         ]
 

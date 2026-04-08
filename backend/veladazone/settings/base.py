@@ -1,6 +1,7 @@
 import environ
 from pathlib import Path
 from datetime import timedelta
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -25,6 +26,7 @@ THIRD_PARTY_APPS = [
     "rest_framework_simplejwt",
     "corsheaders",
     "social_django",
+    "django_celery_beat",
 ]
 
 LOCAL_APPS = [
@@ -33,6 +35,7 @@ LOCAL_APPS = [
     "veladazone.apps.predictions",
     "veladazone.apps.fantasy",
     "veladazone.apps.achievements",
+    "veladazone.apps.blog",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -139,6 +142,9 @@ GEMINI_API_KEY = env("GEMINI_API_KEY")
 # Groq API
 GROQ_API_KEY = env("GROQ_API_KEY")
 
+YOUTUBE_API_KEY = env("YOUTUBE_API_KEY")
+REDIS_URL = env("REDIS_URL")
+
 # Frontend URL
 FRONTEND_URL = env("FRONTEND_URL", default="https://laveladazone.com")
 LOGIN_REDIRECT_URL = f"{FRONTEND_URL}/auth/callback"
@@ -205,5 +211,19 @@ LOGGING = {
     "root": {
         "handlers": ["console"],
         "level": "WARNING",
+    },
+}
+
+
+CELERY_BROKER_URL = f"redis://:{env('REDIS_PASSWORD')}@{env('REDIS_HOST')}:6379/0"
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+
+CELERY_BEAT_SCHEDULE = {
+    "fetch-fighter-videos": {
+        "task": "blog.fetch_fighter_videos",
+        "schedule": crontab(minute=0, hour="*/6"),  # cada 6 horas
     },
 }

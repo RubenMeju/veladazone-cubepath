@@ -27,6 +27,7 @@ urlpatterns = [
                 ),
                 path("predictions/", include("veladazone.apps.predictions.urls")),
                 path("fantasy/", include("veladazone.apps.fantasy.urls")),
+                path("blog/", include("veladazone.apps.blog.urls")),
             ]
         ),
     ),

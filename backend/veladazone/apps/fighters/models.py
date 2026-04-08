@@ -10,6 +10,8 @@ class Fighter(models.Model):
     twitter = models.CharField(max_length=100, null=True, blank=True)
     twitch = models.CharField(max_length=100, null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
+    channel_id = models.CharField(max_length=50, blank=True, default="")
+
 
     def __str__(self):
         return self.name
