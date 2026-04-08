@@ -164,7 +164,7 @@ export function FightCard({
               <iframe
                 width="100%"
                 height="220"
-                src={`${fight.youtube_url}&autoplay=1`}
+                src={`${fight.youtube_url}?&autoplay=1`}
                 title={`Cara a Cara: ${fight.fighter1} vs ${fight.fighter2}`}
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
