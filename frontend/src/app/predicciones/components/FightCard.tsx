@@ -23,6 +23,7 @@ export function FightCard({
   const selectedId = prediction?.predicted_winner?.id;
   const isMain = fight.is_main_event;
   const [showVideo, setShowVideo] = useState(false);
+  const [activeVideoId, setActiveVideoId] = useState<number | null>(null);
 
   const getYoutubeId = (url?: string) => {
     if (!url) return null;
@@ -33,6 +34,8 @@ export function FightCard({
   const thumbnail = videoId
     ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
     : null;
+
+  const isActive = activeVideoId === fight.id;
 
   return (
     <article
@@ -157,35 +160,35 @@ export function FightCard({
         {/* ── Video Cara a Cara ───────────────────── */}
         {fight.youtube_url && videoId && (
           <div className="mt-5 relative overflow-hidden rounded-xl">
-            {showVideo ? (
+            {isActive ? (
               <iframe
                 width="100%"
                 height="220"
-                src={fight.youtube_url}
+                src={`${fight.youtube_url}&autoplay=1`}
                 title={`Cara a Cara: ${fight.fighter1} vs ${fight.fighter2}`}
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
-                className="rounded-xl"
+                className="rounded-xl animate-fade-in"
               />
             ) : (
               <div
                 className="relative cursor-pointer group"
-                onClick={() => setShowVideo(true)}
+                onClick={() => setActiveVideoId(fight.id)}
               >
                 <img
                   src={thumbnail!}
                   alt="Video preview"
-                  className="w-full h-[220px] object-cover rounded-xl"
+                  className="w-full h-[220px] object-cover rounded-xl transition-transform duration-300 group-hover:scale-105"
                 />
 
                 {/* Overlay oscuro */}
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition" />
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition" />
 
                 {/* Botón play */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="size-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition">
-                    <span className="text-black text-xl">▶</span>
+                    <span className="text-black text-xl ml-1">▶</span>
                   </div>
                 </div>
               </div>
