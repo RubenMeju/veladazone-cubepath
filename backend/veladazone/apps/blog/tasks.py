@@ -14,7 +14,7 @@ r = redis.Redis.from_url(settings.REDIS_URL)
 
 @shared_task(name="blog.fetch_fighter_videos")
 def fetch_fighter_videos(fighter_id=None):
-    fighters = Fighter.objects.filter(channel_id__isnull=False)
+    fighters = Fighter.objects.filter(channel_id__isnull=False).exclude(channel_id="")
     if fighter_id:
         fighters = fighters.filter(id=fighter_id)
 
