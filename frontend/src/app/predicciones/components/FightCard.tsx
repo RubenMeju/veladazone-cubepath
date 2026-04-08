@@ -5,6 +5,7 @@ import { FighterButton } from "./Fighterbutton";
 import { Thermometer } from "./Thermometer";
 import { DebateSection } from "./debate/DebateSection";
 import { ShareFightButton } from "./ShareFightButton";
+import { useState } from "react";
 
 export function FightCard({
   fight,
@@ -21,6 +22,17 @@ export function FightCard({
 }) {
   const selectedId = prediction?.predicted_winner?.id;
   const isMain = fight.is_main_event;
+  const [showVideo, setShowVideo] = useState(false);
+
+  const getYoutubeId = (url?: string) => {
+    if (!url) return null;
+    return url.split("/embed/")[1]?.split("?")[0];
+  };
+
+  const videoId = getYoutubeId(fight.youtube_url);
+  const thumbnail = videoId
+    ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+    : null;
 
   return (
     <article
@@ -143,18 +155,43 @@ export function FightCard({
         </div>
 
         {/* ── Video Cara a Cara ───────────────────── */}
-        <div className="mt-5 relative overflow-hidden rounded-xl">
-          <iframe
-            width="100%"
-            height="220"
-            src={fight.youtube_url} 
-            title={`Cara a Cara: ${fight.fighter1} vs ${fight.fighter2}`}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="rounded-xl"
-          />
-        </div>
+        {fight.youtube_url && videoId && (
+          <div className="mt-5 relative overflow-hidden rounded-xl">
+            {showVideo ? (
+              <iframe
+                width="100%"
+                height="220"
+                src={fight.youtube_url}
+                title={`Cara a Cara: ${fight.fighter1} vs ${fight.fighter2}`}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="rounded-xl"
+              />
+            ) : (
+              <div
+                className="relative cursor-pointer group"
+                onClick={() => setShowVideo(true)}
+              >
+                <img
+                  src={thumbnail!}
+                  alt="Video preview"
+                  className="w-full h-[220px] object-cover rounded-xl"
+                />
+
+                {/* Overlay oscuro */}
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition" />
+
+                {/* Botón play */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="size-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+                    <span className="text-black text-xl">▶</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ── Comentario IA ─────────────────────────────────── */}
         {prediction?.ai_comment && (
