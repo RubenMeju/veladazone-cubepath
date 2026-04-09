@@ -12,8 +12,8 @@ export function BlogStats({ posts }: Props) {
   const avgRelevance =
     posts.reduce((acc, p) => acc + p.relevance_score, 0) / posts.length;
 
-  const fighters = new Set(posts.map((p) => p.fighter.slug)).size;
-
+  const fighters = new Set(posts.map((p) => p.fighter?.slug).filter(Boolean))
+    .size;
   return (
     <div className="grid grid-cols-3 gap-3 mb-6">
       {[
