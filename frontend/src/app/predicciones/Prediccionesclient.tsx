@@ -11,7 +11,7 @@ import { Leaderboard } from "./components/Leaderboard";
 import { CraziestPrediction } from "./components/Craziestprediction";
 import { BetrayalCounter } from "./components/BetrayalCounter";
 import { AIPrediction } from "./components/AIPrediction";
-import { DNAPredictor } from "./components/DNAPredictor";
+import { DNAPredictor } from "./components/dna-predictor/DNAPredictor";
 import { CompletionCelebration } from "./components/CompletionCelebration";
 // import { TwitchLoginButton } from "@/components/ui/TwitchLoginButton";
 
