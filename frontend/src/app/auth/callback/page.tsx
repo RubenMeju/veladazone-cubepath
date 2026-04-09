@@ -22,7 +22,11 @@ function CallbackHandler() {
 
     const accessToken = urlParams.get("access_token");
     const refreshToken = urlParams.get("refresh_token");
-
+    console.log("useefect callback params:", {
+      accessToken,
+      refreshToken,
+      isPWA,
+    });
     if (accessToken && refreshToken && urlParams.get("from_pwa") === "true") {
       document.cookie = `access_token=${accessToken}; path=/; max-age=${86400 * 7}; secure; samesite=None`;
       document.cookie = `refresh_token=${refreshToken}; path=/; max-age=${86400 * 30}; secure; samesite=None`;
@@ -33,7 +37,7 @@ function CallbackHandler() {
       .then((user) => {
         setUser(user);
         sessionStorage.removeItem("from_pwa");
-
+        console.log("User set in store:", user);
         // ✅ Nuevo: revisar voto pendiente
         const pendingVote = localStorage.getItem("pendingVote");
         if (pendingVote) {

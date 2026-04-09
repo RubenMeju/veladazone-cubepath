@@ -13,8 +13,12 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
-      setUser: (user) => set({ user }),
+      setUser: (user) => {
+        console.log("Setting user:", user);
+        set({ user });
+      },
       logout: () => {
+        console.log("Logging out user:", get().user);
         // Limpiar Zustand
         set({ user: null });
       },
