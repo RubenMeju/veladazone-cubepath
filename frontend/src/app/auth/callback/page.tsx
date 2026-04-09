@@ -34,6 +34,15 @@ function CallbackHandler() {
         setUser(user);
         sessionStorage.removeItem("from_pwa");
 
+        // ✅ Nuevo: revisar voto pendiente
+        const pendingVote = localStorage.getItem("pendingVote");
+        if (pendingVote) {
+          const fighter = JSON.parse(pendingVote);
+          // Aquí llamas a tu función real de voto, por ejemplo:
+          api.post("/votes/", { fighterId: fighter.id });
+          localStorage.removeItem("pendingVote");
+        }
+
         if (isPWA) {
           setStatus("pwa_success");
         } else {

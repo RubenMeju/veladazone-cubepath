@@ -6,6 +6,7 @@ import { Thermometer } from "./Thermometer";
 import { DebateSection } from "./debate/DebateSection";
 import { ShareFightButton } from "./ShareFightButton";
 import { useState } from "react";
+import { useAuthStore } from "@/stores/authStore";
 
 export function FightCard({
   fight,
@@ -20,6 +21,8 @@ export function FightCard({
   isPending: boolean;
   stats?: CommunityStats;
 }) {
+  const { user } = useAuthStore();
+  const isAuthenticated = !!user;
   const selectedId = prediction?.predicted_winner?.id;
   const isMain = fight.is_main_event;
   const [showVideo, setShowVideo] = useState(false);
@@ -109,6 +112,7 @@ export function FightCard({
               isSelected={selectedId === fight.fighter1.id}
               onClick={() => onPredict(fight.id, fight.fighter1.id)}
               disabled={isPending}
+              isAuthenticated={isAuthenticated}
             />
           </div>
 

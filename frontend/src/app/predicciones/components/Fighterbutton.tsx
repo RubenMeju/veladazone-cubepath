@@ -1,5 +1,6 @@
 "use client";
 
+import { twitchLoginUrl } from "@/lib/api";
 import { Fight } from "@/types";
 
 export function FighterButton({
@@ -7,15 +8,30 @@ export function FighterButton({
   isSelected,
   onClick,
   disabled,
+  isAuthenticated,
 }: {
   fighter: Fight["fighter1"];
   isSelected: boolean;
   onClick: () => void;
   disabled: boolean;
+  isAuthenticated: boolean;
 }) {
+  const handleClick = () => {
+    if (!isAuthenticated) {
+      // guardamos intención
+      localStorage.setItem("pendingVote", JSON.stringify(fighter));
+
+      // 🚀 REDIRECT A TWITCH
+      window.location.href = twitchLoginUrl;
+      return;
+    }
+
+    onClick();
+  };
+
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
       disabled={disabled}
       className={`group flex-1 relative overflow-hidden rounded-xl p-3 sm:p-5 text-center transition-all duration-200 min-w-0 cursor-pointer w-full ${
         isSelected
