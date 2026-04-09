@@ -11,18 +11,126 @@ import { serverFetch } from "@/lib/api.server";
 import BlogSkeleton from "./components/BlogSkeleton";
 import { BlogPost } from "./types";
 import { BlogClient } from "./BlogClient";
+import type { Metadata } from "next";
 
-export const metadata = {
-  title: "Blog IA | VeladaZone",
+// ── SEO ──────────────────────────────────────────────────────────
+export const metadata: Metadata = {
+  title: "Blog IA La Velada del Año 6 | VeladaZone",
   description:
-    "La IA vigila los canales de los peleadores de La Velada del Año 6 y trae automáticamente todo el contenido relevante.",
+    "Últimas noticias, entrenamientos, trash talk y ruedas de prensa de La Velada del Año 6. Seguimiento automático con IA de los canales de IlloJuan, TheGrefg, Fernanfloo, YoSoyPlex, Samy Rivers, Perxitaa y más peleadores.",
+  keywords: [
+    "La Velada del Año 6",
+    "Velada 6",
+    "IlloJuan boxeo",
+    "TheGrefg Velada",
+    "Fernanfloo pelea",
+    "YoSoyPlex boxeo",
+    "Samy Rivers Velada",
+    "Perxitaa boxeo",
+    "Ibai Llanos boxeo",
+    "velada del año 2026",
+    "boxeo streamers",
+    "noticias velada 6",
+    "entrenamiento peleadores velada",
+  ],
   openGraph: {
-    title: "Blog IA — VeladaZone",
+    title: "Blog IA — La Velada del Año 6 | VeladaZone",
     description:
-      "Vídeos, entrenamientos, trash talk y ruedas de prensa de La Velada 6, detectados automáticamente por IA.",
+      "Todos los vídeos sobre La Velada del Año 6 detectados automáticamente por IA. Entrenamientos, cara a cara, trash talk y ruedas de prensa de los peleadores.",
+    url: "https://laveladazone.com/blog",
+    siteName: "VeladaZone",
+    locale: "es_ES",
+    type: "website",
+    images: [
+      {
+        url: "https://laveladazone.com/og-image.webp",
+        width: 1200,
+        height: 630,
+        alt: "Blog IA — La Velada del Año 6",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog IA — La Velada del Año 6 | VeladaZone",
+    description:
+      "Todos los vídeos sobre La Velada del Año 6 detectados automáticamente por IA.",
+    images: ["https://laveladazone.com/og-image.webp"],
+  },
+  alternates: {
+    canonical: "https://laveladazone.com/blog",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
+// ── JSON-LD ───────────────────────────────────────────────────────
+function BlogJsonLd() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "Blog IA La Velada del Año 6 — VeladaZone",
+    description:
+      "Seguimiento automático con IA de todos los vídeos de los peleadores de La Velada del Año 6.",
+    url: "https://laveladazone.com/blog",
+    inLanguage: "es",
+    publisher: {
+      "@type": "Organization",
+      name: "VeladaZone",
+      url: "https://laveladazone.com",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://laveladazone.com/og-image.webp",
+      },
+    },
+    about: {
+      "@type": "Event",
+      name: "La Velada del Año 6",
+      startDate: "2026-07-25",
+      location: {
+        "@type": "Place",
+        name: "Estadio de La Cartuja",
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: "Sevilla",
+          addressCountry: "ES",
+        },
+      },
+      organizer: {
+        "@type": "Person",
+        name: "Ibai Llanos",
+      },
+      performer: [
+        { "@type": "Person", name: "IlloJuan" },
+        { "@type": "Person", name: "TheGrefg" },
+        { "@type": "Person", name: "Fernanfloo" },
+        { "@type": "Person", name: "YoSoyPlex" },
+        { "@type": "Person", name: "Samy Rivers" },
+        { "@type": "Person", name: "Perxitaa" },
+        { "@type": "Person", name: "Marta Díaz" },
+        { "@type": "Person", name: "Lit Killah" },
+      ],
+    },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
+
+// ── Data ─────────────────────────────────────────────────────────
 async function BlogData() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: 60 * 1000 } },
@@ -43,9 +151,12 @@ async function BlogData() {
   );
 }
 
+// ── Page ─────────────────────────────────────────────────────────
 export default function BlogPage() {
   return (
     <div className="page-container">
+      <BlogJsonLd />
+
       <header className="mb-6 sm:mb-8">
         <div className="text-sm text-[#e63946]/60 tracking-[0.4em] uppercase mb-2 font-medium">
           Velada del Año 6 · Blog IA
@@ -61,6 +172,37 @@ export default function BlogPage() {
           todo lo relacionado con La Velada
         </p>
       </header>
+
+      {/*
+        Texto indexable SSR — Google lo indexa antes de ejecutar JS.
+        Mismo patrón que predicciones/page.tsx
+      */}
+      <section
+        aria-label="Sobre el Blog IA de La Velada del Año 6"
+        className="mb-8 text-gray-500 text-sm leading-relaxed max-w-2xl"
+      >
+        <p>
+          El <strong className="text-gray-400">Blog IA de VeladaZone</strong>{" "}
+          rastrea automáticamente los canales de YouTube de los peleadores de{" "}
+          <strong className="text-gray-400">La Velada del Año 6</strong> —{" "}
+          <strong className="text-gray-400">IlloJuan</strong>,{" "}
+          <strong className="text-gray-400">TheGrefg</strong>,{" "}
+          <strong className="text-gray-400">Fernanfloo</strong>,{" "}
+          <strong className="text-gray-400">YoSoyPlex</strong>,{" "}
+          <strong className="text-gray-400">Samy Rivers</strong>,{" "}
+          <strong className="text-gray-400">Perxitaa</strong> y más — y detecta
+          con inteligencia artificial todo el contenido relacionado con el
+          evento: entrenamientos de boxeo, ruedas de prensa, cara a cara, trash
+          talk y documentales de preparación. La{" "}
+          <strong className="text-gray-400">Velada del Año 6</strong> se celebra
+          el{" "}
+          <strong className="text-gray-400">
+            25 de julio de 2026 en el Estadio de La Cartuja, Sevilla
+          </strong>
+          , organizada por{" "}
+          <strong className="text-gray-400">Ibai Llanos</strong>.
+        </p>
+      </section>
 
       <Suspense fallback={<BlogSkeleton />}>
         <BlogData />
