@@ -6,17 +6,7 @@ import { useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { UserBadge } from "./UserBadge";
 import { TwitchLoginButton } from "./TwitchLoginButton";
-
-const navLinks = [
-  { href: "/", label: "Inicio" },
-  { href: "/predicciones", label: "Predicciones" },
-  { href: "/predicciones/ranking", label: "🏆 Ranking" },
-  { href: "/stats", label: "Stats" },
-  { href: "/fantasy", label: "Fantasy" },
-  { href: "/mi-cartel", label: "🃏 Cartel" },
-  { href: "/blog", label: "Blog IA" },
-  { href: "/logros", label: "🏅 Logros" },
-];
+import { navLinks } from "./navlinks";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -46,7 +36,9 @@ export function Navbar() {
             onClick={() => setMenuOpen(false)}
             className="font-bebas text-xl sm:text-2xl text-white tracking-wider hover:text-[#e63946] transition-colors flex-shrink-0"
           >
-            🥊 VeladaZone
+            <span className="text-xl font-black text-white">
+              🥊 Velada<span className="text-red-500">Zone</span>
+            </span>
           </Link>
 
           <div className="hidden lg:flex items-center gap-1 flex-1 justify-center">
