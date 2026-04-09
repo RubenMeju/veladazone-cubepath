@@ -34,19 +34,18 @@ export function BlogCard({ post }: Props) {
         : "text-gray-500";
 
   return (
-    <a
-      href={`https://www.youtube.com/watch?v=${post.youtube_id}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group flex flex-col bg-[#0d0d0d] border border-white/5 rounded-xl overflow-hidden hover:border-white/15 transition-colors"
-    >
-      {/* Thumbnail */}
+    <div className="group flex flex-col bg-[#0d0d0d] border border-white/5 rounded-xl overflow-hidden hover:border-white/15 transition-colors">
+      {/* Video embebido */}
       <div className="relative aspect-video overflow-hidden">
-        <img
-          src={post.thumbnail_url}
-          alt={post.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
+        <iframe
+          className="w-full h-full object-cover"
+          src={`https://www.youtube.com/embed/${post.youtube_id}`}
+          title={post.title}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        ></iframe>
+
         {/* Badge peleador */}
         <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-0.5 rounded-full backdrop-blur-sm">
           {post.fighter.name}
@@ -89,6 +88,6 @@ export function BlogCard({ post }: Props) {
           </span>
         </div>
       </div>
-    </a>
+    </div>
   );
 }
