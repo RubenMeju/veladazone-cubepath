@@ -27,6 +27,22 @@ const features = [
     href: "/fantasy",
     accent: "#9146FF",
   },
+  {
+    icon: "📝",
+    title: "Blog",
+    description:
+      "Videos detectados automáticamente por la IA. Entrenamientos, cara a cara y más en La Velada del Año 6.",
+    href: "/blog",
+    accent: "#f4a261",
+  },
+  {
+    icon: "🎉",
+    title: "Logros",
+    description:
+      "Elige tu ganador, recibe comentarios épicos de la IA y compite en el ranking global.",
+    href: "/logros",
+    accent: "#f4a261",
+  },
 ];
 
 const featurePills = [
