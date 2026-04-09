@@ -1,5 +1,4 @@
-// frontend/src/app/blog/components/BlogCard.tsx
-
+import { useState } from "react";
 import { BlogPost } from "../types";
 
 interface Props {
@@ -26,6 +25,8 @@ function timeAgo(date: string): string {
 }
 
 export function BlogCard({ post }: Props) {
+  const [play, setPlay] = useState(false);
+
   const relevanceColor =
     post.relevance_score >= 0.85
       ? "text-green-400"
@@ -35,16 +36,41 @@ export function BlogCard({ post }: Props) {
 
   return (
     <div className="group flex flex-col bg-[#0d0d0d] border border-white/5 rounded-xl overflow-hidden hover:border-white/15 transition-colors">
-      {/* Video embebido */}
-      <div className="relative aspect-video overflow-hidden">
-        <iframe
-          className="w-full h-full object-cover"
-          src={`https://www.youtube.com/embed/${post.youtube_id}`}
-          title={post.title}
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        ></iframe>
+      {/* Video lazy-load */}
+      <div
+        className="relative aspect-video overflow-hidden cursor-pointer"
+        onClick={() => setPlay(true)}
+      >
+        {play ? (
+          <iframe
+            className="w-full h-full object-cover"
+            src={`https://www.youtube.com/embed/${post.youtube_id}?autoplay=1`}
+            title={post.title}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        ) : (
+          <>
+            <img
+              src={post.thumbnail_url}
+              alt={post.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="bg-black/50 rounded-full p-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Badge peleador */}
         <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-0.5 rounded-full backdrop-blur-sm">
