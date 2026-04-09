@@ -7,7 +7,7 @@ import { api } from "@/lib/api";
 import { User } from "@/types";
 import Link from "next/link";
 
-type Status = "loading" | "pwa_success" | "error";
+type Status = "loading" | "error";
 
 function CallbackHandler() {
   const router = useRouter();
@@ -15,66 +15,16 @@ function CallbackHandler() {
   const [status, setStatus] = useState<Status>("loading");
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const isPWA =
-      urlParams.get("from_pwa") === "true" ||
-      sessionStorage.getItem("from_pwa") === "true";
-
-    const accessToken = urlParams.get("access_token");
-    const refreshToken = urlParams.get("refresh_token");
-    console.log("useefect callback params:", {
-      accessToken,
-      refreshToken,
-      isPWA,
-    });
-    if (accessToken && refreshToken && urlParams.get("from_pwa") === "true") {
-      document.cookie = `access_token=${accessToken}; path=/; max-age=${86400 * 7}; secure; samesite=None`;
-      document.cookie = `refresh_token=${refreshToken}; path=/; max-age=${86400 * 30}; secure; samesite=None`;
-    }
-
     api
       .get<User>("/users/me/")
       .then((user) => {
         setUser(user);
-        sessionStorage.removeItem("from_pwa");
-        console.log("User set in store:", user);
-        // ✅ Nuevo: revisar voto pendiente
-        const pendingVote = localStorage.getItem("pendingVote");
-        if (pendingVote) {
-          const fighter = JSON.parse(pendingVote);
-          // Aquí llamas a tu función real de voto, por ejemplo:
-          api.post("/votes/", { fighterId: fighter.id });
-          localStorage.removeItem("pendingVote");
-        }
-
-        if (isPWA) {
-          setStatus("pwa_success");
-        } else {
-          router.replace("/");
-        }
+        router.replace("/");
       })
       .catch(() => {
-        sessionStorage.removeItem("from_pwa");
         setStatus("error");
       });
   }, [setUser, router]);
-
-  if (status === "pwa_success") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#050505]">
-        <div className="text-center px-6">
-          <div className="text-5xl mb-4">✅</div>
-          <div className="font-bebas text-3xl text-white mb-2 tracking-wider">
-            ¡Login completado!
-          </div>
-          <div className="text-gray-400 text-sm mb-6">
-            Vuelve a la app VeladaZone en tu pantalla de inicio para continuar.
-          </div>
-          <div className="text-6xl">🥊</div>
-        </div>
-      </div>
-    );
-  }
 
   if (status === "error") {
     return (

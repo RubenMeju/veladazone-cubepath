@@ -28,50 +28,41 @@ class TwitchCallbackView(View):
     """After Twitch OAuth, set JWT in HttpOnly cookies and redirect to frontend."""
 
     def get(self, request):
-        if request.user.is_authenticated:
-            refresh = RefreshToken.for_user(request.user)
-            frontend_url = settings.FRONTEND_URL
+        user = request.user
 
-            state = request.GET.get("state", "")
-            from_pwa = ":from_pwa" in state
+        # Verifica que sea un usuario de Twitch real, no el admin u otro
+        if not user.is_authenticated or not getattr(user, 'twitch_id', None):
+            return redirect(f"{settings.FRONTEND_URL}/?error=auth_failed")
 
-            access_token = str(refresh.access_token)  # type: ignore
-            refresh_token_str = str(refresh)
+        # Limpia la sesión de Django para evitar contaminación entre usuarios
+        request.session.flush()
 
-            # ── Logro de primer login ────────────────────────────────────────
-            check_achievements(request.user, trigger="login")
-            # ── Fin logros ───────────────────────────────────────────────────
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)  # type: ignore
+        refresh_token_str = str(refresh)
 
-            if from_pwa:
-                response = redirect(
-                    f"{frontend_url}/auth/callback"
-                    f"?access_token={access_token}"
-                    f"&refresh_token={refresh_token_str}"
-                    f"&from_pwa=true"
-                )
-            else:
-                response = redirect(f"{frontend_url}/auth/callback")
+        # ── Logro de primer login ────────────────────────────────────────
+        check_achievements(user, trigger="login")
+        # ── Fin logros ───────────────────────────────────────────────────
 
-            response.set_cookie(
-                "access_token",
-                access_token,
-                max_age=86400 * 7,
-                httponly=True,
-                secure=True,
-                samesite="None",
-            )
-            response.set_cookie(
-                "refresh_token",
-                refresh_token_str,
-                max_age=86400 * 30,
-                httponly=True,
-                secure=True,
-                samesite="None",
-            )
-            return response
-
-        return redirect(f"{settings.FRONTEND_URL}/?error=auth_failed")
-
+        response = redirect(f"{settings.FRONTEND_URL}/auth/callback")
+        response.set_cookie(
+            "access_token",
+            access_token,
+            max_age=86400 * 7,
+            httponly=True,
+            secure=True,
+            samesite="None",
+        )
+        response.set_cookie(
+            "refresh_token",
+            refresh_token_str,
+            max_age=86400 * 30,
+            httponly=True,
+            secure=True,
+            samesite="None",
+        )
+        return response
 
 class TokenRefreshView(APIView):
     """Refresh access token using refresh token from cookie."""

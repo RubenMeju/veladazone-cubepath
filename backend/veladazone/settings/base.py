@@ -91,7 +91,7 @@ DATABASES = {
 AUTH_USER_MODEL = "users.User"
 
 AUTHENTICATION_BACKENDS = [
-    "veladazone.apps.users.backends.TwitchOAuth2Mobile",
+    "social_core.backends.twitch.TwitchOAuth2",
     "django.contrib.auth.backends.ModelBackend",
 ]
 
