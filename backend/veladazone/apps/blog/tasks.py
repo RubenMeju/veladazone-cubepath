@@ -8,7 +8,7 @@ from celery import shared_task
 from googleapiclient.discovery import build
 from datetime import timedelta
 
-from backend.veladazone.apps.blog.constants import VELADA_KEYWORDS
+from veladazone.apps.blog.constants import VELADA_KEYWORDS
 from veladazone.apps.fighters.models import Fighter
 from .models import BlogPost
 from .ai_classifier import classify_video
