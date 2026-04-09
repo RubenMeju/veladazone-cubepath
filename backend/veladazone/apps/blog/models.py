@@ -3,11 +3,14 @@ from django.db import models
 from veladazone.apps.blog.constants import VELADA_KEYWORDS
 
 
-
 # backend/apps/blog/models.py
 class BlogPost(models.Model):
     fighter = models.ForeignKey(
-        "fighters.Fighter", on_delete=models.CASCADE, related_name="blog_posts"
+        "fighters.Fighter",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="blog_posts",
     )
 
     # Datos de YouTube
