@@ -121,9 +121,9 @@ def _process_fighter_channel(fighter, initial: bool = False) -> None:
     # Cache invalidada una sola vez al final del ciclo completo (en fetch_fighter_videos)
 
 
-def _process_extra_channel(channel, initial: bool = False) -> None:
+def _process_extra_channel(channel, initial: bool = False, weeks: int = 3) -> None:
     if initial:
-        published_after = (timezone.now() - timedelta(weeks=3)).strftime(
+        published_after = (timezone.now() - timedelta(weeks=weeks)).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
         )
         max_results = 50
