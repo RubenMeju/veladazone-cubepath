@@ -152,6 +152,7 @@ export function FightCard({
               isSelected={selectedId === fight.fighter2.id}
               onClick={() => onPredict(fight.id, fight.fighter2.id)}
               disabled={isPending}
+              isAuthenticated={isAuthenticated}
             />
           </div>
         </div>
