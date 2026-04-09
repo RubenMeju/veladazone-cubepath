@@ -95,7 +95,12 @@ function BlogJsonLd() {
     about: {
       "@type": "Event",
       name: "La Velada del Año 6",
-      startDate: "2026-07-25",
+      description:
+        "Evento de boxeo entre creadores de contenido organizado por Ibai Llanos. 10 combates en el Estadio de La Cartuja, Sevilla.",
+      startDate: "2026-07-25T20:00:00+02:00",
+      endDate: "2026-07-26T00:00:00+02:00",
+      eventStatus: "https://schema.org/EventScheduled",
+      image: "https://laveladazone.com/og-image.webp",
       location: {
         "@type": "Place",
         name: "Estadio de La Cartuja",
@@ -104,6 +109,12 @@ function BlogJsonLd() {
           addressLocality: "Sevilla",
           addressCountry: "ES",
         },
+      },
+      offers: {
+        "@type": "Offer",
+        url: "https://laveladazone.com/predicciones",
+        availability: "https://schema.org/InStock",
+        priceCurrency: "EUR",
       },
       organizer: {
         "@type": "Person",
