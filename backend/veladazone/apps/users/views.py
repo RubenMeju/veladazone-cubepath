@@ -103,12 +103,14 @@ class TokenRefreshView(APIView):
 
 
 class LogoutView(View):
-    """Clear JWT cookies."""
-
     def get(self, request):
         response = redirect(settings.FRONTEND_URL)
-        response.delete_cookie("access_token")
-        response.delete_cookie("refresh_token")
+        response.set_cookie(
+            "access_token", "", max_age=0, httponly=True, secure=True, samesite="None"
+        )
+        response.set_cookie(
+            "refresh_token", "", max_age=0, httponly=True, secure=True, samesite="None"
+        )
         return response
 
 

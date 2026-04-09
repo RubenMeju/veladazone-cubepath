@@ -17,12 +17,6 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         // Limpiar Zustand
         set({ user: null });
-
-        // Limpiar cookies JWT
-        document.cookie =
-          "access_token=; path=/; domain=laveladazone.com; max-age=0; secure; samesite=None";
-        document.cookie =
-          "refresh_token=; path=/; domain=laveladazone.com; max-age=0; secure; samesite=None";
       },
       isAuthenticated: () => !!get().user,
     }),
