@@ -1,6 +1,7 @@
 import { HeroSection } from "@/components/home/HeroSection";
 import { MainEventTeaser } from "@/components/home/MainEventTeaser";
 import { FeaturesGrid } from "@/components/home/FeaturesGrid";
+import { FloatingCTA } from "@/components/FloatingCTA";
 
 export default function HomePage() {
   return (
@@ -8,6 +9,7 @@ export default function HomePage() {
       <HeroSection />
       <MainEventTeaser />
       <FeaturesGrid />
+      <FloatingCTA />
     </div>
   );
 }
