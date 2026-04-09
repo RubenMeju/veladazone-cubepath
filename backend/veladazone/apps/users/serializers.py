@@ -5,5 +5,5 @@ from .models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'twitch_username', 'avatar_url', 'created_at']
+        fields = ["id", "username", "twitch_username", "avatar_url", "created_at"]
         read_only_fields = fields
