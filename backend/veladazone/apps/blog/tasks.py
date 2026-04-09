@@ -8,6 +8,7 @@ from celery import shared_task
 from googleapiclient.discovery import build
 from datetime import timedelta
 
+from backend.veladazone.apps.blog.constants import VELADA_KEYWORDS
 from veladazone.apps.fighters.models import Fighter
 from .models import BlogPost
 from .ai_classifier import classify_video
@@ -16,29 +17,6 @@ import redis
 YT = build("youtube", "v3", developerKey=settings.YOUTUBE_API_KEY)
 r: redis.Redis = redis.Redis.from_url(settings.REDIS_URL)  # type: ignore
 
-VELADA_KEYWORDS = [
-    "velada",
-    "boxeo",
-    "pelea",
-    "combate",
-    "entrenamiento",
-    "sparring",
-    "ring",
-    "guantes",
-    "rival",
-    "plex",
-    "illojuan",
-    "grefg",
-    "rivers",
-    "fernanfloo",
-    "perxitaa",
-    "momo",
-    "luisito",
-    "weigh",
-    "pesaje",
-    "cara a cara",
-    "rueda de prensa",
-]
 
 # Set de youtube_ids ya vistos en este ciclo para evitar re-evaluar
 # videos irrelevantes que no se guardan en BD
@@ -142,12 +120,17 @@ def _process_fighter_channel(fighter, initial: bool = False) -> None:
 
     # Cache invalidada una sola vez al final del ciclo completo (en fetch_fighter_videos)
 
+
 def _process_extra_channel(channel, initial: bool = False) -> None:
     if initial:
-        published_after = (timezone.now() - timedelta(weeks=3)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        published_after = (timezone.now() - timedelta(weeks=3)).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
         max_results = 50
     else:
-        published_after = (timezone.now() - timedelta(hours=7)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        published_after = (timezone.now() - timedelta(hours=7)).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
         max_results = 10
 
     response = (

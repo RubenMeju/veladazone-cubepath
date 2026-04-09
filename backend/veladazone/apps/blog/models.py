@@ -1,6 +1,7 @@
 from django.db import models
 
-from veladazone.apps.blog.tasks import VELADA_KEYWORDS
+from backend.veladazone.apps.blog.constants import VELADA_KEYWORDS
+
 
 
 # backend/apps/blog/models.py
