@@ -1,6 +1,6 @@
 # veladazone/apps/blog/admin.py
 from django.contrib import admin
-from .models import BlogPost
+from .models import BlogPost, ExtraChannel
 
 
 @admin.register(BlogPost)
@@ -53,3 +53,43 @@ class BlogPostAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("fighter")
+
+
+
+@admin.register(ExtraChannel)
+class ExtraChannelAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "channel_id",
+        "is_active",
+        "has_custom_keywords",
+    )
+
+    list_filter = ("is_active",)
+    search_fields = ("name", "channel_id", "custom_keywords")
+
+    fieldsets = (
+        (None, {
+            "fields": ("name", "channel_id", "is_active")
+        }),
+        ("Filtrado", {
+            "fields": ("custom_keywords",),
+            "description": "Deja vacío para usar las keywords globales de VELADA."
+        }),
+    )
+
+    actions = ["activate_channels", "deactivate_channels"]
+
+    def has_custom_keywords(self, obj):
+        return bool(obj.custom_keywords.strip())
+
+    has_custom_keywords.boolean = True
+    has_custom_keywords.short_description = "Custom keywords?"
+
+    @admin.action(description="Activar canales seleccionados")
+    def activate_channels(self, request, queryset):
+        queryset.update(is_active=True)
+
+    @admin.action(description="Desactivar canales seleccionados")
+    def deactivate_channels(self, request, queryset):
+        queryset.update(is_active=False)
