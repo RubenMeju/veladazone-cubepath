@@ -45,6 +45,14 @@ El día del evento, cada predicción acertada sube en el ranking. Cada traición
 
 | 🏆 | **Logros y medallas** | Desbloquea logros por hitos en predicciones, debate, ligas y perfil. Consulta todos tus logros y compite en el ranking de puntos. |
 
+
+| 🗒️ | Blog — Clasificación y feed de vídeos de luchadores
+Recopila automáticamente vídeos de YouTube de los canales oficiales de los luchadores.
+Usa IA (Llama 3.3 vía Groq API) para clasificar cada vídeo: determina si está relacionado con La Velada del Año 6, asigna un score de relevancia, tags temáticos, resumen épico y frase destacada.
+Solo los vídeos clasificados como relevantes (“is_velada=true” y score alto) se publican automáticamente; el resto quedan pendientes para revisión.
+Los posts incluyen: luchador, título, descripción, thumbnail, fecha, views, tags IA, resumen y frase IA.
+El feed permite filtrar por luchador, tags y ordenar por fecha, relevancia o visualizaciones.
+Todo el sistema es gestionado vía Django REST Framework y tareas asíncronas con Celery.
 ---
 
 ## 🛠️ Stack
