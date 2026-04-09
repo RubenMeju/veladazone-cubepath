@@ -8,62 +8,74 @@ const API_URL = process.env.BACKEND_URL
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Páginas estáticas
-  const staticUrls: MetadataRoute.Sitemap = [
-    {
-      url: BASE_URL,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 1,
-    },
-    {
-      url: `${BASE_URL}/predicciones`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
-      url: `${BASE_URL}/predicciones/ranking`,
-      lastModified: new Date(),
-      changeFrequency: "hourly",
-      priority: 0.8,
-    },
-    {
-      url: `${BASE_URL}/stats`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
-      url: `${BASE_URL}/mi-cartel`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.7,
-    },
-    {
-      url: `${BASE_URL}/fantasy`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.6,
-    },
-    {
-      url: `${BASE_URL}/legal`,
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-    {
-      url: `${BASE_URL}/privacy`,
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-    {
-      url: `${BASE_URL}/cookies`,
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-  ];
+const staticUrls: MetadataRoute.Sitemap = [
+  {
+    url: BASE_URL,
+    lastModified: new Date(),
+    changeFrequency: "daily",
+    priority: 1,
+  },
+  {
+    url: `${BASE_URL}/predicciones`,
+    lastModified: new Date(),
+    changeFrequency: "daily",
+    priority: 0.9,
+  },
+  {
+    url: `${BASE_URL}/predicciones/ranking`,
+    lastModified: new Date(),
+    changeFrequency: "hourly",
+    priority: 0.8,
+  },
+  {
+    url: `${BASE_URL}/blog`,
+    lastModified: new Date(),
+    changeFrequency: "hourly",
+    priority: 0.8,
+  },
+  {
+    url: `${BASE_URL}/stats`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.7,
+  },
+  {
+    url: `${BASE_URL}/logros`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.7,
+  },
+  {
+    url: `${BASE_URL}/mi-cartel`,
+    lastModified: new Date(),
+    changeFrequency: "daily",
+    priority: 0.7,
+  },
+  {
+    url: `${BASE_URL}/fantasy`,
+    lastModified: new Date(),
+    changeFrequency: "daily",
+    priority: 0.6,
+  },
+  {
+    url: `${BASE_URL}/legal`,
+    lastModified: new Date(),
+    changeFrequency: "yearly",
+    priority: 0.3,
+  },
+  {
+    url: `${BASE_URL}/privacy`,
+    lastModified: new Date(),
+    changeFrequency: "yearly",
+    priority: 0.3,
+  },
+  {
+    url: `${BASE_URL}/cookies`,
+    lastModified: new Date(),
+    changeFrequency: "yearly",
+    priority: 0.3,
+  },
+];
 
   // Páginas dinámicas — perfiles y carteles de usuarios
   let dynamicUrls: MetadataRoute.Sitemap = [];
