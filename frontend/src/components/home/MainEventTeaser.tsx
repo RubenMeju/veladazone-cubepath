@@ -216,25 +216,6 @@ export function MainEventTeaser() {
             </div>
           </div>
 
-          {/* Stats de votos */}
-          <div className="text-center mb-10">
-            {total > 0 ? (
-              <p className="text-[11px] text-gray-600 tracking-widest">
-                <span className="text-[#e63946]">{pct1}%</span> IlloJuan
-                {" · "}
-                <span className="text-gray-500">
-                  {total.toLocaleString()} votos
-                </span>
-                {" · "}
-                <span className="text-[#f4a261]">{pct2}%</span> TheGrefg
-              </p>
-            ) : (
-              <p className="text-[11px] text-gray-600 tracking-widest">
-                ¡Sé el primero en predecir!
-              </p>
-            )}
-          </div>
-
           {/* CTA */}
           <div className="flex flex-col items-center gap-3">
             <Link
@@ -253,13 +234,7 @@ export function MainEventTeaser() {
             </Link>
 
             {total > 0 && (
-              <p className=" text-gray-600">
-                Únete a{" "}
-                <span className="text-gray-400 font-medium">
-                  {total.toLocaleString()}
-                </span>{" "}
-                predictores
-              </p>
+              <p className=" text-gray-600">Únete a la comunidad</p>
             )}
           </div>
         </div>
