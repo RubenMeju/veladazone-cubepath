@@ -1,9 +1,12 @@
+"""
+Cuando añadas un peleador nuevo, lanzar una vez fetch_fighter_videos.delay(fighter_id=X, initial=True) para recuperar las 3 semanas anteriores
+"""
+
 from django.conf import settings
 from django.utils import timezone
 from celery import shared_task
 from googleapiclient.discovery import build
 from datetime import timedelta
-from typing import Optional
 
 from veladazone.apps.fighters.models import Fighter
 from .models import BlogPost
@@ -12,7 +15,6 @@ import redis
 
 YT = build("youtube", "v3", developerKey=settings.YOUTUBE_API_KEY)
 r: redis.Redis = redis.Redis.from_url(settings.REDIS_URL)  # type: ignore
-assert r is not None, "Redis connection failed"
 
 VELADA_KEYWORDS = [
     "velada",
@@ -38,6 +40,10 @@ VELADA_KEYWORDS = [
     "rueda de prensa",
 ]
 
+# Set de youtube_ids ya vistos en este ciclo para evitar re-evaluar
+# videos irrelevantes que no se guardan en BD
+_seen_this_cycle: set[str] = set()
+
 
 def _title_looks_relevant(title: str) -> bool:
     title_lower = title.lower()
@@ -55,6 +61,8 @@ def _invalidate_blog_cache() -> None:
 
 @shared_task(name="blog.fetch_fighter_videos")
 def fetch_fighter_videos(fighter_id=None, initial=False):
+    _seen_this_cycle.clear()  # reset al inicio de cada ciclo
+
     fighters = Fighter.objects.filter(channel_id__isnull=False).exclude(channel_id="")
     if fighter_id:
         fighters = fighters.filter(id=fighter_id)
@@ -62,8 +70,10 @@ def fetch_fighter_videos(fighter_id=None, initial=False):
     for fighter in fighters:
         _process_fighter_channel(fighter, initial=initial)
 
+    _invalidate_blog_cache()  # una sola invalidación al final del ciclo
 
-def _process_fighter_channel(fighter, initial=False):
+
+def _process_fighter_channel(fighter, initial: bool = False) -> None:
     if initial:
         published_after = (timezone.now() - timedelta(weeks=3)).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
@@ -91,28 +101,19 @@ def _process_fighter_channel(fighter, initial=False):
     for item in response.get("items", []):
         video_id = item["id"]["videoId"]
 
+        # Skip si ya está en BD o ya lo vimos en este ciclo
+        if video_id in _seen_this_cycle:
+            continue
         if BlogPost.objects.filter(youtube_id=video_id).exists():
+            _seen_this_cycle.add(video_id)
             continue
 
         snippet = item["snippet"]
         title = snippet["title"]
 
+        # Pre-filtro por título sin llamar a Groq
         if not _title_looks_relevant(title):
-            BlogPost.objects.create(
-                fighter=fighter,
-                youtube_id=video_id,
-                title=title,
-                description=snippet["description"],
-                thumbnail_url=snippet["thumbnails"]["high"]["url"],
-                channel_id=fighter.channel_id,
-                published_at=snippet["publishedAt"],
-                is_velada=False,
-                relevance_score=0.0,
-                ai_summary="",
-                ai_quote="",
-                ai_tags=[],
-                status="rejected",
-            )
+            _seen_this_cycle.add(video_id)
             continue
 
         result = classify_video(title, snippet["description"])
@@ -137,4 +138,6 @@ def _process_fighter_channel(fighter, initial=False):
             ),
         )
 
-        _invalidate_blog_cache()
+        _seen_this_cycle.add(video_id)
+
+    # Cache invalidada una sola vez al final del ciclo completo (en fetch_fighter_videos)
