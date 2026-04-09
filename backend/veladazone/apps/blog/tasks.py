@@ -141,3 +141,67 @@ def _process_fighter_channel(fighter, initial: bool = False) -> None:
         _seen_this_cycle.add(video_id)
 
     # Cache invalidada una sola vez al final del ciclo completo (en fetch_fighter_videos)
+
+def _process_extra_channel(channel, initial: bool = False) -> None:
+    if initial:
+        published_after = (timezone.now() - timedelta(weeks=3)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        max_results = 50
+    else:
+        published_after = (timezone.now() - timedelta(hours=7)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        max_results = 10
+
+    response = (
+        YT.search()
+        .list(
+            channelId=channel.channel_id,
+            order="date",
+            maxResults=max_results,
+            type="video",
+            part="snippet",
+            publishedAfter=published_after,
+        )
+        .execute()
+    )
+
+    keywords = channel.get_keywords()  # ← keywords del canal
+
+    for item in response.get("items", []):
+        video_id = item["id"]["videoId"]
+
+        if video_id in _seen_this_cycle:
+            continue
+        if BlogPost.objects.filter(youtube_id=video_id).exists():
+            _seen_this_cycle.add(video_id)
+            continue
+
+        snippet = item["snippet"]
+        title = snippet["title"]
+
+        # Filtra con las keywords específicas del canal
+        title_lower = title.lower()
+        if not any(kw in title_lower for kw in keywords):
+            _seen_this_cycle.add(video_id)
+            continue
+
+        result = classify_video(title, snippet["description"])
+
+        BlogPost.objects.create(
+            fighter=None,
+            youtube_id=video_id,
+            title=title,
+            description=snippet["description"],
+            thumbnail_url=snippet["thumbnails"]["high"]["url"],
+            channel_id=channel.channel_id,
+            published_at=snippet["publishedAt"],
+            is_velada=result["is_velada"],
+            relevance_score=result["relevance_score"],
+            ai_summary=result.get("summary", ""),
+            ai_quote=result.get("quote", ""),
+            ai_tags=result.get("tags", []),
+            status=(
+                "published"
+                if result["is_velada"] and result["relevance_score"] > 0.7
+                else "pending"
+            ),
+        )
+        _seen_this_cycle.add(video_id)

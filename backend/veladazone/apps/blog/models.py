@@ -1,5 +1,7 @@
 from django.db import models
 
+from veladazone.apps.blog.tasks import VELADA_KEYWORDS
+
 
 # backend/apps/blog/models.py
 class BlogPost(models.Model):
@@ -41,3 +43,23 @@ class BlogPost(models.Model):
             models.Index(fields=["fighter", "status", "-published_at"]),
             models.Index(fields=["ai_tags"]),
         ]
+
+
+class ExtraChannel(models.Model):
+    name = models.CharField(max_length=200)
+    channel_id = models.CharField(max_length=100, unique=True)
+    is_active = models.BooleanField(default=True)
+    # Keywords específicas para filtrar, separadas por comas
+    # Si está vacío usa las keywords globales de VELADA_KEYWORDS
+    custom_keywords = models.TextField(
+        blank=True,
+        help_text="Keywords separadas por comas. Si está vacío usa las globales.",
+    )
+
+    def get_keywords(self) -> list[str]:
+        if self.custom_keywords.strip():
+            return [kw.strip().lower() for kw in self.custom_keywords.split(",")]
+        return VELADA_KEYWORDS
+
+    def __str__(self):
+        return self.name
