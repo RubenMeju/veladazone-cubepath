@@ -1,29 +1,29 @@
 // frontend/src/app/blog/components/BlogFilters.tsx
 "use client";
 
-const FIGHTERS = [
-  { slug: null, label: "Todos" },
-  { slug: "thegrefg", label: "TheGrefg" },
-  { slug: "illojuan", label: "IlloJuan" },
-  { slug: "yosoyplex", label: "YoSoyPlex" },
-  { slug: "fernanfloo", label: "Fernanfloo" },
-  { slug: "marta-diaz", label: "Marta Díaz" },
-  { slug: "tatiana-kaer", label: "Tatiana Kaer" },
-  { slug: "rivers", label: "Rivers" },
-  { slug: "roro", label: "Roro" },
-  { slug: "gero-arias", label: "Gero Arias" },
-  { slug: "viruzz", label: "Viruzz" },
-  { slug: "angie-velasco", label: "Angie Velasco" },
-  { slug: "alondrissa", label: "Alondrissa" },
-  { slug: "lit-killah", label: "Lit Killah" },
-  { slug: "kidd-keo", label: "Kidd Keo" },
-  { slug: "clerss", label: "Clerss" },
-  { slug: "natalia-mx", label: "Natalia MX" },
-  { slug: "fabiana-sevillano", label: "Fabiana Sevillano" },
-  { slug: "la-parce", label: "La Parce" },
-  { slug: "edu-aguirre", label: "Edu Aguirre" },
-  { slug: "gaston-edul", label: "Gastón Edul" }
-];
+// const FIGHTERS = [
+//   { slug: null, label: "Todos" },
+//   { slug: "thegrefg", label: "TheGrefg" },
+//   { slug: "illojuan", label: "IlloJuan" },
+//   { slug: "yosoyplex", label: "YoSoyPlex" },
+//   { slug: "fernanfloo", label: "Fernanfloo" },
+//   { slug: "marta-diaz", label: "Marta Díaz" },
+//   { slug: "tatiana-kaer", label: "Tatiana Kaer" },
+//   { slug: "rivers", label: "Rivers" },
+//   { slug: "roro", label: "Roro" },
+//   { slug: "gero-arias", label: "Gero Arias" },
+//   { slug: "viruzz", label: "Viruzz" },
+//   { slug: "angie-velasco", label: "Angie Velasco" },
+//   { slug: "alondrissa", label: "Alondrissa" },
+//   { slug: "lit-killah", label: "Lit Killah" },
+//   { slug: "kidd-keo", label: "Kidd Keo" },
+//   { slug: "clerss", label: "Clerss" },
+//   { slug: "natalia-mx", label: "Natalia MX" },
+//   { slug: "fabiana-sevillano", label: "Fabiana Sevillano" },
+//   { slug: "la-parce", label: "La Parce" },
+//   { slug: "edu-aguirre", label: "Edu Aguirre" },
+//   { slug: "gaston-edul", label: "Gastón Edul" },
+// ];
 
 const TAGS = [
   { value: null, label: "Todo" },
@@ -52,31 +52,31 @@ interface Props {
 }
 
 export function BlogFilters({
-  activeFighter,
+  // activeFighter,
   activeTag,
   activeOrdering,
-  onFighterChange,
+  // onFighterChange,
   onTagChange,
   onOrderingChange,
 }: Props) {
   return (
     <div className="flex flex-col gap-3 mb-6">
       {/* Filtro peleador */}
- <div className="hidden md:flex gap-2 flex-wrap">
-  {FIGHTERS.map((f) => (
-    <button
-      key={`fighter-${f.slug ?? "all"}`}
-      onClick={() => onFighterChange(f.slug)}
-      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-        activeFighter === f.slug
-          ? "bg-[#e63946] border-[#e63946] text-white"
-          : "border-white/10 text-gray-400 hover:border-white/30 hover:text-white"
-      }`}
-    >
-      {f.label}
-    </button>
-  ))}
-</div>
+      {/* <div className="hidden md:flex gap-2 flex-wrap">
+        {FIGHTERS.map((f) => (
+          <button
+            key={`fighter-${f.slug ?? "all"}`}
+            onClick={() => onFighterChange(f.slug)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+              activeFighter === f.slug
+                ? "bg-[#e63946] border-[#e63946] text-white"
+                : "border-white/10 text-gray-400 hover:border-white/30 hover:text-white"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div> */}
 
       {/* Filtro tag + ordenación */}
       <div className="flex gap-2 flex-wrap items-center justify-between">
