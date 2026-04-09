@@ -3,7 +3,7 @@ import { Fighter } from "@/types";
 // Añadir a frontend/src/types/index.ts
 export interface BlogPost {
   id: number;
-  fighter: Fighter;
+  fighter: Fighter | null;
   youtube_id: string;
   title: string;
   thumbnail_url: string;

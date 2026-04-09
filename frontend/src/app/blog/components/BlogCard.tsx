@@ -73,9 +73,11 @@ export function BlogCard({ post }: Props) {
         )}
 
         {/* Badge peleador */}
-        <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-0.5 rounded-full backdrop-blur-sm">
-          {post.fighter.name}
-        </div>
+        {post.fighter && (
+          <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-0.5 rounded-full backdrop-blur-sm">
+            {post.fighter.name}
+          </div>
+        )}
       </div>
 
       {/* Contenido */}
